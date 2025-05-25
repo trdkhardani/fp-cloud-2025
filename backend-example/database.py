@@ -59,7 +59,7 @@ class EmployeeDB(BaseModel):
     department: Optional[str] = Field(None, description="Employee department")
     email: Optional[str] = Field(None, description="Employee email")
     face_enrolled: bool = Field(default=False, description="Whether face is enrolled")
-    face_image_id: Optional[str] = Field(None, description="GridFS file ID for face image")
+    face_image_id: Optional[PyObjectId] = Field(None, description="GridFS file ID for face image")
     created_at: datetime = Field(default_factory=datetime.now)
     updated_at: datetime = Field(default_factory=datetime.now)
 
@@ -145,8 +145,9 @@ class DatabaseManager:
             # Store face image in GridFS if provided
             face_image_id = None
             if face_image_data:
-                face_image_id = await self.store_face_image(employee_data["employee_id"], face_image_data)
-                employee_data["face_image_id"] = face_image_id
+                face_image_id_str = await self.store_face_image(employee_data["employee_id"], face_image_data)
+                # Convert string ID back to ObjectId for database storage
+                employee_data["face_image_id"] = ObjectId(face_image_id_str)
                 employee_data["face_enrolled"] = True
 
             # Create employee document
@@ -158,6 +159,10 @@ class DatabaseManager:
             # Retrieve and return the created employee
             employee = self.db[EMPLOYEES_COLLECTION].find_one({"_id": result.inserted_id})
             employee["_id"] = str(employee["_id"])
+            
+            # Convert face_image_id back to string for API response
+            if employee.get("face_image_id"):
+                employee["face_image_id"] = str(employee["face_image_id"])
             
             logging.info(f"✅ Employee created: {employee_data['name']} ({employee_data['employee_id']})")
             return employee
@@ -175,6 +180,9 @@ class DatabaseManager:
             employee = self.db[EMPLOYEES_COLLECTION].find_one({"employee_id": employee_id})
             if employee:
                 employee["_id"] = str(employee["_id"])
+                # Convert face_image_id to string if present
+                if employee.get("face_image_id"):
+                    employee["face_image_id"] = str(employee["face_image_id"])
             return employee
         except Exception as e:
             logging.error(f"❌ Error getting employee: {e}")
@@ -189,6 +197,9 @@ class DatabaseManager:
             employees = list(self.db[EMPLOYEES_COLLECTION].find({}))
             for emp in employees:
                 emp["_id"] = str(emp["_id"])
+                # Convert face_image_id to string if present
+                if emp.get("face_image_id"):
+                    emp["face_image_id"] = str(emp["face_image_id"])
             return employees
         except Exception as e:
             logging.error(f"❌ Error getting employees: {e}")

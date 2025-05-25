@@ -9,7 +9,7 @@ db.createCollection('employees', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['employee_id', 'name', 'email'],
+            required: ['employee_id', 'name'],
             properties: {
                 employee_id: {
                     bsonType: 'string',
@@ -32,21 +32,21 @@ db.createCollection('employees', {
                     bsonType: 'string',
                     description: 'Position must be a string'
                 },
-                face_encoding: {
-                    bsonType: 'array',
-                    description: 'Face encoding must be an array'
+                face_enrolled: {
+                    bsonType: 'bool',
+                    description: 'Face enrollment status must be a boolean'
                 },
                 face_image_id: {
                     bsonType: 'objectId',
                     description: 'Face image ID must be an ObjectId'
                 },
-                enrolled_at: {
+                created_at: {
                     bsonType: 'date',
-                    description: 'Enrollment date must be a date'
+                    description: 'Creation date must be a date'
                 },
-                is_active: {
-                    bsonType: 'bool',
-                    description: 'Active status must be a boolean'
+                updated_at: {
+                    bsonType: 'date',
+                    description: 'Update date must be a date'
                 }
             }
         }
@@ -57,24 +57,28 @@ db.createCollection('attendance', {
     validator: {
         $jsonSchema: {
             bsonType: 'object',
-            required: ['employee_id', 'timestamp', 'status'],
+            required: ['attendance_id', 'employee_id', 'employee_name', 'type', 'timestamp', 'confidence'],
             properties: {
+                attendance_id: {
+                    bsonType: 'string',
+                    description: 'Attendance ID must be a string and is required'
+                },
                 employee_id: {
                     bsonType: 'string',
                     description: 'Employee ID must be a string and is required'
                 },
                 employee_name: {
                     bsonType: 'string',
-                    description: 'Employee name must be a string'
+                    description: 'Employee name must be a string and is required'
                 },
                 timestamp: {
                     bsonType: 'date',
                     description: 'Timestamp must be a date and is required'
                 },
-                status: {
+                type: {
                     bsonType: 'string',
-                    enum: ['check_in', 'check_out'],
-                    description: 'Status must be either check_in or check_out'
+                    enum: ['check-in', 'check-out'],
+                    description: 'Type must be either check-in or check-out'
                 },
                 confidence: {
                     bsonType: 'double',
@@ -82,13 +86,13 @@ db.createCollection('attendance', {
                     maximum: 1,
                     description: 'Confidence must be between 0 and 1'
                 },
-                location: {
+                image_id: {
                     bsonType: 'string',
-                    description: 'Location must be a string'
+                    description: 'Image ID must be a string'
                 },
-                device_id: {
-                    bsonType: 'string',
-                    description: 'Device ID must be a string'
+                created_at: {
+                    bsonType: 'date',
+                    description: 'Creation date must be a date'
                 }
             }
         }
