@@ -42,9 +42,15 @@ check_docker() {
         exit 1
     fi
 
-    if command -v docker-compose &> /dev/null; then
-        print_success "Docker Compose is installed"
+    # Check for docker compose (plugin) or docker-compose (standalone)
+    if docker compose version &> /dev/null; then
+        print_success "Docker Compose (plugin) is installed"
+        docker compose version
+        COMPOSE_CMD="docker compose"
+    elif command -v docker-compose &> /dev/null; then
+        print_success "Docker Compose (standalone) is installed"
         docker-compose --version
+        COMPOSE_CMD="docker-compose"
     else
         print_error "Docker Compose is not installed. Please install Docker Compose first."
         exit 1
@@ -77,10 +83,10 @@ deploy_cpu() {
     print_status "Deploying FaceAttend with CPU support..."
     
     # Stop any existing containers
-    docker-compose down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
     
     # Build and start services
-    docker-compose up --build -d
+    $COMPOSE_CMD up --build -d
     
     print_success "✅ FaceAttend deployed with CPU support"
 }
@@ -90,10 +96,10 @@ deploy_gpu() {
     print_status "Deploying FaceAttend with GPU support..."
     
     # Stop any existing containers
-    docker-compose -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
     
     # Build and start services
-    docker-compose -f docker-compose.gpu.yml up --build -d
+    $COMPOSE_CMD -f docker-compose.gpu.yml up --build -d
     
     print_success "✅ FaceAttend deployed with GPU support"
 }
@@ -112,8 +118,8 @@ monitor_deployment() {
             echo "   Health:   http://localhost/health"
             echo ""
             echo "📊 Monitor with:"
-            echo "   docker-compose logs -f"
-            echo "   docker-compose ps"
+            echo "   $COMPOSE_CMD logs -f"
+            echo "   $COMPOSE_CMD ps"
             echo ""
             return 0
         fi
@@ -122,7 +128,7 @@ monitor_deployment() {
         sleep 2
     done
     
-    print_warning "Deployment may still be starting. Check logs with: docker-compose logs"
+    print_warning "Deployment may still be starting. Check logs with: $COMPOSE_CMD logs"
 }
 
 # Show usage
@@ -145,14 +151,14 @@ show_status() {
     echo "🔍 FaceAttend Status:"
     echo "===================="
     
-    if docker-compose ps | grep -q "Up"; then
+    if $COMPOSE_CMD ps | grep -q "Up"; then
         echo "CPU Version:"
-        docker-compose ps
+        $COMPOSE_CMD ps
     fi
     
-    if docker-compose -f docker-compose.gpu.yml ps 2>/dev/null | grep -q "Up"; then
+    if $COMPOSE_CMD -f docker-compose.gpu.yml ps 2>/dev/null | grep -q "Up"; then
         echo "GPU Version:"
-        docker-compose -f docker-compose.gpu.yml ps
+        $COMPOSE_CMD -f docker-compose.gpu.yml ps
     fi
     
     echo ""
@@ -166,17 +172,17 @@ show_status() {
 # Stop services
 stop_services() {
     print_status "Stopping FaceAttend services..."
-    docker-compose down --remove-orphans 2>/dev/null || true
-    docker-compose -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
     print_success "✅ All services stopped"
 }
 
 # Show logs
 show_logs() {
-    if docker-compose ps | grep -q "Up"; then
-        docker-compose logs -f
-    elif docker-compose -f docker-compose.gpu.yml ps 2>/dev/null | grep -q "Up"; then
-        docker-compose -f docker-compose.gpu.yml logs -f
+    if $COMPOSE_CMD ps | grep -q "Up"; then
+        $COMPOSE_CMD logs -f
+    elif $COMPOSE_CMD -f docker-compose.gpu.yml ps 2>/dev/null | grep -q "Up"; then
+        $COMPOSE_CMD -f docker-compose.gpu.yml logs -f
     else
         print_warning "No running services found"
     fi
