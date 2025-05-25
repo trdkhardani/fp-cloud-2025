@@ -33,10 +33,17 @@ except ImportError as e:
 
 app = FastAPI(title="FaceAttend API", version="1.0.0")
 
-# Enable CORS for your React app
+# CORS configuration
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:8080", "http://localhost:3000"],
+    allow_origins=[
+        "http://localhost:8080", 
+        "http://localhost:8082", 
+        "http://localhost:3000",
+        "http://frontend",  # Docker service name
+        "http://frontend:80",  # Docker service with port
+        os.getenv("FRONTEND_URL", "http://localhost"),  # Production frontend
+    ],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],

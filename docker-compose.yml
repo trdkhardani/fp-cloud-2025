@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   # MongoDB Database
   mongodb:
@@ -39,6 +37,7 @@ services:
       - DEFAULT_MODEL=VGG-Face
       - DEFAULT_DETECTOR=opencv
       - DEFAULT_DISTANCE_METRIC=cosine
+      - FRONTEND_URL=http://frontend
     volumes:
       - ./backend-example/uploads:/app/uploads
       - ./backend-example/temp_images:/app/temp_images
@@ -66,7 +65,7 @@ services:
     container_name: faceattend-frontend
     restart: unless-stopped
     ports:
-      - "80:80"
+      - "9090:80"
     depends_on:
       backend:
         condition: service_healthy

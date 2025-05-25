@@ -54,10 +54,10 @@ docker compose -f docker-compose.gpu.yml up --build -d
 ```
 
 ### 3. Access Application
-- **Frontend**: http://localhost
+- **Frontend**: http://localhost:9090
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/docs
-- **Health Check**: http://localhost/health
+- **Health Check**: http://localhost:9090/health
 
 ## 📁 Docker Configuration Files
 
@@ -165,7 +165,7 @@ docker run -d --name faceattend-backend-gpu \
 
 # Frontend
 docker run -d --name faceattend-frontend \
-  -p 80:80 \
+  -p 9090:80 \
   faceattend-frontend
 ```
 
@@ -175,7 +175,7 @@ docker run -d --name faceattend-frontend \
 The services use these default settings:
 - **MongoDB**: `mongodb://admin:password123@mongodb:27017/faceattend?authSource=admin`
 - **Backend Port**: 8000
-- **Frontend Port**: 80
+- **Frontend Port**: 9090
 - **Face Model**: VGG-Face
 - **Detector**: OpenCV
 
@@ -211,7 +211,7 @@ TF_GPU_MEMORY_LIMIT=2048
 ### Health Checks
 ```bash
 # Application health
-curl http://localhost/health
+curl http://localhost:9090/health
 
 # Backend API health
 curl http://localhost:8000/health

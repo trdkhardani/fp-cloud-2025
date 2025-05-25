@@ -1,4 +1,6 @@
 // Face Recognition API Service
+import { API_CONFIG } from '@/config/api';
+
 export interface Employee {
   id: string;
   name: string;
@@ -44,8 +46,8 @@ export interface AvailableModels {
 class FaceRecognitionAPI {
   private baseUrl: string;
 
-  constructor(baseUrl: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') {
-    this.baseUrl = baseUrl;
+  constructor(baseUrl?: string) {
+    this.baseUrl = baseUrl || API_CONFIG.baseUrl;
   }
 
   // Configuration endpoints

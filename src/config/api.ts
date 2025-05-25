@@ -1,6 +1,15 @@
 // API Configuration
 export const API_CONFIG = {
-  baseUrl: import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000',
+  baseUrl: (() => {
+    // Check if we're in development mode
+    if (import.meta.env.DEV) {
+      return import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+    }
+    
+    // In production (Docker), use the current host with API path
+    // This works because nginx proxies /api/* to the backend
+    return window.location.origin;
+  })(),
   apiKey: import.meta.env.VITE_API_KEY || '',
   faceService: import.meta.env.VITE_FACE_SERVICE || 'deepface',
   minConfidence: Number(import.meta.env.VITE_MIN_CONFIDENCE) || 85,

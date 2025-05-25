@@ -109,13 +109,13 @@ monitor_deployment() {
     print_status "Monitoring deployment status..."
     
     for i in {1..60}; do
-        if curl -s http://localhost/health > /dev/null 2>&1; then
+        if curl -s http://localhost:9090/health > /dev/null 2>&1; then
             print_success "🎉 FaceAttend is running successfully!"
             echo ""
             echo "🌐 Access the application:"
-            echo "   Frontend: http://localhost"
+            echo "   Frontend: http://localhost:9090"
             echo "   Backend:  http://localhost:8000"
-            echo "   Health:   http://localhost/health"
+            echo "   Health:   http://localhost:9090/health"
             echo ""
             echo "📊 Monitor with:"
             echo "   $COMPOSE_CMD logs -f"
@@ -162,7 +162,7 @@ show_status() {
     fi
     
     echo ""
-    if curl -s http://localhost/health > /dev/null 2>&1; then
+    if curl -s http://localhost:9090/health > /dev/null 2>&1; then
         print_success "✅ Application is accessible"
     else
         print_warning "⚠️ Application not accessible"

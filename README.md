@@ -27,7 +27,7 @@ docker compose -f docker-compose.gpu.yml up --build -d
 ```
 
 ### Access Application
-- **Frontend**: http://localhost
+- **Frontend**: http://localhost:9090
 - **Backend API**: http://localhost:8000
 - **API Documentation**: http://localhost:8000/docs
 
