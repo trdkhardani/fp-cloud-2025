@@ -35,7 +35,7 @@ def test_imports():
             employee_id="EMP001",
             employee_name="Test Employee",
             type="check-in",
-            confidence=95.5
+            confidence=0.955
         )
         print("✅ Attendance model creation successful")
         
@@ -75,6 +75,19 @@ def test_database_connection():
                 # Clean up test document
                 db_manager.db.test_collection.delete_one({"_id": result.inserted_id})
                 print("✅ Document deletion test successful")
+                
+                # Test attendance record
+                test_attendance = {
+                    "attendance_id": "ATT001",
+                    "employee_id": "EMP001",
+                    "employee_name": "Test Employee",
+                    "type": "check-in",
+                    "timestamp": datetime.now(),
+                    "confidence": 0.955
+                }
+                
+                db_manager.db.attendance.insert_one(test_attendance)
+                print("✅ Attendance record insertion test successful")
                 
                 db_manager.disconnect()
                 print("✅ Database test completed successfully")
@@ -143,7 +156,7 @@ def show_schema():
     print('        "employee_name": "John Doe",')
     print('        "type": "check-in",')
     print('        "timestamp": ISODate("..."),')
-    print('        "confidence": 95.67,')
+    print('        "confidence": 0.9567,')
     print('        "created_at": ISODate("...")')
     print("      }")
 

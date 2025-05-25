@@ -315,16 +315,16 @@ async def recognize_face(file: UploadFile = File(...)):
                 
                 # Convert distance to confidence based on metric type
                 if config.distance_metric == "cosine":
-                    confidence = (1 - distance) * 100
+                    confidence = (1 - distance)
                 elif config.distance_metric in ["euclidean", "euclidean_l2"]:
-                    confidence = max(0, (1 - min(distance, 2) / 2) * 100)
+                    confidence = max(0, (1 - min(distance, 2) / 2))
                 else:
-                    confidence = max(0, (1 - distance) * 100)
+                    confidence = max(0, (1 - distance))
                 
-                # Ensure confidence is within valid range
-                confidence = max(0, min(100, confidence))
+                # Ensure confidence is within valid range (0-1)
+                confidence = max(0, min(1, confidence))
                 
-                if confidence >= config.confidence_threshold * 100:
+                if confidence >= config.confidence_threshold:
                     # Extract employee ID from filename
                     filename_base = os.path.basename(identity_path)
                     employee_id = filename_base.split('_')[0]
@@ -344,13 +344,13 @@ async def recognize_face(file: UploadFile = File(...)):
                         return RecognitionResult(
                             success=True,
                             employee=employee,
-                            confidence=round(confidence, 2),
+                            confidence=round(confidence, 4),
                             timestamp=datetime.now().isoformat()
                         )
 
             return RecognitionResult(
                 success=False,
-                message=f"Face not recognized or confidence below {config.confidence_threshold * 100}%",
+                message=f"Face not recognized or confidence below {config.confidence_threshold:.1%}",
                 timestamp=datetime.now().isoformat()
             )
 
