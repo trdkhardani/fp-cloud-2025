@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { Camera, RotateCcw, Zap, ZapOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -7,9 +6,10 @@ import { Card, CardContent } from "@/components/ui/card";
 interface CameraCaptureProps {
   onCapture: (imageData: string) => void;
   isProcessing: boolean;
+  kioskMode?: boolean;
 }
 
-const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
+const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCaptureProps) => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [isStreaming, setIsStreaming] = useState(false);
@@ -21,8 +21,8 @@ const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: facingMode,
-          width: { ideal: 720 },
-          height: { ideal: 720 }
+          width: { ideal: kioskMode ? 1280 : 720 },
+          height: { ideal: kioskMode ? 720 : 720 }
         }
       });
       
@@ -67,6 +67,18 @@ const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
     }
   };
 
+  // Auto-capture in kiosk mode when face is detected (simplified)
+  useEffect(() => {
+    if (kioskMode && isStreaming && !isProcessing) {
+      const interval = setInterval(() => {
+        // In kiosk mode, automatically capture every 2 seconds
+        captureImage();
+      }, 2000);
+      
+      return () => clearInterval(interval);
+    }
+  }, [kioskMode, isStreaming, isProcessing]);
+
   useEffect(() => {
     if (facingMode) {
       startCamera();
@@ -79,12 +91,20 @@ const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
 
   if (hasPermission === false) {
     return (
-      <Card className="bg-red-50 border-red-200">
+      <Card className={`${kioskMode ? 'bg-gray-800 border-gray-600' : 'bg-red-50 border-red-200'}`}>
         <CardContent className="p-6 text-center">
-          <Camera className="w-16 h-16 mx-auto mb-4 text-red-400" />
-          <h3 className="text-lg font-semibold text-red-800 mb-2">Camera Access Required</h3>
-          <p className="text-red-600 mb-4">Please allow camera access to use face recognition.</p>
-          <Button onClick={startCamera} variant="outline" className="border-red-300 text-red-700">
+          <Camera className={`w-16 h-16 mx-auto mb-4 ${kioskMode ? 'text-gray-400' : 'text-red-400'}`} />
+          <h3 className={`text-lg font-semibold mb-2 ${kioskMode ? 'text-white' : 'text-red-800'}`}>
+            Camera Access Required
+          </h3>
+          <p className={`mb-4 ${kioskMode ? 'text-gray-300' : 'text-red-600'}`}>
+            Please allow camera access to use face recognition.
+          </p>
+          <Button 
+            onClick={startCamera} 
+            variant="outline" 
+            className={kioskMode ? 'border-gray-300 text-gray-300' : 'border-red-300 text-red-700'}
+          >
             Try Again
           </Button>
         </CardContent>
@@ -93,11 +113,11 @@ const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
   }
 
   return (
-    <Card className="overflow-hidden">
+    <Card className={`overflow-hidden ${kioskMode ? 'bg-gray-800 border-gray-600' : ''}`}>
       <CardContent className="p-0">
         <div className="relative">
           {/* Camera Preview */}
-          <div className="relative bg-black aspect-square rounded-lg overflow-hidden">
+          <div className={`relative bg-black ${kioskMode ? 'aspect-video' : 'aspect-square'} rounded-lg overflow-hidden`}>
             <video
               ref={videoRef}
               autoPlay
@@ -107,14 +127,14 @@ const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
             />
             
             {/* Face Detection Overlay */}
-            <div className="absolute inset-0 border-2 border-blue-400 border-dashed opacity-50 m-8 rounded-lg"></div>
+            <div className={`absolute inset-0 border-2 ${kioskMode ? 'border-blue-300' : 'border-blue-400'} border-dashed opacity-50 ${kioskMode ? 'm-16' : 'm-8'} rounded-lg`}></div>
             
             {/* Processing Overlay */}
             {isProcessing && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
-                  <p className="text-sm">Recognizing face...</p>
+                  <p className={`${kioskMode ? 'text-lg' : 'text-sm'}`}>Recognizing face...</p>
                 </div>
               </div>
             )}
@@ -133,44 +153,55 @@ const CameraCapture = ({ onCapture, isProcessing }: CameraCaptureProps) => {
                 </div>
               )}
             </div>
+
+            {/* Kiosk Mode Instruction */}
+            {kioskMode && !isProcessing && (
+              <div className="absolute bottom-4 left-4 right-4">
+                <div className="bg-black/60 text-white px-4 py-2 rounded-lg text-center">
+                  <p className="text-sm">Automatic recognition enabled - position your face in the frame</p>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Camera Controls */}
-          <div className="p-4 bg-gray-50">
-            <div className="flex items-center justify-center space-x-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={switchCamera}
-                disabled={!isStreaming || isProcessing}
-                className="w-12 h-12 rounded-full"
-              >
-                <RotateCcw className="w-5 h-5" />
-              </Button>
+          {/* Camera Controls - Hidden in kiosk mode */}
+          {!kioskMode && (
+            <div className="p-4 bg-gray-50">
+              <div className="flex items-center justify-center space-x-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={switchCamera}
+                  disabled={!isStreaming || isProcessing}
+                  className="w-12 h-12 rounded-full"
+                >
+                  <RotateCcw className="w-5 h-5" />
+                </Button>
+                
+                <Button
+                  onClick={captureImage}
+                  disabled={!isStreaming || isProcessing}
+                  className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
+                  size="icon"
+                >
+                  <Camera className="w-8 h-8" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={isStreaming ? stopCamera : startCamera}
+                  className="w-12 h-12 rounded-full"
+                >
+                  {isStreaming ? <ZapOff className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
+                </Button>
+              </div>
               
-              <Button
-                onClick={captureImage}
-                disabled={!isStreaming || isProcessing}
-                className="w-16 h-16 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600"
-                size="icon"
-              >
-                <Camera className="w-8 h-8" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={isStreaming ? stopCamera : startCamera}
-                className="w-12 h-12 rounded-full"
-              >
-                {isStreaming ? <ZapOff className="w-5 h-5" /> : <Zap className="w-5 h-5" />}
-              </Button>
+              <p className="text-center text-sm text-gray-600 mt-3">
+                Position your face within the frame and tap the camera button
+              </p>
             </div>
-            
-            <p className="text-center text-sm text-gray-600 mt-3">
-              Position your face within the frame and tap the camera button
-            </p>
-          </div>
+          )}
         </div>
         
         {/* Hidden Canvas for Image Capture */}

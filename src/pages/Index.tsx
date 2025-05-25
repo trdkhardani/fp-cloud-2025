@@ -1,158 +1,271 @@
-
-import { useState, useRef, useEffect } from "react";
-import { Camera, Users, Clock, CheckCircle, XCircle, Menu } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { useState } from "react";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { 
+  Camera, 
+  Users, 
+  History, 
+  Settings, 
+  CheckCircle, 
+  XCircle, 
+  Wifi, 
+  WifiOff,
+  LogOut,
+  Shield,
+  Monitor
+} from "lucide-react";
+
 import CameraCapture from "@/components/CameraCapture";
-import AttendanceHistory from "@/components/AttendanceHistory";
 import EmployeeList from "@/components/EmployeeList";
+import AttendanceHistory from "@/components/AttendanceHistory";
+import ConfigPage from "@/components/ConfigPage";
+import { useFaceAttendance, useEmployees, useAttendanceHistory, useHealthCheck } from "@/hooks/useFaceRecognition";
+import { useAuth } from "@/hooks/useAuth";
+import { toast } from "sonner";
 
 const Index = () => {
-  const [activeTab, setActiveTab] = useState("camera");
-  const [isRecognizing, setIsRecognizing] = useState(false);
-  const [lastAttendance, setLastAttendance] = useState(null);
+  const [lastResult, setLastResult] = useState<any>(null);
+  const { user, logout } = useAuth();
+  
+  const { processAttendance, isProcessing } = useFaceAttendance();
+  const { data: employees = [] } = useEmployees();
+  const { data: attendance = [] } = useAttendanceHistory();
+  const { data: health, isLoading: healthLoading } = useHealthCheck();
 
   const handleFaceCapture = async (imageData: string) => {
-    setIsRecognizing(true);
-    
-    // Simulate API call to your DeepFace backend
     try {
-      // This is where you'll integrate with your DeepFace API
-      // const response = await fetch('/api/recognize-face', {
-      //   method: 'POST',
-      //   body: JSON.stringify({ image: imageData }),
-      //   headers: { 'Content-Type': 'application/json' }
-      // });
+      const result = await processAttendance(imageData, 'check-in');
+      setLastResult(result);
       
-      // Simulated response for demo
-      setTimeout(() => {
-        const mockEmployee = {
-          id: "EMP001",
-          name: "John Doe",
-          time: new Date().toLocaleTimeString(),
-          type: "check-in",
-          confidence: 98.5
-        };
-        setLastAttendance(mockEmployee);
-        setIsRecognizing(false);
-      }, 2000);
-      
+      if (result.success) {
+        toast.success("Attendance recorded!", {
+          description: `${result.employee?.name} checked in successfully.`,
+        });
+      } else {
+        toast.error("Recognition failed", {
+          description: result.message,
+        });
+      }
     } catch (error) {
       console.error("Face recognition failed:", error);
-      setIsRecognizing(false);
+      toast.error("System error", {
+        description: "Face recognition system encountered an error.",
+      });
     }
   };
+
+  const handleLogout = () => {
+    logout();
+    toast.success("Logged out successfully", {
+      description: "You have been logged out of the admin panel.",
+    });
+  };
+
+  const handleKioskMode = () => {
+    window.open('/kiosk', '_blank');
+  };
+
+  const todayAttendance = attendance.filter(record => {
+    const today = new Date().toDateString();
+    const recordDate = new Date(record.timestamp).toDateString();
+    return today === recordDate;
+  });
+
+  const getSystemStatus = () => {
+    if (healthLoading) return { status: 'checking', color: 'yellow', icon: WifiOff };
+    if (!health?.deepface_available) return { status: 'offline', color: 'red', icon: WifiOff };
+    return { status: 'online', color: 'green', icon: Wifi };
+  };
+
+  const systemStatus = getSystemStatus();
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
       {/* Header */}
-      <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white p-4 shadow-lg">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center space-x-3">
-            <div className="w-10 h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <Camera className="w-6 h-6" />
-            </div>
-            <div>
-              <h1 className="text-xl font-bold">FaceAttend</h1>
-              <p className="text-blue-100 text-sm">Smart Attendance System</p>
-            </div>
-          </div>
-          <Badge variant="secondary" className="bg-white/20 text-white border-white/30">
-            Live
-          </Badge>
-        </div>
-      </div>
-
-      {/* Navigation Tabs */}
       <div className="bg-white shadow-sm border-b">
-        <div className="flex">
-          <button
-            onClick={() => setActiveTab("camera")}
-            className={`flex-1 py-4 px-2 text-center font-medium transition-colors ${
-              activeTab === "camera"
-                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                : "text-gray-600"
-            }`}
-          >
-            <Camera className="w-5 h-5 mx-auto mb-1" />
-            Camera
-          </button>
-          <button
-            onClick={() => setActiveTab("history")}
-            className={`flex-1 py-4 px-2 text-center font-medium transition-colors ${
-              activeTab === "history"
-                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                : "text-gray-600"
-            }`}
-          >
-            <Clock className="w-5 h-5 mx-auto mb-1" />
-            History
-          </button>
-          <button
-            onClick={() => setActiveTab("employees")}
-            className={`flex-1 py-4 px-2 text-center font-medium transition-colors ${
-              activeTab === "employees"
-                ? "text-blue-600 border-b-2 border-blue-600 bg-blue-50"
-                : "text-gray-600"
-            }`}
-          >
-            <Users className="w-5 h-5 mx-auto mb-1" />
-            Employees
-          </button>
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center space-x-4">
+              <div className="w-8 h-8 bg-gradient-to-r from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
+                <Camera className="w-5 h-5 text-white" />
+              </div>
+              <div>
+                <h1 className="text-xl font-bold text-gray-900">FaceAttend Admin</h1>
+                <p className="text-sm text-gray-500">Face Recognition Management</p>
+              </div>
+            </div>
+
+            <div className="flex items-center space-x-4">
+              {/* System Status */}
+              <Badge 
+                variant="secondary" 
+                className={`flex items-center gap-2 ${
+                  systemStatus.color === 'green' ? 'bg-green-100 text-green-800 border-green-200' :
+                  systemStatus.color === 'red' ? 'bg-red-100 text-red-800 border-red-200' :
+                  'bg-yellow-100 text-yellow-800 border-yellow-200'
+                }`}
+              >
+                <systemStatus.icon className="w-3 h-3" />
+                {systemStatus.status === 'online' ? 'System Online' : 
+                 systemStatus.status === 'offline' ? 'System Offline' : 'Checking...'}
+              </Badge>
+
+              {/* User Info */}
+              <div className="flex items-center gap-2 text-sm">
+                <Shield className="w-4 h-4 text-gray-500" />
+                <span className="text-gray-700">{user?.username}</span>
+              </div>
+
+              {/* Kiosk Mode Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleKioskMode}
+                className="flex items-center gap-2"
+              >
+                <Monitor className="w-4 h-4" />
+                Open Kiosk
+              </Button>
+
+              {/* Logout Button */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={handleLogout}
+                className="flex items-center gap-2 hover:bg-red-50 hover:border-red-200 hover:text-red-700"
+              >
+                <LogOut className="w-4 h-4" />
+                Logout
+              </Button>
+            </div>
+          </div>
         </div>
       </div>
 
-      {/* Content */}
-      <div className="p-4 space-y-6">
-        {/* Last Attendance Alert */}
-        {lastAttendance && (
-          <Card className="border-green-200 bg-green-50 animate-in slide-in-from-top-2 duration-500">
-            <CardContent className="p-4">
-              <div className="flex items-center space-x-3">
-                <CheckCircle className="w-8 h-8 text-green-600" />
-                <div className="flex-1">
-                  <p className="font-semibold text-green-800">{lastAttendance.name}</p>
-                  <p className="text-sm text-green-600">
-                    {lastAttendance.type === "check-in" ? "Checked In" : "Checked Out"} at {lastAttendance.time}
-                  </p>
-                  <p className="text-xs text-green-500">Confidence: {lastAttendance.confidence}%</p>
-                </div>
+      {/* Main Content */}
+      <div className="max-w-7xl mx-auto p-6">
+        <Tabs defaultValue="camera" className="space-y-6">
+          <TabsList className="grid w-full grid-cols-4 lg:w-auto">
+            <TabsTrigger value="camera" className="flex items-center gap-2">
+              <Camera className="w-4 h-4" />
+              Camera
+            </TabsTrigger>
+            <TabsTrigger value="employees" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Employees
+            </TabsTrigger>
+            <TabsTrigger value="history" className="flex items-center gap-2">
+              <History className="w-4 h-4" />
+              History
+            </TabsTrigger>
+            <TabsTrigger value="settings" className="flex items-center gap-2">
+              <Settings className="w-4 h-4" />
+              Settings
+            </TabsTrigger>
+          </TabsList>
+
+          {/* Camera Tab */}
+          <TabsContent value="camera">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              {/* Camera Capture */}
+              <div className="lg:col-span-2">
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Camera className="w-5 h-5" />
+                      Face Recognition
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <CameraCapture
+                      onCapture={handleFaceCapture}
+                      isProcessing={isProcessing}
+                    />
+                  </CardContent>
+                </Card>
               </div>
-            </CardContent>
-          </Card>
-        )}
 
-        {/* Tab Content */}
-        {activeTab === "camera" && (
-          <div className="space-y-6">
-            <CameraCapture
-              onCapture={handleFaceCapture}
-              isProcessing={isRecognizing}
-            />
-            
-            {/* Quick Stats */}
-            <div className="grid grid-cols-2 gap-4">
-              <Card className="bg-gradient-to-br from-blue-500 to-blue-600 text-white">
-                <CardContent className="p-4 text-center">
-                  <Clock className="w-8 h-8 mx-auto mb-2" />
-                  <p className="text-2xl font-bold">47</p>
-                  <p className="text-sm text-blue-100">Today's Check-ins</p>
-                </CardContent>
-              </Card>
-              <Card className="bg-gradient-to-br from-purple-500 to-purple-600 text-white">
-                <CardContent className="p-4 text-center">
-                  <Users className="w-8 h-8 mx-auto mb-2" />
-                  <p className="text-2xl font-bold">52</p>
-                  <p className="text-sm text-purple-100">Total Employees</p>
-                </CardContent>
-              </Card>
+              {/* Sidebar */}
+              <div className="space-y-6">
+                {/* Last Result */}
+                {lastResult && (
+                  <Card>
+                    <CardHeader>
+                      <CardTitle className="flex items-center gap-2 text-sm">
+                        {lastResult.success ? (
+                          <CheckCircle className="w-4 h-4 text-green-600" />
+                        ) : (
+                          <XCircle className="w-4 h-4 text-red-600" />
+                        )}
+                        Last Recognition
+                      </CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                      {lastResult.success ? (
+                        <div className="space-y-2">
+                          <p className="font-medium">{lastResult.employee?.name}</p>
+                          <p className="text-sm text-gray-600">{lastResult.employee?.department}</p>
+                          <p className="text-xs text-gray-500">
+                            Confidence: {lastResult.confidence}%
+                          </p>
+                        </div>
+                      ) : (
+                        <p className="text-sm text-red-600">{lastResult.message}</p>
+                      )}
+                    </CardContent>
+                  </Card>
+                )}
+
+                {/* Statistics */}
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="text-sm">Today's Statistics</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-3">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Check-ins</span>
+                      <span className="font-medium">{todayAttendance.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Total Employees</span>
+                      <span className="font-medium">{employees.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">System Status</span>
+                      <Badge 
+                        variant="secondary" 
+                        className={`text-xs ${
+                          systemStatus.color === 'green' ? 'bg-green-100 text-green-800' :
+                          systemStatus.color === 'red' ? 'bg-red-100 text-red-800' :
+                          'bg-yellow-100 text-yellow-800'
+                        }`}
+                      >
+                        {systemStatus.status}
+                      </Badge>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
             </div>
-          </div>
-        )}
+          </TabsContent>
 
-        {activeTab === "history" && <AttendanceHistory />}
-        {activeTab === "employees" && <EmployeeList />}
+          {/* Employees Tab */}
+          <TabsContent value="employees">
+            <EmployeeList />
+          </TabsContent>
+
+          {/* History Tab */}
+          <TabsContent value="history">
+            <AttendanceHistory />
+          </TabsContent>
+
+          {/* Settings Tab */}
+          <TabsContent value="settings">
+            <ConfigPage />
+          </TabsContent>
+        </Tabs>
       </div>
     </div>
   );

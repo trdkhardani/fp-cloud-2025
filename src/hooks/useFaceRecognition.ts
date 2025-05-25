@@ -1,0 +1,167 @@
+import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
+import { faceRecognitionAPI, type Employee, type AttendanceRecord, type RecognitionResult, type DeepFaceConfig, type AvailableModels } from '@/lib/api';
+
+// Configuration hooks
+export const useDeepFaceConfig = () => {
+  return useQuery({
+    queryKey: ['deepface-config'],
+    queryFn: () => faceRecognitionAPI.getConfig(),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+  });
+};
+
+export const useUpdateDeepFaceConfig = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (config: DeepFaceConfig) => faceRecognitionAPI.updateConfig(config),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['deepface-config'] });
+    },
+  });
+};
+
+export const useAvailableModels = () => {
+  return useQuery({
+    queryKey: ['available-models'],
+    queryFn: () => faceRecognitionAPI.getAvailableModels(),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Health check hook
+export const useHealthCheck = () => {
+  return useQuery({
+    queryKey: ['health-check'],
+    queryFn: () => faceRecognitionAPI.healthCheck(),
+    refetchInterval: 30 * 1000, // Every 30 seconds
+    staleTime: 20 * 1000, // 20 seconds
+  });
+};
+
+// Face Recognition Hook
+export const useFaceRecognition = () => {
+  return useMutation({
+    mutationFn: (imageData: string) => faceRecognitionAPI.recognizeFace(imageData),
+    onSuccess: (result: RecognitionResult) => {
+      if (result.success) {
+        console.log('Face recognized successfully:', result.employee);
+      } else {
+        console.warn('Face recognition failed:', result.message);
+      }
+    },
+    onError: (error) => {
+      console.error('Face recognition error:', error);
+    },
+  });
+};
+
+// Attendance Recording Hook
+export const useRecordAttendance = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ employeeId, type, confidence }: { 
+      employeeId: string; 
+      type: 'check-in' | 'check-out'; 
+      confidence: number; 
+    }) => faceRecognitionAPI.recordAttendance(employeeId, type, confidence),
+    onSuccess: () => {
+      // Invalidate attendance history to refetch latest data
+      queryClient.invalidateQueries({ queryKey: ['attendance-history'] });
+    },
+  });
+};
+
+// Attendance History Hook
+export const useAttendanceHistory = (limit: number = 50) => {
+  return useQuery({
+    queryKey: ['attendance-history', limit],
+    queryFn: () => faceRecognitionAPI.getAttendanceHistory(limit),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    refetchInterval: 30 * 1000, // Refetch every 30 seconds
+  });
+};
+
+// Employees Hook
+export const useEmployees = () => {
+  return useQuery({
+    queryKey: ['employees'],
+    queryFn: () => faceRecognitionAPI.getEmployees(),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Employee Enrollment Hook
+export const useEnrollEmployee = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ imageData, employeeData }: { 
+      imageData: string; 
+      employeeData: Omit<Employee, 'id' | 'face_enrolled'>; 
+    }) => faceRecognitionAPI.enrollEmployee(imageData, employeeData),
+    onSuccess: () => {
+      // Invalidate employees list to include new employee
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+  });
+};
+
+// Employee Deletion Hook
+export const useDeleteEmployee = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: (employeeId: string) => faceRecognitionAPI.deleteEmployee(employeeId),
+    onSuccess: () => {
+      // Invalidate employees list to remove deleted employee
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+  });
+};
+
+// Combined Face Recognition + Attendance Recording
+export const useFaceAttendance = () => {
+  const faceRecognition = useFaceRecognition();
+  const recordAttendance = useRecordAttendance();
+  
+  const processAttendance = async (imageData: string, attendanceType: 'check-in' | 'check-out' = 'check-in') => {
+    try {
+      // First, recognize the face
+      const recognitionResult = await faceRecognition.mutateAsync(imageData);
+      
+      if (recognitionResult.success && recognitionResult.employee && recognitionResult.confidence) {
+        // If recognition successful, record attendance
+        const attendanceRecord = await recordAttendance.mutateAsync({
+          employeeId: recognitionResult.employee.id,
+          type: attendanceType,
+          confidence: recognitionResult.confidence,
+        });
+        
+        return {
+          success: true,
+          employee: recognitionResult.employee,
+          attendance: attendanceRecord,
+          confidence: recognitionResult.confidence,
+        };
+      } else {
+        return {
+          success: false,
+          message: recognitionResult.message || 'Face not recognized',
+        };
+      }
+    } catch (error) {
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Process failed',
+      };
+    }
+  };
+
+  return {
+    processAttendance,
+    isProcessing: faceRecognition.isPending || recordAttendance.isPending,
+    error: faceRecognition.error || recordAttendance.error,
+  };
+}; 

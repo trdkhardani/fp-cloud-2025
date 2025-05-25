@@ -1,0 +1,250 @@
+// Face Recognition API Service
+export interface Employee {
+  id: string;
+  name: string;
+  department?: string;
+  email?: string;
+  face_enrolled?: boolean;
+}
+
+export interface RecognitionResult {
+  success: boolean;
+  employee?: Employee;
+  confidence?: number;
+  message?: string;
+  timestamp: string;
+}
+
+export interface AttendanceRecord {
+  id: string;
+  employeeId: string;
+  employeeName: string;
+  type: 'check-in' | 'check-out';
+  timestamp: string;
+  confidence: number;
+  imageUrl?: string;
+}
+
+export interface DeepFaceConfig {
+  model_name: string;
+  distance_metric: string;
+  detector_backend: string;
+  enforce_detection: boolean;
+  confidence_threshold: number;
+  align: boolean;
+}
+
+export interface AvailableModels {
+  models: string[];
+  distance_metrics: string[];
+  detector_backends: string[];
+  deepface_available: boolean;
+}
+
+class FaceRecognitionAPI {
+  private baseUrl: string;
+
+  constructor(baseUrl: string = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000') {
+    this.baseUrl = baseUrl;
+  }
+
+  // Configuration endpoints
+  async getConfig(): Promise<DeepFaceConfig> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/config`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get config: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Config fetch error:', error);
+      throw error;
+    }
+  }
+
+  async updateConfig(config: DeepFaceConfig): Promise<DeepFaceConfig> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/config`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(config),
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Failed to update config: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Config update error:', error);
+      throw error;
+    }
+  }
+
+  async getAvailableModels(): Promise<AvailableModels> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/models`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get models: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Models fetch error:', error);
+      throw error;
+    }
+  }
+
+  async recognizeFace(imageData: string): Promise<RecognitionResult> {
+    try {
+      // Convert base64 to blob
+      const response = await fetch(imageData);
+      const blob = await response.blob();
+      
+      const formData = new FormData();
+      formData.append('file', blob, 'face-capture.jpg');
+
+      const apiResponse = await fetch(`${this.baseUrl}/api/recognize-face`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!apiResponse.ok) {
+        throw new Error(`HTTP error! status: ${apiResponse.status}`);
+      }
+
+      const result = await apiResponse.json();
+      return result;
+      
+    } catch (error) {
+      console.error('Face recognition API error:', error);
+      return {
+        success: false,
+        message: error instanceof Error ? error.message : 'Recognition failed',
+        timestamp: new Date().toISOString(),
+      };
+    }
+  }
+
+  async recordAttendance(employeeId: string, type: 'check-in' | 'check-out', confidence: number): Promise<AttendanceRecord> {
+    try {
+      const formData = new FormData();
+      formData.append('employee_id', employeeId);
+      formData.append('type', type);
+      formData.append('confidence', confidence.toString());
+
+      const response = await fetch(`${this.baseUrl}/api/attendance`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error(`Failed to record attendance: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Attendance recording error:', error);
+      throw error;
+    }
+  }
+
+  async getAttendanceHistory(limit: number = 50): Promise<AttendanceRecord[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/attendance?limit=${limit}`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch attendance: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Attendance fetch error:', error);
+      return [];
+    }
+  }
+
+  async getEmployees(): Promise<Employee[]> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/employees`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch employees: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Employees fetch error:', error);
+      return [];
+    }
+  }
+
+  async enrollEmployee(imageData: string, employeeData: Omit<Employee, 'id' | 'face_enrolled'>): Promise<Employee> {
+    try {
+      const response = await fetch(imageData);
+      const blob = await response.blob();
+      
+      const formData = new FormData();
+      formData.append('file', blob, 'employee-photo.jpg');
+      formData.append('name', employeeData.name);
+      formData.append('department', employeeData.department || '');
+      formData.append('email', employeeData.email || '');
+
+      const apiResponse = await fetch(`${this.baseUrl}/api/employees/enroll`, {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.detail || `Enrollment failed: ${apiResponse.status}`);
+      }
+
+      return await apiResponse.json();
+    } catch (error) {
+      console.error('Employee enrollment error:', error);
+      throw error;
+    }
+  }
+
+  async deleteEmployee(employeeId: string): Promise<{ message: string }> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/employees/${employeeId}`, {
+        method: 'DELETE',
+      });
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.detail || `Failed to delete employee: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Employee deletion error:', error);
+      throw error;
+    }
+  }
+
+  async healthCheck(): Promise<any> {
+    try {
+      const response = await fetch(`${this.baseUrl}/health`);
+      
+      if (!response.ok) {
+        throw new Error(`Health check failed: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Health check error:', error);
+      throw error;
+    }
+  }
+}
+
+export const faceRecognitionAPI = new FaceRecognitionAPI(); 

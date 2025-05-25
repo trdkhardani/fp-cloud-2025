@@ -1,0 +1,8 @@
+{
+  "model_name": "Facenet",
+  "distance_metric": "cosine",
+  "detector_backend": "opencv",
+  "enforce_detection": true,
+  "confidence_threshold": 0.7,
+  "align": true
+}
