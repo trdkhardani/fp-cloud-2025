@@ -108,6 +108,22 @@ export const useEnrollEmployee = () => {
   });
 };
 
+// Employee Update Hook
+export const useUpdateEmployee = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: ({ employeeId, employeeData }: { 
+      employeeId: string; 
+      employeeData: Omit<Employee, 'id' | 'face_enrolled'>; 
+    }) => faceRecognitionAPI.updateEmployee(employeeId, employeeData),
+    onSuccess: () => {
+      // Invalidate employees list to reflect updated employee
+      queryClient.invalidateQueries({ queryKey: ['employees'] });
+    },
+  });
+};
+
 // Employee Deletion Hook
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
@@ -144,11 +160,15 @@ export const useFaceAttendance = () => {
           employee: recognitionResult.employee,
           attendance: attendanceRecord,
           confidence: recognitionResult.confidence,
+          liveness_score: recognitionResult.liveness_score,
+          is_live: recognitionResult.is_live,
         };
       } else {
         return {
           success: false,
           message: recognitionResult.message || 'Face not recognized',
+          liveness_score: recognitionResult.liveness_score,
+          is_live: recognitionResult.is_live,
         };
       }
     } catch (error) {

@@ -13,6 +13,8 @@ export interface RecognitionResult {
   success: boolean;
   employee?: Employee;
   confidence?: number;
+  liveness_score?: number;
+  is_live?: boolean;
   message?: string;
   timestamp: string;
 }
@@ -34,6 +36,20 @@ export interface DeepFaceConfig {
   enforce_detection: boolean;
   confidence_threshold: number;
   align: boolean;
+  // Liveness detection settings
+  enable_liveness_detection: boolean;
+  liveness_threshold: number;
+  texture_variance_threshold: number;
+  color_std_threshold: number;
+  edge_density_min: number;
+  edge_density_max: number;
+  high_freq_energy_threshold: number;
+  hist_entropy_threshold: number;
+  saturation_mean_min: number;
+  saturation_mean_max: number;
+  saturation_std_threshold: number;
+  illumination_gradient_min: number;
+  illumination_gradient_max: number;
 }
 
 export interface AvailableModels {
@@ -150,7 +166,18 @@ class FaceRecognitionAPI {
         throw new Error(`Failed to record attendance: ${response.status}`);
       }
 
-      return await response.json();
+      const rawData = await response.json();
+      
+      // Transform snake_case to camelCase to match frontend interface
+      return {
+        id: rawData.id,
+        employeeId: rawData.employee_id,
+        employeeName: rawData.employee_name,
+        type: rawData.type,
+        timestamp: rawData.timestamp,
+        confidence: rawData.confidence,
+        imageUrl: rawData.image_url
+      };
     } catch (error) {
       console.error('Attendance recording error:', error);
       throw error;
@@ -165,7 +192,18 @@ class FaceRecognitionAPI {
         throw new Error(`Failed to fetch attendance: ${response.status}`);
       }
 
-      return await response.json();
+      const rawData = await response.json();
+      
+      // Transform snake_case to camelCase to match frontend interface
+      return rawData.map((record: any) => ({
+        id: record.id,
+        employeeId: record.employee_id,
+        employeeName: record.employee_name,
+        type: record.type,
+        timestamp: record.timestamp,
+        confidence: record.confidence,
+        imageUrl: record.image_url
+      }));
     } catch (error) {
       console.error('Attendance fetch error:', error);
       return [];
@@ -211,6 +249,30 @@ class FaceRecognitionAPI {
       return await apiResponse.json();
     } catch (error) {
       console.error('Employee enrollment error:', error);
+      throw error;
+    }
+  }
+
+  async updateEmployee(employeeId: string, employeeData: Omit<Employee, 'id' | 'face_enrolled'>): Promise<Employee> {
+    try {
+      const formData = new FormData();
+      formData.append('name', employeeData.name);
+      formData.append('department', employeeData.department || '');
+      formData.append('email', employeeData.email || '');
+
+      const apiResponse = await fetch(`${this.baseUrl}/api/employees/${employeeId}`, {
+        method: 'PUT',
+        body: formData,
+      });
+
+      if (!apiResponse.ok) {
+        const errorData = await apiResponse.json();
+        throw new Error(errorData.detail || `Update failed: ${apiResponse.status}`);
+      }
+
+      return await apiResponse.json();
+    } catch (error) {
+      console.error('Employee update error:', error);
       throw error;
     }
   }

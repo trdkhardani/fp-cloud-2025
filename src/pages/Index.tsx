@@ -18,7 +18,7 @@ import {
 } from "lucide-react";
 
 import CameraCapture from "@/components/CameraCapture";
-import EmployeeList from "@/components/EmployeeList";
+import UserList from "@/components/UserList";
 import AttendanceHistory from "@/components/AttendanceHistory";
 import ConfigPage from "@/components/ConfigPage";
 import { useFaceAttendance, useEmployees, useAttendanceHistory, useHealthCheck } from "@/hooks/useFaceRecognition";
@@ -154,7 +154,7 @@ const Index = () => {
             </TabsTrigger>
             <TabsTrigger value="employees" className="flex items-center gap-2">
               <Users className="w-4 h-4" />
-              Employees
+              Users
             </TabsTrigger>
             <TabsTrigger value="history" className="flex items-center gap-2">
               <History className="w-4 h-4" />
@@ -208,7 +208,7 @@ const Index = () => {
                           <p className="font-medium">{lastResult.employee?.name}</p>
                           <p className="text-sm text-gray-600">{lastResult.employee?.department}</p>
                           <p className="text-xs text-gray-500">
-                            Confidence: {lastResult.confidence}%
+                            Confidence: {lastResult.confidence * 100}%
                           </p>
                         </div>
                       ) : (
@@ -229,7 +229,7 @@ const Index = () => {
                       <span className="font-medium">{todayAttendance.length}</span>
                     </div>
                     <div className="flex justify-between">
-                      <span className="text-sm text-gray-600">Total Employees</span>
+                      <span className="text-sm text-gray-600">Total Users</span>
                       <span className="font-medium">{employees.length}</span>
                     </div>
                     <div className="flex justify-between">
@@ -251,9 +251,9 @@ const Index = () => {
             </div>
           </TabsContent>
 
-          {/* Employees Tab */}
+          {/* Users Tab */}
           <TabsContent value="employees">
-            <EmployeeList />
+            <UserList />
           </TabsContent>
 
           {/* History Tab */}

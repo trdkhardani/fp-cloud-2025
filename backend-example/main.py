@@ -17,6 +17,7 @@ import json
 import tempfile
 from datetime import datetime
 import logging
+import math
 
 # Database imports
 from database import db_manager, get_database
@@ -70,6 +71,8 @@ class RecognitionResult(BaseModel):
     success: bool
     employee: Optional[Employee] = None
     confidence: Optional[float] = None
+    liveness_score: Optional[float] = None
+    is_live: Optional[bool] = None
     message: Optional[str] = None
     timestamp: str
 
@@ -80,6 +83,20 @@ class DeepFaceConfig(BaseModel):
     enforce_detection: bool = True
     confidence_threshold: float = 0.85
     align: bool = True
+    # Liveness detection settings
+    enable_liveness_detection: bool = True
+    liveness_threshold: float = 0.4  # Lower threshold for webcam friendliness (was 0.6)
+    texture_variance_threshold: float = 50  # Lower for webcam (was 100)
+    color_std_threshold: float = 15  # Lower for webcam (was 20)
+    edge_density_min: float = 0.03  # Lower min for webcam (was 0.05)
+    edge_density_max: float = 0.20  # Higher max for webcam (was 0.15)
+    high_freq_energy_threshold: float = 2.5  # Lower for webcam (was 3.0)
+    hist_entropy_threshold: float = 5.5  # Lower for webcam (was 6.0)
+    saturation_mean_min: float = 20  # Lower for webcam (was 30)
+    saturation_mean_max: float = 150  # Higher for webcam (was 120)
+    saturation_std_threshold: float = 15  # Lower for webcam (was 20)
+    illumination_gradient_min: float = 1.0  # Lower for webcam (was 2.0)
+    illumination_gradient_max: float = 12.0  # Higher for webcam (was 8.0)
 
 # Global configuration
 config = DeepFaceConfig()
@@ -171,6 +188,172 @@ def verify_face_in_image(image_path: str) -> bool:
         print(f"Face verification error: {e}")
         return False
 
+# Anti-spoofing detection functions
+def detect_liveness_features(image_path: str) -> dict:
+    """
+    Detect liveness features to prevent photo spoofing.
+    Returns a dictionary with various liveness indicators.
+    """
+    try:
+        # Read the image
+        img = cv2.imread(image_path)
+        if img is None:
+            return {"error": "Could not read image"}
+        
+        # Convert to different color spaces for analysis
+        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        hsv = cv2.cvtColor(img, cv2.COLOR_BGR2HSV)
+        lab = cv2.cvtColor(img, cv2.COLOR_BGR2LAB)
+        
+        # 1. Texture Analysis - Real faces have more texture variation than photos
+        # Calculate Local Binary Pattern variance
+        def local_binary_pattern_variance(gray_img):
+            """Calculate texture variance using simplified LBP concept"""
+            height, width = gray_img.shape
+            variance_sum = 0
+            count = 0
+            
+            for y in range(1, height-1):
+                for x in range(1, width-1):
+                    center = gray_img[y, x]
+                    neighbors = [
+                        gray_img[y-1, x-1], gray_img[y-1, x], gray_img[y-1, x+1],
+                        gray_img[y, x+1], gray_img[y+1, x+1], gray_img[y+1, x],
+                        gray_img[y+1, x-1], gray_img[y, x-1]
+                    ]
+                    variance = np.var(neighbors)
+                    variance_sum += variance
+                    count += 1
+            
+            return variance_sum / count if count > 0 else 0
+        
+        texture_variance = local_binary_pattern_variance(gray)
+        
+        # 2. Color Distribution Analysis
+        # Real faces have more natural color distribution
+        color_std = np.std(img, axis=(0, 1)).mean()
+        
+        # 3. Edge Density Analysis
+        # Photos often have sharper, more artificial edges
+        edges = cv2.Canny(gray, 50, 150)
+        edge_density = np.sum(edges > 0) / (edges.shape[0] * edges.shape[1])
+        
+        # 4. Frequency Domain Analysis
+        # Real faces have different frequency characteristics than printed photos
+        f_transform = np.fft.fft2(gray)
+        f_shift = np.fft.fftshift(f_transform)
+        magnitude_spectrum = np.log(np.abs(f_shift) + 1)
+        high_freq_energy = np.mean(magnitude_spectrum[gray.shape[0]//4:3*gray.shape[0]//4, 
+                                                    gray.shape[1]//4:3*gray.shape[1]//4])
+        
+        # 5. Histogram Analysis
+        # Check for unnatural histogram patterns common in photos
+        hist = cv2.calcHist([gray], [0], None, [256], [0, 256])
+        hist_entropy = -np.sum((hist / np.sum(hist)) * np.log2((hist / np.sum(hist)) + 1e-7))
+        
+        # 6. Saturation Analysis
+        # Real faces typically have more natural saturation patterns
+        saturation = hsv[:, :, 1]
+        saturation_mean = np.mean(saturation)
+        saturation_std = np.std(saturation)
+        
+        # 7. Illumination Analysis
+        # Check for unnatural lighting patterns common in photos
+        lightness = lab[:, :, 0]
+        illumination_gradient = np.mean(np.abs(np.gradient(lightness.astype(float))))
+        
+        return {
+            "texture_variance": float(texture_variance),
+            "color_std": float(color_std),
+            "edge_density": float(edge_density),
+            "high_freq_energy": float(high_freq_energy),
+            "hist_entropy": float(hist_entropy),
+            "saturation_mean": float(saturation_mean),
+            "saturation_std": float(saturation_std),
+            "illumination_gradient": float(illumination_gradient)
+        }
+    
+    except Exception as e:
+        return {"error": f"Liveness detection failed: {str(e)}"}
+
+def calculate_liveness_score(features: dict) -> dict:
+    """
+    Calculate a liveness score based on extracted features.
+    Returns score between 0-1 where 1 is most likely to be live/real.
+    """
+    if "error" in features:
+        return {"liveness_score": 0.0, "reason": features["error"], "is_live": False}
+    
+    score = 0.0
+    reasons = []
+    
+    # Use configurable thresholds from global config
+    
+    # 1. Texture variance (real faces typically have higher texture variance)
+    if features["texture_variance"] > config.texture_variance_threshold:
+        score += 0.15
+    elif features["texture_variance"] < config.texture_variance_threshold * 0.5:
+        reasons.append("Low texture variance (possible photo)")
+    
+    # 2. Color standard deviation (real faces have more color variation)
+    if features["color_std"] > config.color_std_threshold:
+        score += 0.15
+    elif features["color_std"] < config.color_std_threshold * 0.5:
+        reasons.append("Low color variation (possible photo)")
+    
+    # 3. Edge density (photos often have too many sharp edges)
+    if config.edge_density_min < features["edge_density"] < config.edge_density_max:
+        score += 0.1
+    elif features["edge_density"] > config.edge_density_max * 1.2:
+        reasons.append("High edge density (possible photo)")
+    
+    # 4. High frequency energy (real faces have different frequency characteristics)
+    if features["high_freq_energy"] > config.high_freq_energy_threshold:
+        score += 0.1
+    elif features["high_freq_energy"] < config.high_freq_energy_threshold * 0.8:
+        reasons.append("Low frequency energy (possible photo)")
+    
+    # 5. Histogram entropy (real faces have more natural distributions)
+    if features["hist_entropy"] > config.hist_entropy_threshold:
+        score += 0.1
+    elif features["hist_entropy"] < config.hist_entropy_threshold * 0.9:
+        reasons.append("Low histogram entropy (artificial distribution)")
+    
+    # 6. Saturation patterns
+    if (config.saturation_mean_min < features["saturation_mean"] < config.saturation_mean_max and 
+        features["saturation_std"] > config.saturation_std_threshold):
+        score += 0.15
+    elif (features["saturation_mean"] < config.saturation_mean_min * 0.8 or 
+          features["saturation_std"] < config.saturation_std_threshold * 0.7):
+        reasons.append("Unnatural saturation patterns")
+    
+    # 7. Illumination gradient (real faces have more natural lighting)
+    if config.illumination_gradient_min < features["illumination_gradient"] < config.illumination_gradient_max:
+        score += 0.15
+    elif features["illumination_gradient"] < config.illumination_gradient_min * 0.8:
+        reasons.append("Low illumination variation (possible photo)")
+    elif features["illumination_gradient"] > config.illumination_gradient_max:
+        reasons.append("High illumination variation (possible screen)")
+    
+    # 8. Bonus for good overall characteristics
+    if (features["texture_variance"] > config.texture_variance_threshold * 0.8 and 
+        features["color_std"] > config.color_std_threshold * 0.75 and 
+        features["saturation_std"] > config.saturation_std_threshold * 0.75):
+        score += 0.1
+    
+    # Determine if face is likely live using configurable threshold
+    is_live = score >= config.liveness_threshold
+    
+    if not is_live and not reasons:
+        reasons.append("Overall characteristics suggest non-live face")
+    
+    return {
+        "liveness_score": round(score, 3),
+        "is_live": is_live,
+        "reason": "; ".join(reasons) if reasons else "Live face detected",
+        "features": features
+    }
+
 # API Endpoints
 @app.get("/")
 async def root():
@@ -255,6 +438,32 @@ async def recognize_face(file: UploadFile = File(...)):
                 message="No face detected in the image",
                 timestamp=datetime.now().isoformat()
             )
+
+        # Perform anti-spoofing / liveness detection (if enabled)
+        if config.enable_liveness_detection:
+            print("🔍 Performing liveness detection...")
+            liveness_features = detect_liveness_features(temp_path)
+            liveness_result = calculate_liveness_score(liveness_features)
+            
+            print(f"📊 Liveness Score: {liveness_result['liveness_score']}, Live: {liveness_result['is_live']}")
+            print(f"📋 Reason: {liveness_result['reason']}")
+            
+            # Check if face passes liveness test
+            if not liveness_result['is_live']:
+                return RecognitionResult(
+                    success=False,
+                    liveness_score=liveness_result['liveness_score'],
+                    is_live=False,
+                    message=f"Anti-spoofing failed: {liveness_result['reason']}",
+                    timestamp=datetime.now().isoformat()
+                )
+        else:
+            print("⚠️ Liveness detection disabled")
+            liveness_result = {
+                'liveness_score': 1.0,
+                'is_live': True,
+                'reason': 'Liveness detection disabled'
+            }
 
         # Get all enrolled face images from database
         face_images = await db_manager.get_all_face_images()
@@ -345,6 +554,9 @@ async def recognize_face(file: UploadFile = File(...)):
                             success=True,
                             employee=employee,
                             confidence=round(confidence, 4),
+                            liveness_score=liveness_result['liveness_score'],
+                            is_live=liveness_result['is_live'],
+                            message=liveness_result['reason'],
                             timestamp=datetime.now().isoformat()
                         )
 
@@ -564,6 +776,58 @@ async def delete_employee(employee_id: str):
     except Exception as e:
         logging.error(f"Employee deletion error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+
+@app.put("/api/employees/{employee_id}", response_model=Employee)
+async def update_employee(
+    employee_id: str,
+    name: str = Form(...),
+    department: str = Form(""),
+    email: str = Form("")
+):
+    """Update employee information"""
+    try:
+        # Check if employee exists
+        existing_employee = await db_manager.get_employee(employee_id)
+        if not existing_employee:
+            raise HTTPException(status_code=404, detail="Employee not found")
+        
+        # Validate input
+        if not name.strip():
+            raise HTTPException(status_code=400, detail="Employee name is required")
+        
+        # Update employee data
+        updated_data = {
+            "name": name.strip(),
+            "department": department.strip() if department else None,
+            "email": email.strip() if email else None,
+        }
+        
+        # Update in database
+        success = await db_manager.update_employee(employee_id, updated_data)
+        
+        if not success:
+            raise HTTPException(status_code=500, detail="Failed to update employee")
+        
+        # Get the updated employee data
+        updated_employee = await db_manager.get_employee(employee_id)
+        
+        if not updated_employee:
+            raise HTTPException(status_code=500, detail="Failed to retrieve updated employee")
+        
+        # Convert to response format
+        return Employee(
+            id=updated_employee["employee_id"],
+            name=updated_employee["name"],
+            department=updated_employee.get("department"),
+            email=updated_employee.get("email"),
+            face_enrolled=updated_employee.get("face_enrolled", False)
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Employee update error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
 
 @app.get("/health")
 async def health_check():

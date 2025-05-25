@@ -1,18 +1,21 @@
 import { useState, useEffect } from "react";
-import { Camera, CheckCircle, XCircle, Clock, RefreshCw, Wifi, WifiOff } from "lucide-react";
+import { Camera, CheckCircle, XCircle, Clock, RefreshCw, Wifi, WifiOff, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CameraCapture from "@/components/CameraCapture";
-import { useFaceAttendance, useHealthCheck } from "@/hooks/useFaceRecognition";
+import { useFaceAttendance, useHealthCheck, useAttendanceHistory } from "@/hooks/useFaceRecognition";
 import { toast } from "sonner";
 
 const Kiosk = () => {
   const [lastResult, setLastResult] = useState<any>(null);
   const [currentTime, setCurrentTime] = useState(new Date());
+  const [isInCooldown, setIsInCooldown] = useState(false);
+  const [cooldownCountdown, setCooldownCountdown] = useState(0);
   
   const { processAttendance, isProcessing } = useFaceAttendance();
   const { data: health, isLoading: healthLoading } = useHealthCheck();
+  const { data: attendanceData = [] } = useAttendanceHistory(100); // Get recent attendance records
 
   // Update time every second
   useEffect(() => {
@@ -22,53 +25,143 @@ const Kiosk = () => {
     return () => clearInterval(timer);
   }, []);
 
-  // Clear result after 5 seconds
+  // Clear result after showing it - longer durations for centered elegant display
   useEffect(() => {
     if (lastResult) {
       const timeout = setTimeout(() => {
         setLastResult(null);
-      }, 5000);
+      }, lastResult.success ? 3500 : 4500); // 3.5s for success, 4.5s for errors
       return () => clearTimeout(timeout);
     }
   }, [lastResult]);
 
+  // Cooldown countdown timer - simplified and more robust
+  useEffect(() => {
+    let interval: NodeJS.Timeout | null = null;
+    
+    if (isInCooldown) {
+      interval = setInterval(() => {
+        setCooldownCountdown(prev => {
+          const newValue = prev - 1;
+          
+          if (newValue <= 0) {
+            setIsInCooldown(false);
+            return 0;
+          }
+          
+          return newValue;
+        });
+      }, 1000);
+    }
+    
+    return () => {
+      if (interval) {
+        clearInterval(interval);
+      }
+    };
+  }, [isInCooldown]); // Only trigger when cooldown state changes
+
+  // Check if user has already checked in today
+  const hasCheckedInToday = (employeeId: string): boolean => {
+    const today = new Date().toISOString().split('T')[0];
+    
+    const todayCheckIns = attendanceData.filter(record => {
+      const recordDate = record.timestamp.split('T')[0];
+      const isMatchingEmployee = record.employeeId === employeeId;
+      const isMatchingDate = recordDate === today;
+      const isCheckIn = record.type === 'check-in';
+      
+      return isMatchingEmployee && isCheckIn && isMatchingDate;
+    });
+    
+    return todayCheckIns.length > 0;
+  };
+
   const handleFaceCapture = async (imageData: string) => {
+    // Prevent capture during cooldown
+    if (isInCooldown) {
+      return;
+    }
+
     try {
       const result = await processAttendance(imageData, 'check-in');
       
+      // If face recognition was successful, always start cooldown
       if (result.success) {
-        setLastResult({
-          success: true,
-          name: result.employee?.name,
-          time: new Date().toLocaleTimeString(),
-          confidence: result.confidence
-        });
+        // Check for duplicate check-in but don't let it prevent cooldown
+        let alreadyCheckedIn = false;
+        if (result.employee) {
+          alreadyCheckedIn = hasCheckedInToday(result.employee.id);
+        }
         
-        // Play success sound (if available)
+        // Set the result message
+        if (alreadyCheckedIn) {
+          setLastResult({
+            success: false,
+            alreadyCheckedIn: true,
+            name: result.employee?.name,
+            message: "You have already checked in today!",
+            confidence: result.confidence,
+            liveness_score: result.liveness_score
+          });
+        } else {
+          setLastResult({
+            success: true,
+            name: result.employee?.name,
+            time: new Date().toLocaleTimeString(),
+            confidence: result.confidence,
+            liveness_score: result.liveness_score
+          });
+        }
+        
+        // Always start cooldown after any successful recognition
+        setTimeout(() => {
+          setCooldownCountdown(3);
+          setIsInCooldown(true);
+        }, 100);
+        
+        // Play sound
         try {
-          const audio = new Audio('/success.mp3');
-          audio.play().catch(() => {}); // Ignore errors
+          const audio = new Audio(alreadyCheckedIn ? '/info.mp3' : '/success.mp3');
+          audio.play().catch(() => {});
         } catch {}
         
       } else {
+        // Check if this is an anti-spoofing failure
+        const isAntiSpoofingFailure = result.message?.includes('Anti-spoofing failed') || 
+                                     result.message?.includes('photo') ||
+                                     result.message?.includes('fake') ||
+                                     result.is_live === false;
+        
         setLastResult({
           success: false,
-          message: result.message || "Face not recognized"
+          isAntiSpoofing: isAntiSpoofingFailure,
+          message: result.message || "Face not recognized",
+          liveness_score: result.liveness_score,
+          is_live: result.is_live
         });
         
-        // Play error sound (if available)
+        // Play error sound
         try {
           const audio = new Audio('/error.mp3');
-          audio.play().catch(() => {}); // Ignore errors
+          audio.play().catch(() => {});
         } catch {}
       }
     } catch (error) {
-      console.error("Face recognition failed:", error);
+      console.error("Face recognition error:", error);
       setLastResult({
         success: false,
         message: "System error. Please try again."
       });
     }
+  };
+
+  // Create a protected capture handler that enforces cooldown
+  const protectedCaptureHandler = (imageData: string) => {
+    if (isInCooldown) {
+      return;
+    }
+    handleFaceCapture(imageData);
   };
 
   const formatTime = (date: Date) => {
@@ -147,65 +240,102 @@ const Kiosk = () => {
           {/* Portrait Camera Interface */}
           <Card className="bg-gray-800 border-gray-600">
             <CardContent className="p-4">
-              {!lastResult && !isProcessing && (
-                <div className="text-center mb-4">
-                  <h2 className="text-xl font-bold mb-1">Position Your Face</h2>
-                  <p className="text-gray-300 text-sm">
-                    Look directly at the camera and ensure good lighting
-                  </p>
-                </div>
-              )}
-              
               {/* Portrait Camera */}
-              <div>
+              <div className={isInCooldown ? 'opacity-50 pointer-events-none' : ''}>
                 <CameraCapture
-                  onCapture={handleFaceCapture}
-                  isProcessing={isProcessing}
+                  onCapture={protectedCaptureHandler}
+                  isProcessing={isProcessing || isInCooldown}
                   kioskMode={true}
                 />
+                
+                {/* Cooldown Overlay */}
+                {isInCooldown && (
+                  <div className="absolute inset-0 bg-blue-500/10 flex items-center justify-center rounded-lg">
+                    <div className="text-center bg-gray-900/80 px-4 py-2 rounded-lg">
+                      <Clock className="w-6 h-6 text-blue-400 mx-auto mb-1" />
+                      <p className="text-blue-300 text-sm font-medium">{cooldownCountdown}s</p>
+                    </div>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
         </div>
       </div>
 
-      {/* Floating Result Display - Smaller and at Top */}
+      {/* Simple Centered Result Display */}
       {lastResult && (
-        <div className="fixed top-20 left-1/2 transform -translate-x-1/2 z-50 pointer-events-none">
+        <div className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-50 pointer-events-none">
           <div 
             className={`${
               lastResult.success 
-                ? 'bg-green-500/95 border-green-400' 
-                : 'bg-red-500/95 border-red-400'
-            } backdrop-blur-sm border-2 rounded-xl shadow-2xl animate-in slide-in-from-top-2 duration-500 pointer-events-auto max-w-xs mx-4`}
+                ? 'bg-green-500/95 border-green-300/50' 
+                : lastResult.alreadyCheckedIn
+                ? 'bg-orange-500/95 border-orange-300/50'
+                : 'bg-red-500/95 border-red-300/50'
+            } backdrop-blur-md border text-white px-6 py-4 rounded-2xl shadow-2xl 
+              animate-in fade-in slide-in-from-bottom-4 duration-300 ease-out`}
           >
-            <div className="text-center py-4 px-4">
-              <div className="flex items-center justify-center mb-2">
+            <div className="flex flex-col items-center text-center space-y-2">
+              <div className="flex items-center justify-center mb-1">
                 {lastResult.success ? (
                   <CheckCircle className="w-8 h-8 text-white drop-shadow-lg" />
+                ) : lastResult.alreadyCheckedIn ? (
+                  <UserCheck className="w-8 h-8 text-white drop-shadow-lg" />
                 ) : (
                   <XCircle className="w-8 h-8 text-white drop-shadow-lg" />
                 )}
               </div>
               
               {lastResult.success ? (
-                <div>
-                  <h2 className="text-lg font-bold mb-1 text-white drop-shadow">Welcome!</h2>
-                  <p className="text-sm mb-1 text-white">{lastResult.name}</p>
-                  <p className="text-xs opacity-90 text-white">Checked in at {lastResult.time}</p>
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white drop-shadow">Welcome!</h3>
+                  <p className="text-white/95 font-medium">{lastResult.name}</p>
                   {lastResult.confidence && (
-                    <p className="text-xs opacity-75 mt-1 text-white">
-                      Confidence: {lastResult.confidence}%
+                    <p className="text-white/80 text-sm">
+                      Confidence: {Math.round(lastResult.confidence * 100)}%
+                    </p>
+                  )}
+                  <p className="text-white/70 text-xs">
+                    Checked in at {lastResult.time}
+                  </p>
+                  {lastResult.liveness_score && (
+                    <p className="text-white/60 text-xs">
+                      Security Score: {Math.round(lastResult.liveness_score * 100)}%
+                    </p>
+                  )}
+                </div>
+              ) : lastResult.alreadyCheckedIn ? (
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white drop-shadow">Already Here</h3>
+                  <p className="text-white/95 font-medium">{lastResult.name}</p>
+                  <p className="text-white/80 text-sm">You've already checked in today</p>
+                  {lastResult.confidence && (
+                    <p className="text-white/70 text-xs">
+                      Recognition: {Math.round(lastResult.confidence * 100)}%
                     </p>
                   )}
                 </div>
               ) : (
-                <div>
-                  <h2 className="text-lg font-bold mb-1 text-white drop-shadow">Access Denied</h2>
-                  <p className="text-sm text-white mb-1">{lastResult.message}</p>
-                  <p className="text-xs opacity-75 text-white">
-                    Please try again or contact administrator
+                <div className="space-y-1">
+                  <h3 className="text-lg font-bold text-white drop-shadow">
+                    {lastResult.isAntiSpoofing ? "Photo Detected" : "Not Recognized"}
+                  </h3>
+                  <p className="text-white/90 text-sm">
+                    {lastResult.isAntiSpoofing 
+                      ? "Please use live camera, not photos"
+                      : lastResult.message || "Face not found in system"}
                   </p>
+                  <p className="text-white/70 text-xs">
+                    {lastResult.isAntiSpoofing 
+                      ? "Position yourself in front of the camera"
+                      : "Please try again or contact administrator"}
+                  </p>
+                  {lastResult.liveness_score && (
+                    <p className="text-white/60 text-xs">
+                      Security Score: {Math.round(lastResult.liveness_score * 100)}%
+                    </p>
+                  )}
                 </div>
               )}
             </div>
@@ -213,18 +343,28 @@ const Kiosk = () => {
         </div>
       )}
 
-      {/* Floating Processing Indicator */}
+      {/* Minimalist Processing Indicator */}
       {isProcessing && !lastResult && (
-        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-40">
-          <div className="bg-blue-500/95 backdrop-blur-sm text-white px-6 py-3 rounded-full shadow-lg flex items-center gap-3">
-            <RefreshCw className="w-5 h-5 animate-spin" />
-            <span className="text-sm font-medium">Recognizing face...</span>
+        <div className="fixed top-4 left-4 z-40">
+          <div className="bg-blue-500/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2">
+            <RefreshCw className="w-4 h-4 animate-spin" />
+            <span className="text-sm">Processing...</span>
           </div>
         </div>
       )}
 
-      {/* Floating Instructions - Only show when no result and not processing */}
-      {!lastResult && !isProcessing && (
+      {/* Minimalist Cooldown Indicator */}
+      {isInCooldown && !lastResult && (
+        <div className="fixed top-4 left-4 z-40">
+          <div className="bg-blue-500/90 backdrop-blur-sm text-white px-3 py-2 rounded-lg shadow-lg flex items-center gap-2">
+            <Clock className="w-4 h-4" />
+            <span className="text-sm">Wait {cooldownCountdown}s</span>
+          </div>
+        </div>
+      )}
+
+      {/* Floating Instructions - Only show when no result and not processing and not in cooldown */}
+      {!lastResult && !isProcessing && !isInCooldown && (
         <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30">
           <div className="bg-gray-800/90 backdrop-blur-sm border border-gray-600 rounded-xl px-6 py-4 max-w-2xl">
             <h3 className="text-center text-sm font-semibold mb-3 text-white">Quick Instructions</h3>

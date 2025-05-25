@@ -1,12 +1,13 @@
 import { useState, useRef } from "react";
 import { Camera, User, Building, Mail, X, Check, UserPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogDescription } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { useEnrollEmployee } from "@/hooks/useFaceRecognition";
 import { toast } from "sonner";
+import CameraCapture from "./CameraCapture";
 
 interface AddUserDialogProps {
   onUserAdded?: () => void;
@@ -28,7 +29,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
   
-  const enrollEmployee = useEnrollEmployee();
+  const enrollUser = useEnrollEmployee();
 
   const startCamera = async () => {
     try {
@@ -90,7 +91,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
   const handleSubmit = async () => {
     if (!formData.name.trim()) {
       toast.error("Validation Error", {
-        description: "Please enter employee name.",
+        description: "Please enter user name.",
       });
       return;
     }
@@ -103,7 +104,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
     }
 
     try {
-      await enrollEmployee.mutateAsync({
+      await enrollUser.mutateAsync({
         imageData: capturedImage,
         employeeData: {
           name: formData.name.trim(),
@@ -125,7 +126,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
 
     } catch (error) {
       toast.error("Enrollment Failed", {
-        description: error instanceof Error ? error.message : "Failed to enroll employee.",
+        description: error instanceof Error ? error.message : "Failed to enroll user.",
       });
     }
   };
@@ -149,7 +150,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
           id="name"
           value={formData.name}
           onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-          placeholder="Enter employee full name"
+          placeholder="Enter user full name"
           required
         />
       </div>
@@ -200,7 +201,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
     <div className="space-y-4">
       <div className="text-center">
         <h3 className="text-lg font-medium">Capture Face Photo</h3>
-        <p className="text-sm text-gray-600">Position your face in the center and ensure good lighting</p>
+        <p className="text-sm text-gray-600">Position the user's face in the camera frame and click capture when ready</p>
       </div>
 
       <Card className="overflow-hidden">
@@ -274,7 +275,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        {/* Employee Info */}
+        {/* User Info */}
         <div className="space-y-3">
           <div>
             <Label className="text-sm font-medium text-gray-600">Name</Label>
@@ -328,10 +329,10 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
         </Button>
         <Button 
           onClick={handleSubmit}
-          disabled={enrollEmployee.isPending}
+          disabled={enrollUser.isPending}
           className="flex items-center gap-2"
         >
-          {enrollEmployee.isPending ? (
+          {enrollUser.isPending ? (
             <>
               <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
               Enrolling...
@@ -339,7 +340,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
           ) : (
             <>
               <Check className="w-4 h-4" />
-              Enroll Employee
+              Enroll User
             </>
           )}
         </Button>
@@ -353,7 +354,7 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
         {trigger || (
           <Button className="flex items-center gap-2">
             <UserPlus className="w-4 h-4" />
-            Add New Employee
+            Add New User
           </Button>
         )}
       </DialogTrigger>
@@ -361,10 +362,10 @@ const AddUserDialog = ({ onUserAdded, trigger }: AddUserDialogProps) => {
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UserPlus className="w-5 h-5" />
-            Add New Employee
-            <span className="text-sm font-normal text-gray-500">
+            Add New User
+            <DialogDescription>
               ({step === 'info' ? 'Step 1' : step === 'photo' ? 'Step 2' : 'Step 3'} of 3)
-            </span>
+            </DialogDescription>
           </DialogTitle>
         </DialogHeader>
 

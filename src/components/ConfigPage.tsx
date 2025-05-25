@@ -25,6 +25,20 @@ const ConfigPage = () => {
     enforce_detection: true,
     confidence_threshold: 0.85,
     align: true,
+    // Liveness detection settings
+    enable_liveness_detection: true,
+    liveness_threshold: 0.4,
+    texture_variance_threshold: 50,
+    color_std_threshold: 15,
+    edge_density_min: 0.03,
+    edge_density_max: 0.20,
+    high_freq_energy_threshold: 2.5,
+    hist_entropy_threshold: 5.5,
+    saturation_mean_min: 20,
+    saturation_mean_max: 150,
+    saturation_std_threshold: 15,
+    illumination_gradient_min: 1.0,
+    illumination_gradient_max: 12.0,
   });
   
   const [hasChanges, setHasChanges] = useState(false);
@@ -337,6 +351,198 @@ const ConfigPage = () => {
                 Minimum confidence required for face recognition. Higher values reduce false positives but may increase false negatives.
               </p>
             </div>
+          </CardContent>
+        </Card>
+
+        {/* Liveness Detection Settings */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Anti-Spoofing & Liveness Detection
+              <Badge variant="outline" className="text-xs">Security</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {/* Enable/Disable Toggle */}
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="space-y-1">
+                <Label>Enable Liveness Detection</Label>
+                <p className="text-xs text-gray-600">Prevent photo spoofing attacks</p>
+              </div>
+              <Switch
+                checked={formData.enable_liveness_detection}
+                onCheckedChange={(checked) => handleFieldChange('enable_liveness_detection', checked)}
+              />
+            </div>
+
+            {formData.enable_liveness_detection && (
+              <>
+                {/* Main Threshold */}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Liveness Threshold</Label>
+                    <Badge variant="outline">
+                      {Math.round(formData.liveness_threshold * 100)}%
+                    </Badge>
+                  </div>
+                  
+                  <Slider
+                    value={[formData.liveness_threshold]}
+                    onValueChange={([value]) => handleFieldChange('liveness_threshold', value)}
+                    min={0.1}
+                    max={0.9}
+                    step={0.05}
+                    className="w-full"
+                  />
+                  
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>Permissive (Allow more images)</span>
+                    <span>Strict (Require clear live faces)</span>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600">
+                    Main threshold for determining if a face is live. Lower values are more permissive for webcams.
+                  </p>
+                </div>
+
+                {/* Quick Presets */}
+                <div className="space-y-2">
+                  <Label className="text-sm">Quick Presets</Label>
+                  <div className="grid grid-cols-3 gap-2">
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Webcam-friendly settings
+                        setFormData(prev => ({
+                          ...prev,
+                          liveness_threshold: 0.3,
+                          texture_variance_threshold: 30,
+                          color_std_threshold: 10,
+                          edge_density_min: 0.02,
+                          edge_density_max: 0.25,
+                        }));
+                      }}
+                      className="text-xs"
+                    >
+                      Webcam Friendly
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // Balanced settings
+                        setFormData(prev => ({
+                          ...prev,
+                          liveness_threshold: 0.4,
+                          texture_variance_threshold: 50,
+                          color_std_threshold: 15,
+                          edge_density_min: 0.03,
+                          edge_density_max: 0.20,
+                        }));
+                      }}
+                      className="text-xs"
+                    >
+                      Balanced
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      size="sm"
+                      onClick={() => {
+                        // High security settings
+                        setFormData(prev => ({
+                          ...prev,
+                          liveness_threshold: 0.6,
+                          texture_variance_threshold: 80,
+                          color_std_threshold: 20,
+                          edge_density_min: 0.05,
+                          edge_density_max: 0.15,
+                        }));
+                      }}
+                      className="text-xs"
+                    >
+                      High Security
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Advanced Settings */}
+                <details className="space-y-3">
+                  <summary className="cursor-pointer text-sm font-medium text-gray-700 hover:text-gray-900">
+                    Advanced Liveness Parameters
+                  </summary>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pl-4 border-l-2 border-gray-200">
+                    {/* Texture Variance */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Texture Variance</Label>
+                        <span className="text-xs text-gray-500">{formData.texture_variance_threshold.toFixed(0)}</span>
+                      </div>
+                      <Slider
+                        value={[formData.texture_variance_threshold]}
+                        onValueChange={([value]) => handleFieldChange('texture_variance_threshold', value)}
+                        min={10}
+                        max={150}
+                        step={5}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Color Standard Deviation */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Color Variation</Label>
+                        <span className="text-xs text-gray-500">{formData.color_std_threshold.toFixed(0)}</span>
+                      </div>
+                      <Slider
+                        value={[formData.color_std_threshold]}
+                        onValueChange={([value]) => handleFieldChange('color_std_threshold', value)}
+                        min={5}
+                        max={40}
+                        step={1}
+                        className="w-full"
+                      />
+                    </div>
+
+                    {/* Edge Density Range */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Edge Density Min</Label>
+                        <span className="text-xs text-gray-500">{formData.edge_density_min.toFixed(2)}</span>
+                      </div>
+                      <Slider
+                        value={[formData.edge_density_min]}
+                        onValueChange={([value]) => handleFieldChange('edge_density_min', value)}
+                        min={0.01}
+                        max={0.1}
+                        step={0.01}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <Label className="text-xs">Edge Density Max</Label>
+                        <span className="text-xs text-gray-500">{formData.edge_density_max.toFixed(2)}</span>
+                      </div>
+                      <Slider
+                        value={[formData.edge_density_max]}
+                        onValueChange={([value]) => handleFieldChange('edge_density_max', value)}
+                        min={0.1}
+                        max={0.4}
+                        step={0.01}
+                        className="w-full"
+                      />
+                    </div>
+                  </div>
+                  
+                  <p className="text-xs text-gray-500 pl-4">
+                    Fine-tune these parameters if the presets don't work well with your camera setup.
+                  </p>
+                </details>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>
