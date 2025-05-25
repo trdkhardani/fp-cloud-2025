@@ -50,6 +50,11 @@ export interface DeepFaceConfig {
   saturation_std_threshold: number;
   illumination_gradient_min: number;
   illumination_gradient_max: number;
+  // Attendance timing settings
+  check_in_time: string;
+  check_out_time?: string;
+  allow_early_checkin: boolean;
+  early_checkin_minutes: number;
 }
 
 export interface AvailableModels {
@@ -292,6 +297,33 @@ class FaceRecognitionAPI {
     } catch (error) {
       console.error('Employee deletion error:', error);
       throw error;
+    }
+  }
+
+  async getEmployeePhoto(employeeId: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/employees/${employeeId}/photo`);
+      
+      if (!response.ok) {
+        // Return a placeholder if photo not found
+        if (response.status === 404) {
+          return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPHBhdGggZD0iTTIwIDEwQzE2LjY4NjMgMTAgMTQgMTIuNjg2MyAxNCAxNkMxNCAxOS4zMTM3IDE2LjY4NjMgMjIgMjAgMjJDMjMuMzEzNyAyMiAyNiAxOS4zMTM3IDI2IDE2QzI2IDEyLjY4NjMgMjMuMzEzNyAxMCAyMCAxMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTIwIDI0QzEzLjM3MjYgMjQgOCAyOC40NzcyIDggMzRIMzJDMzIgMjguNDc3MiAyNi42Mjc0IDI0IDIwIDI0WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+        }
+        throw new Error(`Failed to get photo: ${response.status}`);
+      }
+
+      // Convert response to blob and then to data URL
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Photo fetch error:', error);
+      // Return placeholder on error
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPHBhdGggZD0iTTIwIDEwQzE2LjY4NjMgMTAgMTQgMTIuNjg2MyAxNCAxNkMxNCAxOS4zMTM3IDE2LjY4NjMgMjIgMjAgMjJDMjMuMzEzNyAyMiAyNiAxOS4zMTM3IDI2IDE2QzI2IDEyLjY4NjMgMjMuMzEzNyAxMCAyMCAxMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTIwIDI0QzEzLjM3MjYgMjQgOCAyOC40NzcyIDggMzRIMzJDMzIgMjguNDc3MiAyNi42Mjc0IDI0IDIwIDI0WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
     }
   }
 

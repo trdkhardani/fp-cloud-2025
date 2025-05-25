@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Save, RotateCcw, CheckCircle, XCircle, Info, Activity } from "lucide-react";
+import { Settings, Save, RotateCcw, CheckCircle, XCircle, Info, Activity, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -11,6 +11,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDeepFaceConfig, useUpdateDeepFaceConfig, useAvailableModels, useHealthCheck } from "@/hooks/useFaceRecognition";
 import { toast } from "sonner";
 import type { DeepFaceConfig } from "@/lib/api";
+import { Input } from "@/components/ui/input";
 
 const ConfigPage = () => {
   const { data: config, isLoading: configLoading, error: configError } = useDeepFaceConfig();
@@ -39,6 +40,11 @@ const ConfigPage = () => {
     saturation_std_threshold: 15,
     illumination_gradient_min: 1.0,
     illumination_gradient_max: 12.0,
+    // Attendance timing settings
+    check_in_time: "09:00",
+    check_out_time: "17:00",
+    allow_early_checkin: true,
+    early_checkin_minutes: 30,
   });
   
   const [hasChanges, setHasChanges] = useState(false);
@@ -543,6 +549,127 @@ const ConfigPage = () => {
                 </details>
               </>
             )}
+          </CardContent>
+        </Card>
+
+        {/* Attendance Timing Settings */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              Attendance Schedule
+              <Badge variant="outline" className="text-xs">Timing</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* Check-in Time */}
+              <div className="space-y-3">
+                <Label htmlFor="checkin-time" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Check-in Time
+                </Label>
+                <Input
+                  id="checkin-time"
+                  type="time"
+                  value={formData.check_in_time}
+                  onChange={(e) => handleFieldChange('check_in_time', e.target.value)}
+                  className="w-full"
+                />
+                <p className="text-xs text-gray-600">
+                  Official check-in time for the workday
+                </p>
+              </div>
+
+              {/* Check-out Time */}
+              <div className="space-y-3">
+                <Label htmlFor="checkout-time" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Check-out Time (Optional)
+                </Label>
+                <Input
+                  id="checkout-time"
+                  type="time"
+                  value={formData.check_out_time || ""}
+                  onChange={(e) => handleFieldChange('check_out_time', e.target.value || undefined)}
+                  className="w-full"
+                  placeholder="Leave empty if not required"
+                />
+                <p className="text-xs text-gray-600">
+                  Official check-out time (leave empty if check-out is not required)
+                </p>
+              </div>
+            </div>
+
+            {/* Early Check-in Settings */}
+            <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center justify-between">
+                <div className="space-y-1">
+                  <Label>Allow Early Check-in</Label>
+                  <p className="text-xs text-gray-600">Permit check-in before scheduled time</p>
+                </div>
+                <Switch
+                  checked={formData.allow_early_checkin}
+                  onCheckedChange={(checked) => handleFieldChange('allow_early_checkin', checked)}
+                />
+              </div>
+
+              {formData.allow_early_checkin && (
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <Label>Early Check-in Window</Label>
+                    <Badge variant="outline">
+                      {formData.early_checkin_minutes} minutes
+                    </Badge>
+                  </div>
+                  
+                  <Slider
+                    value={[formData.early_checkin_minutes]}
+                    onValueChange={([value]) => handleFieldChange('early_checkin_minutes', value)}
+                    min={5}
+                    max={120}
+                    step={5}
+                    className="w-full"
+                  />
+                  
+                  <div className="flex justify-between text-xs text-gray-600">
+                    <span>5 minutes</span>
+                    <span>2 hours</span>
+                  </div>
+                  
+                  <p className="text-sm text-gray-600">
+                    How many minutes before the scheduled time users can check in
+                  </p>
+                </div>
+              )}
+            </div>
+
+            {/* Time Preview */}
+            <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
+              <h4 className="font-medium text-blue-900 mb-2">Schedule Preview</h4>
+              <div className="space-y-1 text-sm text-blue-800">
+                <p>
+                  <strong>Check-in:</strong> {formData.check_in_time}
+                  {formData.allow_early_checkin && (
+                    <span className="text-blue-600">
+                      {" "}(earliest: {new Date(`2000-01-01T${formData.check_in_time}`).toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit',
+                        hour12: false
+                      }).split(':').map((part, i) => 
+                        i === 1 ? String(Math.max(0, parseInt(part) - formData.early_checkin_minutes % 60)).padStart(2, '0') :
+                        i === 0 ? String(Math.max(0, parseInt(part) - Math.floor(formData.early_checkin_minutes / 60))).padStart(2, '0') : part
+                      ).join(':')})
+                    </span>
+                  )}
+                </p>
+                {formData.check_out_time && (
+                  <p><strong>Check-out:</strong> {formData.check_out_time}</p>
+                )}
+                {!formData.check_out_time && (
+                  <p><strong>Check-out:</strong> <span className="text-blue-600">Not required</span></p>
+                )}
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>

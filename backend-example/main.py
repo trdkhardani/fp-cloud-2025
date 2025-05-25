@@ -5,7 +5,7 @@ Run with: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends, Form
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, Response
 from pydantic import BaseModel
 from typing import List, Optional
 import cv2
@@ -97,6 +97,11 @@ class DeepFaceConfig(BaseModel):
     saturation_std_threshold: float = 15  # Lower for webcam (was 20)
     illumination_gradient_min: float = 1.0  # Lower for webcam (was 2.0)
     illumination_gradient_max: float = 12.0  # Higher for webcam (was 8.0)
+    # Attendance timing settings
+    check_in_time: str = "09:00"  # Default check-in time in HH:MM format
+    check_out_time: Optional[str] = "17:00"  # Optional check-out time in HH:MM format
+    allow_early_checkin: bool = True  # Allow check-in before scheduled time
+    early_checkin_minutes: int = 30  # How many minutes early check-in is allowed
 
 # Global configuration
 config = DeepFaceConfig()
@@ -828,6 +833,37 @@ async def update_employee(
     except Exception as e:
         logging.error(f"Employee update error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Update failed: {str(e)}")
+
+@app.get("/api/employees/{employee_id}/photo")
+async def get_employee_photo(employee_id: str):
+    """Get employee profile photo"""
+    try:
+        # Get employee data
+        employee = await db_manager.get_employee(employee_id)
+        if not employee:
+            raise HTTPException(status_code=404, detail="Employee not found")
+        
+        # Check if employee has a face image
+        if not employee.get("face_image_id"):
+            raise HTTPException(status_code=404, detail="No photo found for this employee")
+        
+        # Get the image data
+        image_data = await db_manager.get_face_image(employee["face_image_id"])
+        if not image_data:
+            raise HTTPException(status_code=404, detail="Photo not found")
+        
+        # Return image as response
+        return Response(
+            content=image_data,
+            media_type="image/jpeg",
+            headers={"Cache-Control": "public, max-age=3600"}  # Cache for 1 hour
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Photo retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get photo: {str(e)}")
 
 @app.get("/health")
 async def health_check():

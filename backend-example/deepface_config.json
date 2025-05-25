@@ -4,5 +4,22 @@
   "detector_backend": "opencv",
   "enforce_detection": true,
   "confidence_threshold": 0.7,
-  "align": true
+  "align": true,
+  "enable_liveness_detection": true,
+  "liveness_threshold": 0.3,
+  "texture_variance_threshold": 30.0,
+  "color_std_threshold": 10.0,
+  "edge_density_min": 0.02,
+  "edge_density_max": 0.25,
+  "high_freq_energy_threshold": 2.5,
+  "hist_entropy_threshold": 5.5,
+  "saturation_mean_min": 20.0,
+  "saturation_mean_max": 150.0,
+  "saturation_std_threshold": 15.0,
+  "illumination_gradient_min": 1.0,
+  "illumination_gradient_max": 12.0,
+  "check_in_time": "09:00",
+  "check_out_time": "17:00",
+  "allow_early_checkin": true,
+  "early_checkin_minutes": 30
 }

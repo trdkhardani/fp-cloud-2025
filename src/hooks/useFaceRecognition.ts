@@ -124,6 +124,16 @@ export const useUpdateEmployee = () => {
   });
 };
 
+// Employee Photo Hook
+export const useEmployeePhoto = (employeeId: string) => {
+  return useQuery({
+    queryKey: ['employee-photo', employeeId],
+    queryFn: () => faceRecognitionAPI.getEmployeePhoto(employeeId),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !!employeeId, // Only run if employeeId is provided
+  });
+};
+
 // Employee Deletion Hook
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
