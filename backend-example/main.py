@@ -23,7 +23,7 @@ import math
 from database import db_manager, get_database
 
 # Timezone utilities
-from timezone_utils import get_local_now, get_local_time_string, get_local_date_start, format_local_datetime
+from timezone_utils import get_local_now, get_local_time_string, get_local_date_start, format_local_datetime, convert_utc_to_local
 
 # Import DeepFace
 try:
@@ -785,7 +785,7 @@ async def record_attendance(
             "employee_id": employee_id,
             "employee_name": employee_data["name"],
             "type": type,
-            "timestamp": datetime.now(),
+            "timestamp": get_local_now(),  # Use local timezone
             "confidence": confidence,
             "image_id": image_id
         }
@@ -793,13 +793,23 @@ async def record_attendance(
         # Store in database
         attendance_record = await db_manager.create_attendance(attendance_data)
         
-        # Convert to response format
+        # Convert to response format with local timezone
+        timestamp_str = attendance_record["timestamp"]
+        if isinstance(attendance_record["timestamp"], datetime):
+            if attendance_record["timestamp"].tzinfo is None:
+                # If no timezone info, assume it's already local time from get_local_now()
+                timestamp_str = attendance_record["timestamp"].isoformat()
+            else:
+                # Convert to local timezone
+                local_dt = convert_utc_to_local(attendance_record["timestamp"])
+                timestamp_str = local_dt.isoformat()
+        
         return AttendanceRecord(
             id=attendance_record["attendance_id"],
             employee_id=attendance_record["employee_id"],
             employee_name=attendance_record["employee_name"],
             type=attendance_record["type"],
-            timestamp=attendance_record["timestamp"].isoformat(),
+            timestamp=timestamp_str,
             confidence=attendance_record["confidence"],
             image_url=f"/api/attendance/{attendance_record['attendance_id']}/photo" if image_id else None
         )
@@ -814,22 +824,39 @@ async def record_attendance(
 
 @app.get("/api/attendance", response_model=List[AttendanceRecord])
 async def get_attendance_history(limit: int = 50):
-    """Get attendance history"""
+    """Get attendance history with timezone conversion"""
     try:
         attendance_records = await db_manager.get_attendance_history(limit=limit)
         
-        # Convert to response format
-        return [
-            AttendanceRecord(
+        # Convert to response format with timezone conversion
+        result = []
+        for record in attendance_records:
+            # Convert timestamp to local timezone if it's a datetime object
+            timestamp_str = record["timestamp"]
+            if isinstance(record["timestamp"], datetime):
+                # Check if timestamp has timezone info
+                if record["timestamp"].tzinfo is None:
+                    # Assume UTC if no timezone info (for existing records)
+                    import pytz
+                    utc_dt = record["timestamp"].replace(tzinfo=pytz.UTC)
+                    local_dt = convert_utc_to_local(utc_dt)
+                    timestamp_str = local_dt.isoformat()
+                else:
+                    # Already has timezone info, convert to local
+                    local_dt = convert_utc_to_local(record["timestamp"])
+                    timestamp_str = local_dt.isoformat()
+            
+            result.append(AttendanceRecord(
                 id=record.get("attendance_id", str(record.get("_id", ""))),
                 employee_id=record["employee_id"],
                 employee_name=record["employee_name"],
                 type=record["type"],
-                timestamp=record["timestamp"].isoformat() if isinstance(record["timestamp"], datetime) else record["timestamp"],
-                confidence=record["confidence"]
-            )
-            for record in attendance_records
-        ]
+                timestamp=timestamp_str,
+                confidence=record["confidence"],
+                image_url=f"/api/attendance/{record.get('attendance_id', str(record.get('_id', '')))}/photo" if record.get("image_id") else None
+            ))
+        
+        return result
     except Exception as e:
         logging.error(f"Error getting attendance history: {str(e)}")
         return []
