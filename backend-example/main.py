@@ -22,6 +22,9 @@ import math
 # Database imports
 from database import db_manager, get_database
 
+# Timezone utilities
+from timezone_utils import get_local_now, get_local_time_string, get_local_date_start, format_local_datetime
+
 # Import DeepFace
 try:
     from deepface import DeepFace
@@ -147,8 +150,8 @@ def time_to_minutes(time_str: str) -> int:
         return 0
 
 def get_current_time_minutes() -> int:
-    """Get current time as minutes since midnight"""
-    now = datetime.now()
+    """Get current time as minutes since midnight in local timezone"""
+    now = get_local_now()
     return now.hour * 60 + now.minute
 
 def determine_attendance_mode(current_time_minutes: int = None) -> dict:
@@ -221,26 +224,29 @@ def determine_attendance_mode(current_time_minutes: int = None) -> dict:
 # Add endpoint to get current attendance mode
 @app.get("/api/attendance/mode")
 async def get_attendance_mode():
-    """Get current attendance mode based on schedule"""
+    """Get current attendance mode based on time and schedule"""
     try:
-        mode_info = determine_attendance_mode()
-        current_time = datetime.now().strftime("%H:%M")
+        current_time_minutes = get_current_time_minutes()
+        mode_info = determine_attendance_mode(current_time_minutes)
+        
+        # Add human-readable current time
+        current_time = get_local_time_string()
         
         return {
             "current_time": current_time,
             "mode": mode_info["mode"],
             "allowed_types": mode_info["allowed_types"],
             "schedule_info": mode_info["schedule_info"],
-            "requires_confirmation": mode_info.get("requires_confirmation", False),
+            "requires_confirmation": config.outside_schedule_requires_confirmation if mode_info["schedule_info"]["outside_schedule"] else False,
             "message": get_mode_message(mode_info)
         }
     except Exception as e:
-        logging.error(f"Error getting attendance mode: {str(e)}")
         return {
-            "current_time": datetime.now().strftime("%H:%M"),
+            "current_time": get_local_time_string(),
             "mode": "error",
-            "allowed_types": ["check-in", "check-out"],
-            "message": "Schedule check failed - allowing all types"
+            "allowed_types": [],
+            "schedule_info": {},
+            "message": f"Error determining attendance mode: {str(e)}"
         }
 
 def get_mode_message(mode_info: dict) -> str:
@@ -550,8 +556,8 @@ async def recognize_face(file: UploadFile = File(...)):
         if not DEEPFACE_AVAILABLE:
             return RecognitionResult(
                 success=False,
-                message="DeepFace is not available. Please install: pip install deepface",
-                timestamp=datetime.now().isoformat()
+                message="DeepFace is not available",
+                timestamp=get_local_now().isoformat()
             )
 
         # Save uploaded file temporarily
@@ -567,7 +573,7 @@ async def recognize_face(file: UploadFile = File(...)):
             return RecognitionResult(
                 success=False,
                 message="No face detected in the image",
-                timestamp=datetime.now().isoformat()
+                timestamp=get_local_now().isoformat()
             )
 
         # Perform anti-spoofing / liveness detection (if enabled)
@@ -586,7 +592,7 @@ async def recognize_face(file: UploadFile = File(...)):
                     liveness_score=liveness_result['liveness_score'],
                     is_live=False,
                     message=f"Anti-spoofing failed: {liveness_result['reason']}",
-                    timestamp=datetime.now().isoformat()
+                    timestamp=get_local_now().isoformat()
                 )
         else:
             print("⚠️ Liveness detection disabled")
@@ -603,7 +609,7 @@ async def recognize_face(file: UploadFile = File(...)):
             return RecognitionResult(
                 success=False,
                 message="No enrolled faces found. Please enroll employees first.",
-                timestamp=datetime.now().isoformat()
+                timestamp=get_local_now().isoformat()
             )
 
         # Create temporary face database for recognition
@@ -688,13 +694,13 @@ async def recognize_face(file: UploadFile = File(...)):
                             liveness_score=liveness_result['liveness_score'],
                             is_live=liveness_result['is_live'],
                             message=liveness_result['reason'],
-                            timestamp=datetime.now().isoformat()
+                            timestamp=get_local_now().isoformat()
                         )
 
             return RecognitionResult(
                 success=False,
                 message=f"Face not recognized or confidence below {config.confidence_threshold:.1%}",
-                timestamp=datetime.now().isoformat()
+                timestamp=get_local_now().isoformat()
             )
 
         finally:
@@ -715,19 +721,19 @@ async def recognize_face(file: UploadFile = File(...)):
             return RecognitionResult(
                 success=False,
                 message="No face detected in the image. Please ensure good lighting and face visibility.",
-                timestamp=datetime.now().isoformat()
+                timestamp=get_local_now().isoformat()
             )
         elif "Face recognition model" in error_message:
             return RecognitionResult(
                 success=False,
                 message=f"Face recognition model error. Try changing the model in settings.",
-                timestamp=datetime.now().isoformat()
+                timestamp=get_local_now().isoformat()
             )
         else:
             return RecognitionResult(
                 success=False,
                 message=f"Recognition failed: {error_message}",
-                timestamp=datetime.now().isoformat()
+                timestamp=get_local_now().isoformat()
             )
     
     finally:

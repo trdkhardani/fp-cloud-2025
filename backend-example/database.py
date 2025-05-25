@@ -23,6 +23,9 @@ except ImportError:
 from pydantic import BaseModel, Field, ConfigDict
 from typing_extensions import Annotated
 
+# Timezone utilities
+from timezone_utils import get_local_now, get_local_date_start
+
 # MongoDB Configuration
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
 DATABASE_NAME = os.getenv("DATABASE_NAME", "faceattend")
@@ -46,39 +49,29 @@ class PyObjectId(ObjectId):
     def __get_pydantic_json_schema__(cls, field_schema):
         field_schema.update(type="string")
 
-class EmployeeDB(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_encoders={ObjectId: str}
-    )
+class Employee(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     
-    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
-    employee_id: str = Field(..., description="Unique employee identifier")
-    name: str = Field(..., description="Employee name")
-    department: Optional[str] = Field(None, description="Employee department")
-    email: Optional[str] = Field(None, description="Employee email")
-    face_enrolled: bool = Field(default=False, description="Whether face is enrolled")
-    face_image_id: Optional[PyObjectId] = Field(None, description="GridFS file ID for face image")
-    created_at: datetime = Field(default_factory=datetime.now)
-    updated_at: datetime = Field(default_factory=datetime.now)
+    id: str = Field(default_factory=lambda: str(ObjectId()))
+    name: str
+    department: Optional[str] = None
+    email: Optional[str] = None
+    face_enrolled: bool = False
+    face_encoding_path: Optional[str] = None
+    created_at: datetime = Field(default_factory=get_local_now)
+    updated_at: datetime = Field(default_factory=get_local_now)
 
-class AttendanceDB(BaseModel):
-    model_config = ConfigDict(
-        populate_by_name=True,
-        arbitrary_types_allowed=True,
-        json_encoders={ObjectId: str}
-    )
+class AttendanceRecord(BaseModel):
+    model_config = ConfigDict(arbitrary_types_allowed=True)
     
-    id: Optional[PyObjectId] = Field(default_factory=PyObjectId, alias="_id")
-    attendance_id: str = Field(..., description="Unique attendance record identifier")
-    employee_id: str = Field(..., description="Employee identifier")
-    employee_name: str = Field(..., description="Employee name")
-    type: str = Field(..., description="check-in or check-out")
-    timestamp: datetime = Field(default_factory=datetime.now)
-    confidence: float = Field(..., description="Recognition confidence score")
-    image_id: Optional[str] = Field(None, description="GridFS file ID for captured image")
-    created_at: datetime = Field(default_factory=datetime.now)
+    id: str = Field(default_factory=lambda: str(ObjectId()))
+    employee_id: str
+    employee_name: str
+    type: str  # "check-in" or "check-out"
+    confidence: float
+    timestamp: datetime = Field(default_factory=get_local_now)
+    image_id: Optional[str] = None  # GridFS file ID for attendance image
+    created_at: datetime = Field(default_factory=get_local_now)
 
 class DatabaseManager:
     def __init__(self):
@@ -151,8 +144,8 @@ class DatabaseManager:
                 employee_data["face_enrolled"] = True
 
             # Create employee document
-            employee_data["created_at"] = datetime.now()
-            employee_data["updated_at"] = datetime.now()
+            employee_data["created_at"] = get_local_now()
+            employee_data["updated_at"] = get_local_now()
             
             result = self.db[EMPLOYEES_COLLECTION].insert_one(employee_data)
             
@@ -211,7 +204,7 @@ class DatabaseManager:
             if not self.is_connected():
                 return False
                 
-            update_data["updated_at"] = datetime.now()
+            update_data["updated_at"] = get_local_now()
             result = self.db[EMPLOYEES_COLLECTION].update_one(
                 {"employee_id": employee_id},
                 {"$set": update_data}
@@ -263,7 +256,7 @@ class DatabaseManager:
                 filename=f"{employee_id}_face.jpg",
                 employee_id=employee_id,
                 content_type="image/jpeg",
-                upload_date=datetime.now()
+                upload_date=get_local_now()
             )
             
             logging.info(f"✅ Face image stored for employee: {employee_id}")
@@ -338,11 +331,11 @@ class DatabaseManager:
             # Store in GridFS with attendance-specific metadata
             file_id = self.fs.put(
                 image_bytes,
-                filename=f"{employee_id}_{attendance_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg",
+                filename=f"{employee_id}_{attendance_type}_{get_local_now().strftime('%Y%m%d_%H%M%S')}.jpg",
                 employee_id=employee_id,
                 attendance_type=attendance_type,
                 content_type="image/jpeg",
-                upload_date=datetime.now(),
+                upload_date=get_local_now(),
                 image_type="attendance"
             )
             
@@ -386,7 +379,7 @@ class DatabaseManager:
             if not self.is_connected():
                 raise Exception("Database not connected")
 
-            attendance_data["created_at"] = datetime.now()
+            attendance_data["created_at"] = get_local_now()
             result = self.db[ATTENDANCE_COLLECTION].insert_one(attendance_data)
             
             # Retrieve and return the created record
@@ -437,7 +430,7 @@ class DatabaseManager:
             total_attendance = self.db[ATTENDANCE_COLLECTION].count_documents({})
             
             # Today's attendance
-            today_start = datetime.now().replace(hour=0, minute=0, second=0, microsecond=0)
+            today_start = get_local_date_start()
             today_attendance = self.db[ATTENDANCE_COLLECTION].count_documents({
                 "timestamp": {"$gte": today_start}
             })
