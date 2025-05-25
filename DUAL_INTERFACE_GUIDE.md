@@ -1,11 +1,25 @@
-# FaceAttend - Dual Interface System
+# FaceAttend - Dual Interface System with MongoDB
 
 ## 🎯 Overview
 
-Your FaceAttend system now has **two separate interfaces** designed for different use cases:
+Your FaceAttend system now has **two separate interfaces** with **persistent MongoDB storage** designed for different use cases:
 
 1. **🖥️ Admin Interface** - Full management system with authentication
 2. **📱 Kiosk Interface** - Simple door-mounted face recognition terminal
+
+## 🗄️ **NEW: MongoDB Data Persistence**
+
+### **✅ What's Persistent Now:**
+- **👥 Employee Records**: All employee data survives server restarts
+- **📸 Face Images**: Stored securely in GridFS database
+- **📊 Attendance History**: Complete historical tracking
+- **⚙️ System Configuration**: Settings maintained across sessions
+
+### **🔒 Data Benefits:**
+- **No Data Loss**: System state maintained between restarts
+- **Scalable Storage**: Handle hundreds of employees efficiently
+- **Professional Database**: Enterprise-grade MongoDB solution
+- **Backup Ready**: Full backup and restore capabilities
 
 ## 🔑 Authentication System
 
@@ -33,40 +47,58 @@ VITE_ADMIN_PASSWORD=admin123
 VITE_KIOSK_MODE=false
 ```
 
+### Backend Environment Variables
+Create a `.env` file in `backend-example/`:
+
+```env
+# MongoDB Configuration
+MONGODB_URL=mongodb://localhost:27017
+DATABASE_NAME=faceattend
+
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+
+# DeepFace Configuration
+DEFAULT_MODEL=VGG-Face
+DEFAULT_DETECTOR=opencv
+DEFAULT_DISTANCE_METRIC=cosine
+```
+
 ## 🖥️ Admin Interface
 
 ### URL: `http://localhost:8080/admin`
 **Requires Authentication** ✅
 
 ### Features:
-- **👥 Employee Management**
-  - Add new employees with face enrollment
-  - View all employees with search/filter
-  - Delete employees with confirmation
-  - Face enrollment status tracking
+- **👥 Employee Management** *(MongoDB Persistent)*
+  - Add new employees with face enrollment → **Stored in database**
+  - View all employees with search/filter → **Loaded from database**
+  - Delete employees with confirmation → **Removes from database**
+  - Face enrollment status tracking → **Persistent state**
 
-- **📸 Camera Tab**
-  - Manual face recognition testing
+- **📸 Camera Tab** *(MongoDB Enhanced)*
+  - Manual face recognition testing → **Compares against stored faces**
   - Real-time camera preview with manual capture
   - Last recognition result display
-  - Today's statistics dashboard
+  - Today's statistics dashboard → **From database**
 
-- **📊 Attendance History**
-  - Complete attendance records
-  - Filter by date/employee
+- **📊 Attendance History** *(Fully Persistent)*
+  - Complete attendance records → **Stored in MongoDB**
+  - Filter by date/employee → **Database queries**
   - Export capabilities
-  - Confidence scores tracking
+  - Confidence scores tracking → **Historical data**
 
-- **⚙️ Settings & Configuration**
+- **⚙️ Settings & Configuration** *(Persistent Settings)*
   - DeepFace model selection (VGG-Face, Facenet, etc.)
   - Confidence threshold adjustment (50-99%)
-  - Detector backend configuration
+  - Detector backend configuration → **Saved to database**
   - Distance metric settings
-  - System health monitoring
+  - System health monitoring → **Database status**
 
 - **🛡️ Admin Features**
   - User session management
-  - System status monitoring
+  - System status monitoring → **Database connection status**
   - Quick kiosk mode launcher
   - Secure logout functionality
 
@@ -86,17 +118,19 @@ VITE_KIOSK_MODE=false
   - Large digital clock with date
   - Professional appearance for door mounting
 
-- **🎯 Automatic Face Recognition**
+- **🎯 Automatic Face Recognition** *(MongoDB Powered)*
   - Continuous camera monitoring
   - Auto-capture every 2 seconds
+  - **Compares against all enrolled faces in database**
   - No manual intervention required
   - Wide-screen optimized layout
 
-- **✅ Recognition Results**
-  - Green success screen for recognized faces
+- **✅ Recognition Results** *(Database Integrated)*
+  - Green success screen for recognized faces → **Employee data from database**
   - Red denial screen for unrecognized faces
-  - Employee name and check-in time display
+  - Employee name and check-in time display → **Stored in database**
   - 5-second auto-clear of results
+  - **Attendance automatically recorded to database**
 
 - **🔊 Audio Feedback** (Optional)
   - Success sound on recognition
@@ -106,7 +140,7 @@ VITE_KIOSK_MODE=false
 - **📋 Usage Instructions**
   - Built-in step-by-step instructions
   - Visual face positioning guide
-  - System status indicator
+  - System status indicator → **Database connection status**
 
 ### Design Features:
 - **Dark theme** optimized for door mounting
@@ -118,9 +152,14 @@ VITE_KIOSK_MODE=false
 
 ### 1. Office Door Setup
 ```bash
+# Start MongoDB (required)
+brew services start mongodb/brew/mongodb-community  # macOS
+# OR
+sudo systemctl start mongod  # Linux
+
 # Start both frontend and backend
 npm run dev  # Frontend on :8080
-cd backend-example && python setup.py  # Backend on :8000
+cd backend-example && python -m uvicorn main:app --host 0.0.0.0 --port 8000 --reload
 
 # Deploy kiosk interface
 # Navigate to: http://your-server:8080/kiosk
@@ -133,6 +172,7 @@ cd backend-example && python setup.py  # Backend on :8000
 # Navigate to: http://your-server:8080/login
 # Login with admin credentials
 # Manage employees and system configuration
+# All data persists in MongoDB
 ```
 
 ### 3. Production Deployment
@@ -140,6 +180,8 @@ cd backend-example && python setup.py  # Backend on :8000
 # Build for production
 npm run build
 
+# Set up MongoDB (local or Atlas)
+# Configure environment variables
 # Serve static files
 # Configure reverse proxy (nginx/apache)
 # Point kiosk devices to /kiosk
@@ -150,22 +192,28 @@ npm run build
 
 ### Typical Usage Flow:
 
-1. **Admin Setup**:
-   - Login to admin panel (`/login`)
-   - Configure DeepFace settings (`Settings` tab)
-   - Enroll employees (`Employees` tab → `Add New Employee`)
-   - Test recognition (`Camera` tab)
+1. **Initial Setup**:
+   - Install and start MongoDB
+   - Run backend setup: `cd backend-example && python setup.py`
+   - Start API server and frontend
 
-2. **Kiosk Operation**:
+2. **Admin Setup**:
+   - Login to admin panel (`/login`)
+   - Configure DeepFace settings (`Settings` tab) → **Saved to database**
+   - Enroll employees (`Employees` tab → `Add New Employee`) → **Stored in MongoDB**
+   - Test recognition (`Camera` tab) → **Uses database faces**
+
+3. **Kiosk Operation**:
    - Navigate to kiosk interface (`/kiosk`)
    - Mount on entrance door/wall
    - Employees simply approach and look at camera
-   - Automatic recognition and attendance logging
+   - **Automatic recognition against database faces**
+   - **Attendance automatically logged to database**
 
-3. **Daily Management**:
-   - Check attendance history (`History` tab)
-   - Monitor system health (`Settings` tab)
-   - Add/remove employees as needed
+4. **Daily Management**:
+   - Check attendance history (`History` tab) → **From database**
+   - Monitor system health (`Settings` tab) → **Database status**
+   - Add/remove employees as needed → **Database operations**
 
 ## 🛠️ Technical Details
 
@@ -185,11 +233,51 @@ npm run build
 4. Session expires (24h) → Auto-logout → Redirected to /login
 ```
 
+### Database Integration:
+```
+Frontend ↔ API (FastAPI) ↔ MongoDB
+    ↓           ↓            ↓
+- React UI  - Face Rec.  - Employee Data
+- Auth      - Attendance - Face Images
+- Routing   - Config     - History
+```
+
 ### API Integration:
 - Both interfaces use the same backend API
-- Admin interface: Full CRUD operations
-- Kiosk interface: Recognition and attendance only
-- Health monitoring on both interfaces
+- Admin interface: Full CRUD operations → **MongoDB storage**
+- Kiosk interface: Recognition and attendance → **Database queries**
+- Health monitoring on both interfaces → **Database status**
+
+## 🔧 Setup Requirements
+
+### Prerequisites:
+1. **MongoDB Installation**:
+   ```bash
+   # macOS
+   brew tap mongodb/brew
+   brew install mongodb-community
+   brew services start mongodb/brew/mongodb-community
+   
+   # Ubuntu/Debian
+   sudo apt install -y mongodb-org
+   sudo systemctl start mongod
+   
+   # Windows
+   # Download from MongoDB website
+   ```
+
+2. **Backend Dependencies**:
+   ```bash
+   cd backend-example
+   pip install -r requirements.txt
+   python setup.py  # Tests everything
+   ```
+
+3. **Frontend Dependencies**:
+   ```bash
+   npm install
+   npm run dev
+   ```
 
 ## 🔧 Customization
 
@@ -203,6 +291,11 @@ npm run build
 - Change default credentials via environment variables
 - Customize tabs and features as needed
 
+### Database Configuration:
+- MongoDB URL in `.env` file
+- Database name customization
+- Collection indexes and optimization
+
 ## 🚨 Security Considerations
 
 ### Production Setup:
@@ -211,11 +304,14 @@ npm run build
 - Implement proper session management
 - Consider network isolation for kiosk devices
 - Regular security updates
+- **Enable MongoDB authentication**
+- **Use MongoDB Atlas for cloud deployment**
 
 ### Network Setup:
 - Admin interface: Internal network only
 - Kiosk interface: Can be on isolated VLAN
 - API backend: Internal network only
+- **MongoDB**: Secure network access
 - Consider VPN for remote admin access
 
 ## 📱 Mobile Responsiveness
@@ -240,5 +336,35 @@ npm run build
 ✅ **Scalability**: Can deploy multiple kiosks with one admin panel
 ✅ **Maintenance**: Easy to update and configure
 ✅ **Professional**: Enterprise-ready appearance and functionality
+✅ **Data Persistence**: MongoDB ensures no data loss
+✅ **Production Ready**: Full database backing for enterprise use
 
-Your FaceAttend system is now ready for production deployment with proper separation between administrative functions and day-to-day attendance tracking! 
+## 💾 **NEW: Data Management**
+
+### **Backup & Recovery:**
+```bash
+# Backup database
+mongodump --db faceattend --out ./backup
+
+# Restore database  
+mongorestore --db faceattend ./backup/faceattend
+```
+
+### **Database Monitoring:**
+```bash
+# Check database status
+curl http://localhost:8000/health
+
+# View collections
+mongosh
+use faceattend
+show collections
+```
+
+### **Data Migration:**
+- Export employee data
+- Import from CSV/JSON
+- Database schema upgrades
+- Cloud migration support
+
+Your FaceAttend system is now ready for production deployment with proper separation between administrative functions, day-to-day attendance tracking, and **persistent MongoDB storage**! 🚀 
