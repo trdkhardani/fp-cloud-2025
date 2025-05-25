@@ -1,0 +1,87 @@
+version: '3.8'
+
+services:
+  # MongoDB Database
+  mongodb:
+    image: mongo:7.0
+    container_name: faceattend-mongodb
+    restart: unless-stopped
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: password123
+      MONGO_INITDB_DATABASE: faceattend
+    volumes:
+      - mongodb_data:/data/db
+      - ./mongodb-init:/docker-entrypoint-initdb.d
+    ports:
+      - "27017:27017"
+    networks:
+      - faceattend-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+
+  # Backend API (CPU version)
+  backend:
+    build:
+      context: ./backend-example
+      dockerfile: Dockerfile
+    container_name: faceattend-backend
+    restart: unless-stopped
+    environment:
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017/faceattend?authSource=admin
+      - DATABASE_NAME=faceattend
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - DEFAULT_MODEL=VGG-Face
+      - DEFAULT_DETECTOR=opencv
+      - DEFAULT_DISTANCE_METRIC=cosine
+    volumes:
+      - ./backend-example/uploads:/app/uploads
+      - ./backend-example/temp_images:/app/temp_images
+      - ./backend-example/logs:/app/logs
+      - ./backend-example/face_database:/app/face_database
+    ports:
+      - "8000:8000"
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    networks:
+      - faceattend-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 60s
+
+  # Frontend React App
+  frontend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: faceattend-frontend
+    restart: unless-stopped
+    ports:
+      - "80:80"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - faceattend-network
+    healthcheck:
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+
+volumes:
+  mongodb_data:
+
+networks:
+  faceattend-network:
+    driver: bridge 
