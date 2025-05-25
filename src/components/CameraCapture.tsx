@@ -127,8 +127,8 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
       const stream = await navigator.mediaDevices.getUserMedia({
         video: {
           facingMode: facingMode,
-          width: { ideal: kioskMode ? 1280 : 720 },
-          height: { ideal: kioskMode ? 720 : 720 }
+          width: { ideal: kioskMode ? 720 : 720 },  // Portrait: width smaller than height
+          height: { ideal: kioskMode ? 1280 : 720 }  // Portrait: height larger than width
         }
       });
       
@@ -322,11 +322,11 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
   }
 
   return (
-    <Card className={`overflow-hidden ${kioskMode ? 'bg-gray-800 border-gray-600' : ''}`}>
-      <CardContent className="p-0">
-        <div className="relative">
+    <Card className={`overflow-hidden ${kioskMode ? 'bg-gray-800 border-gray-600 h-full' : ''}`}>
+      <CardContent className={`${kioskMode ? 'p-0 h-full' : 'p-0'}`}>
+        <div className={`relative ${kioskMode ? 'h-full' : ''}`}>
           {/* Camera Preview */}
-          <div className={`relative bg-black ${kioskMode ? 'aspect-video' : 'aspect-square'} rounded-lg overflow-hidden`}>
+          <div className={`relative bg-black ${kioskMode ? 'aspect-[9/16] w-full max-h-full' : 'aspect-square'} rounded-lg overflow-hidden mx-auto`}>
             <video
               ref={videoRef}
               autoPlay
@@ -342,7 +342,7 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
                 : kioskMode 
                   ? 'border-blue-300 border-dashed' 
                   : 'border-blue-400 border-dashed'
-            } opacity-75 ${kioskMode ? 'm-16' : 'm-8'} rounded-lg transition-all duration-300`}></div>
+            } opacity-75 ${kioskMode ? 'm-8' : 'm-8'} rounded-lg transition-all duration-300`}></div>
             
             {/* Processing Overlay */}
             {isProcessing && (
@@ -385,7 +385,7 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
               </div>
             )}
 
-            {/* Kiosk Mode Instruction */}
+            {/* Kiosk Mode Instruction - Move to bottom */}
             {kioskMode && !isProcessing && (
               <div className="absolute bottom-4 left-4 right-4">
                 <div className="bg-black/60 text-white px-4 py-2 rounded-lg text-center">
