@@ -1,9 +1,11 @@
-
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <meta name="mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
     <title>FaceAttend - Smart Attendance System</title>
     <meta name="description" content="Mobile-first face recognition attendance system" />
     <meta name="author" content="Lovable" />
@@ -17,6 +19,78 @@
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:site" content="@lovable_dev" />
     <meta name="twitter:image" content="https://lovable.dev/opengraph-image-p98pqg.png" />
+    
+    <style>
+      /* Prevent text selection and improve touch handling */
+      * {
+        -webkit-touch-callout: none;
+        -webkit-user-select: none;
+        -khtml-user-select: none;
+        -moz-user-select: none;
+        -ms-user-select: none;
+        user-select: none;
+        -webkit-tap-highlight-color: transparent;
+      }
+      
+      /* Allow text selection for input fields */
+      input, textarea {
+        -webkit-user-select: text;
+        -moz-user-select: text;
+        -ms-user-select: text;
+        user-select: text;
+      }
+      
+      /* Prevent zoom on double tap */
+      body {
+        touch-action: manipulation;
+      }
+      
+      /* Ensure proper viewport handling on mobile */
+      html, body {
+        height: 100%;
+        overflow-x: hidden;
+      }
+      
+      /* Responsive video element */
+      video {
+        max-width: 100%;
+        height: auto;
+        object-fit: cover;
+      }
+      
+      /* Better mobile camera display */
+      @media (max-width: 768px) {
+        .camera-container {
+          width: 100% !important;
+          max-width: 100% !important;
+        }
+        
+        /* Adjust for different phone aspect ratios */
+        @media (orientation: portrait) {
+          .mobile-camera {
+            max-height: 70vh;
+          }
+        }
+        
+        @media (orientation: landscape) {
+          .mobile-camera {
+            max-height: 80vh;
+            max-width: 60vw;
+          }
+        }
+      }
+      
+      /* Handle notched devices */
+      @supports (padding: max(0px)) {
+        .safe-area-top {
+          padding-top: max(env(safe-area-inset-top), 0px);
+        }
+        
+        .safe-area-bottom {
+          padding-bottom: max(env(safe-area-inset-bottom), 0px);
+        }
+      }
+    </style>
   </head>
 
   <body>

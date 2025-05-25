@@ -1,5 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
-import { faceRecognitionAPI, type Employee, type AttendanceRecord, type RecognitionResult, type DeepFaceConfig, type AvailableModels } from '@/lib/api';
+import { faceRecognitionAPI, type Employee, type AttendanceRecord, type RecognitionResult, type DeepFaceConfig, type AvailableModels, type AttendanceMode } from '@/lib/api';
 
 // Configuration hooks
 export const useDeepFaceConfig = () => {
@@ -26,6 +26,16 @@ export const useAvailableModels = () => {
     queryKey: ['available-models'],
     queryFn: () => faceRecognitionAPI.getAvailableModels(),
     staleTime: 10 * 60 * 1000, // 10 minutes
+  });
+};
+
+// Attendance Mode Hook
+export const useAttendanceMode = () => {
+  return useQuery({
+    queryKey: ['attendance-mode'],
+    queryFn: () => faceRecognitionAPI.getAttendanceMode(),
+    refetchInterval: 60 * 1000, // Refetch every minute to update mode
+    staleTime: 30 * 1000, // 30 seconds
   });
 };
 
@@ -61,11 +71,12 @@ export const useRecordAttendance = () => {
   const queryClient = useQueryClient();
   
   return useMutation({
-    mutationFn: ({ employeeId, type, confidence }: { 
+    mutationFn: ({ employeeId, type, confidence, imageData }: { 
       employeeId: string; 
       type: 'check-in' | 'check-out'; 
-      confidence: number; 
-    }) => faceRecognitionAPI.recordAttendance(employeeId, type, confidence),
+      confidence: number;
+      imageData?: string; 
+    }) => faceRecognitionAPI.recordAttendance(employeeId, type, confidence, imageData),
     onSuccess: () => {
       // Invalidate attendance history to refetch latest data
       queryClient.invalidateQueries({ queryKey: ['attendance-history'] });
@@ -134,6 +145,16 @@ export const useEmployeePhoto = (employeeId: string) => {
   });
 };
 
+// Attendance Photo Hook
+export const useAttendancePhoto = (attendanceId: string) => {
+  return useQuery({
+    queryKey: ['attendance-photo', attendanceId],
+    queryFn: () => faceRecognitionAPI.getAttendancePhoto(attendanceId),
+    staleTime: 10 * 60 * 1000, // 10 minutes
+    enabled: !!attendanceId, // Only run if attendanceId is provided
+  });
+};
+
 // Employee Deletion Hook
 export const useDeleteEmployee = () => {
   const queryClient = useQueryClient();
@@ -158,11 +179,12 @@ export const useFaceAttendance = () => {
       const recognitionResult = await faceRecognition.mutateAsync(imageData);
       
       if (recognitionResult.success && recognitionResult.employee && recognitionResult.confidence) {
-        // If recognition successful, record attendance
+        // If recognition successful, record attendance with the captured image
         const attendanceRecord = await recordAttendance.mutateAsync({
           employeeId: recognitionResult.employee.id,
           type: attendanceType,
           confidence: recognitionResult.confidence,
+          imageData, // Pass the captured image
         });
         
         return {

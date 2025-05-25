@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Settings, Save, RotateCcw, CheckCircle, XCircle, Info, Activity, Clock } from "lucide-react";
+import { Settings, Save, RotateCcw, CheckCircle, XCircle, Info, Activity, Clock, Monitor } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -9,6 +9,7 @@ import { Slider } from "@/components/ui/slider";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useDeepFaceConfig, useUpdateDeepFaceConfig, useAvailableModels, useHealthCheck } from "@/hooks/useFaceRecognition";
+import { useUIPreferences } from "@/hooks/useLocalStorage";
 import { toast } from "sonner";
 import type { DeepFaceConfig } from "@/lib/api";
 import { Input } from "@/components/ui/input";
@@ -18,6 +19,7 @@ const ConfigPage = () => {
   const { data: availableModels, isLoading: modelsLoading } = useAvailableModels();
   const { data: health } = useHealthCheck();
   const updateConfig = useUpdateDeepFaceConfig();
+  const [uiPreferences, setUIPreferences] = useUIPreferences();
   
   const [formData, setFormData] = useState<DeepFaceConfig>({
     model_name: "VGG-Face",
@@ -40,11 +42,13 @@ const ConfigPage = () => {
     saturation_std_threshold: 15,
     illumination_gradient_min: 1.0,
     illumination_gradient_max: 12.0,
-    // Attendance timing settings
-    check_in_time: "09:00",
-    check_out_time: "17:00",
-    allow_early_checkin: true,
-    early_checkin_minutes: 30,
+    // Attendance timing settings - Range-based
+    check_in_start: "06:00",
+    check_in_end: "09:00",
+    check_out_start: "16:00",
+    check_out_end: "19:00",
+    allow_outside_schedule: true,
+    outside_schedule_requires_confirmation: true,
   });
   
   const [hasChanges, setHasChanges] = useState(false);
@@ -557,118 +561,182 @@ const ConfigPage = () => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               Attendance Schedule
-              <Badge variant="outline" className="text-xs">Timing</Badge>
+              <Badge variant="outline" className="text-xs">Range-based</Badge>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Check-in Time */}
-              <div className="space-y-3">
-                <Label htmlFor="checkin-time" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Check-in Time
-                </Label>
-                <Input
-                  id="checkin-time"
-                  type="time"
-                  value={formData.check_in_time}
-                  onChange={(e) => handleFieldChange('check_in_time', e.target.value)}
-                  className="w-full"
-                />
-                <p className="text-xs text-gray-600">
-                  Official check-in time for the workday
-                </p>
+          <CardContent className="space-y-6">
+            {/* Check-in Range */}
+            <div className="space-y-4">
+              <Label className="text-base font-medium">Check-in Time Range</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="checkin-start" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Start Time
+                  </Label>
+                  <Input
+                    id="checkin-start"
+                    type="time"
+                    value={formData.check_in_start}
+                    onChange={(e) => handleFieldChange('check_in_start', e.target.value)}
+                    className="w-full"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="checkin-end" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    End Time
+                  </Label>
+                  <Input
+                    id="checkin-end"
+                    type="time"
+                    value={formData.check_in_end}
+                    onChange={(e) => handleFieldChange('check_in_end', e.target.value)}
+                    className="w-full"
+                  />
+                </div>
               </div>
-
-              {/* Check-out Time */}
-              <div className="space-y-3">
-                <Label htmlFor="checkout-time" className="flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  Check-out Time (Optional)
-                </Label>
-                <Input
-                  id="checkout-time"
-                  type="time"
-                  value={formData.check_out_time || ""}
-                  onChange={(e) => handleFieldChange('check_out_time', e.target.value || undefined)}
-                  className="w-full"
-                  placeholder="Leave empty if not required"
-                />
-                <p className="text-xs text-gray-600">
-                  Official check-out time (leave empty if check-out is not required)
-                </p>
-              </div>
+              <p className="text-sm text-gray-600">
+                Users can only check-in during this time window
+              </p>
             </div>
 
-            {/* Early Check-in Settings */}
+            {/* Check-out Range */}
+            <div className="space-y-4">
+              <Label className="text-base font-medium">Check-out Time Range (Optional)</Label>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="checkout-start" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    Start Time
+                  </Label>
+                  <Input
+                    id="checkout-start"
+                    type="time"
+                    value={formData.check_out_start || ""}
+                    onChange={(e) => handleFieldChange('check_out_start', e.target.value || undefined)}
+                    className="w-full"
+                    placeholder="Leave empty to disable"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="checkout-end" className="flex items-center gap-2">
+                    <Clock className="w-4 h-4" />
+                    End Time
+                  </Label>
+                  <Input
+                    id="checkout-end"
+                    type="time"
+                    value={formData.check_out_end || ""}
+                    onChange={(e) => handleFieldChange('check_out_end', e.target.value || undefined)}
+                    className="w-full"
+                    placeholder="Leave empty to disable"
+                  />
+                </div>
+              </div>
+              <p className="text-sm text-gray-600">
+                Users can only check-out during this time window. Leave empty to disable check-out restrictions.
+              </p>
+            </div>
+
+            {/* Outside Schedule Settings */}
             <div className="space-y-4 p-4 bg-gray-50 rounded-lg">
               <div className="flex items-center justify-between">
                 <div className="space-y-1">
-                  <Label>Allow Early Check-in</Label>
-                  <p className="text-xs text-gray-600">Permit check-in before scheduled time</p>
+                  <Label>Allow Outside Schedule</Label>
+                  <p className="text-xs text-gray-600">Permit attendance outside defined time ranges</p>
                 </div>
                 <Switch
-                  checked={formData.allow_early_checkin}
-                  onCheckedChange={(checked) => handleFieldChange('allow_early_checkin', checked)}
+                  checked={formData.allow_outside_schedule}
+                  onCheckedChange={(checked) => handleFieldChange('allow_outside_schedule', checked)}
                 />
               </div>
 
-              {formData.allow_early_checkin && (
-                <div className="space-y-3">
-                  <div className="flex items-center justify-between">
-                    <Label>Early Check-in Window</Label>
-                    <Badge variant="outline">
-                      {formData.early_checkin_minutes} minutes
-                    </Badge>
+              {formData.allow_outside_schedule && (
+                <div className="flex items-center justify-between">
+                  <div className="space-y-1">
+                    <Label>Require Confirmation</Label>
+                    <p className="text-xs text-gray-600">Require confirmation for out-of-schedule attendance</p>
                   </div>
-                  
-                  <Slider
-                    value={[formData.early_checkin_minutes]}
-                    onValueChange={([value]) => handleFieldChange('early_checkin_minutes', value)}
-                    min={5}
-                    max={120}
-                    step={5}
-                    className="w-full"
+                  <Switch
+                    checked={formData.outside_schedule_requires_confirmation}
+                    onCheckedChange={(checked) => handleFieldChange('outside_schedule_requires_confirmation', checked)}
                   />
-                  
-                  <div className="flex justify-between text-xs text-gray-600">
-                    <span>5 minutes</span>
-                    <span>2 hours</span>
-                  </div>
-                  
-                  <p className="text-sm text-gray-600">
-                    How many minutes before the scheduled time users can check in
-                  </p>
                 </div>
               )}
             </div>
 
-            {/* Time Preview */}
+            {/* Schedule Preview */}
             <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-              <h4 className="font-medium text-blue-900 mb-2">Schedule Preview</h4>
-              <div className="space-y-1 text-sm text-blue-800">
-                <p>
-                  <strong>Check-in:</strong> {formData.check_in_time}
-                  {formData.allow_early_checkin && (
-                    <span className="text-blue-600">
-                      {" "}(earliest: {new Date(`2000-01-01T${formData.check_in_time}`).toLocaleTimeString([], {
-                        hour: '2-digit',
-                        minute: '2-digit',
-                        hour12: false
-                      }).split(':').map((part, i) => 
-                        i === 1 ? String(Math.max(0, parseInt(part) - formData.early_checkin_minutes % 60)).padStart(2, '0') :
-                        i === 0 ? String(Math.max(0, parseInt(part) - Math.floor(formData.early_checkin_minutes / 60))).padStart(2, '0') : part
-                      ).join(':')})
-                    </span>
-                  )}
-                </p>
-                {formData.check_out_time && (
-                  <p><strong>Check-out:</strong> {formData.check_out_time}</p>
+              <h4 className="font-medium text-blue-900 mb-3">Schedule Preview</h4>
+              <div className="space-y-2 text-sm text-blue-800">
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Check-in Range:</span>
+                  <span>{formData.check_in_start} - {formData.check_in_end}</span>
+                </div>
+                {formData.check_out_start && formData.check_out_end ? (
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Check-out Range:</span>
+                    <span>{formData.check_out_start} - {formData.check_out_end}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between">
+                    <span className="font-medium">Check-out:</span>
+                    <span className="text-blue-600">Not restricted</span>
+                  </div>
                 )}
-                {!formData.check_out_time && (
-                  <p><strong>Check-out:</strong> <span className="text-blue-600">Not required</span></p>
-                )}
+                <div className="flex items-center justify-between">
+                  <span className="font-medium">Outside Schedule:</span>
+                  <span className={formData.allow_outside_schedule ? "text-green-600" : "text-red-600"}>
+                    {formData.allow_outside_schedule ? "Allowed" : "Restricted"}
+                    {formData.allow_outside_schedule && formData.outside_schedule_requires_confirmation && " (with confirmation)"}
+                  </span>
+                </div>
               </div>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* UI Preferences */}
+        <Card className="lg:col-span-2">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              User Interface Preferences
+              <Badge variant="outline" className="text-xs">UI</Badge>
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+              <div className="space-y-1">
+                <Label className="flex items-center gap-2">
+                  <Monitor className="w-4 h-4" />
+                  Camera Mirror Mode
+                </Label>
+                <p className="text-xs text-gray-600">
+                  Mirror the camera display horizontally (like a selfie camera)
+                </p>
+              </div>
+              <Switch
+                checked={uiPreferences.mirrorMode}
+                onCheckedChange={(checked) => {
+                  setUIPreferences(prev => ({ ...prev, mirrorMode: checked }));
+                  toast.success("Mirror Mode Updated", {
+                    description: checked ? "Camera will now mirror the display" : "Camera will show normal view",
+                  });
+                }}
+              />
+            </div>
+            
+            <div className="p-3 bg-blue-50 rounded-lg border border-blue-200">
+              <p className="text-sm text-blue-800">
+                <strong>Mirror Mode:</strong> {uiPreferences.mirrorMode ? 'Enabled' : 'Disabled'}
+              </p>
+              <p className="text-xs text-blue-600 mt-1">
+                {uiPreferences.mirrorMode 
+                  ? "Camera display is mirrored horizontally (selfie mode)" 
+                  : "Camera display shows normal view (photo mode)"
+                }
+              </p>
             </div>
           </CardContent>
         </Card>

@@ -1,32 +1,57 @@
 import { useState, useMemo } from "react";
-import { Clock, Calendar, Filter, Search, RefreshCw, AlertCircle, User } from "lucide-react";
+import { Clock, Calendar, Filter, Search, RefreshCw, AlertCircle, User, Camera } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { useAttendanceHistory, useEmployeePhoto } from "@/hooks/useFaceRecognition";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { useAttendanceHistory, useAttendancePhoto } from "@/hooks/useFaceRecognition";
 import { format, isToday, parseISO } from "date-fns";
 
-// UserPhoto component to handle individual photo loading
-const UserPhoto = ({ employeeId, name }: { employeeId: string; name: string }) => {
-  const { data: photoUrl, isLoading } = useEmployeePhoto(employeeId);
-  
+// UserPhoto component to show initials only
+const UserPhoto = ({ name }: { name: string }) => {
   return (
     <Avatar className="h-12 w-12">
-      <AvatarImage 
-        src={photoUrl} 
-        alt={name}
-        className="object-cover"
-      />
       <AvatarFallback className="bg-blue-100 text-blue-600">
-        {isLoading ? (
-          <div className="w-4 h-4 border-2 border-blue-600 border-t-transparent rounded-full animate-spin" />
-        ) : (
-          name.split(' ').map(n => n[0]).join('').slice(0, 2)
-        )}
+        {name.split(' ').map(n => n[0]).join('').slice(0, 2)}
       </AvatarFallback>
     </Avatar>
+  );
+};
+
+// AttendancePhoto component to handle attendance captured photos
+const AttendancePhoto = ({ attendanceId, type }: { attendanceId: string; type: 'check-in' | 'check-out' }) => {
+  const { data: photoUrl, isLoading, error } = useAttendancePhoto(attendanceId);
+  
+  if (isLoading) {
+    return (
+      <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-gray-400 border-t-transparent rounded-full animate-spin" />
+      </div>
+    );
+  }
+
+  if (error || !photoUrl) {
+    return (
+      <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+        <Camera className="w-8 h-8" />
+      </div>
+    );
+  }
+
+  return (
+    <div className="relative">
+      <img 
+        src={photoUrl} 
+        alt={`${type} photo`}
+        className="w-24 h-24 object-cover rounded-lg border-2 border-gray-200"
+      />
+      <div className={`absolute -bottom-1 -right-1 w-6 h-6 rounded-full text-xs flex items-center justify-center text-white font-bold ${
+        type === 'check-in' ? 'bg-green-500' : 'bg-red-500'
+      }`}>
+        {type === 'check-in' ? '↓' : '↑'}
+      </div>
+    </div>
   );
 };
 
@@ -263,49 +288,95 @@ const AttendanceHistory = () => {
           {filteredRecords.map((record) => (
             <Card key={record.id} className="hover:shadow-md transition-shadow">
               <CardContent className="p-4">
-                <div className="flex items-center justify-between mb-3">
-                  <div className="flex items-center space-x-3">
-                    <UserPhoto employeeId={record.employeeId} name={record.name} />
-                    <div>
-                      <h3 className="font-semibold text-gray-900">{record.name}</h3>
-                      <p className="text-sm text-gray-500">{record.employeeId}</p>
+                {/* 3-Column Layout */}
+                <div className="grid grid-cols-3 gap-4">
+                  {/* Column 1: User Info & Status */}
+                  <div className="flex flex-col space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <UserPhoto name={record.name} />
+                      <div className="flex-1">
+                        <h3 className="font-semibold text-gray-900">{record.name}</h3>
+                        <p className="text-sm text-gray-500">{record.employeeId}</p>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      {getStatusBadge(record.status)}
+                      <div className="text-sm text-gray-600">
+                        <span className="font-medium">Duration:</span> {record.duration}
+                      </div>
+                      {record.records && record.records.length > 2 && (
+                        <div className="text-xs text-gray-500">
+                          {record.records.length} total records today
+                        </div>
+                      )}
                     </div>
                   </div>
-                  {getStatusBadge(record.status)}
-                </div>
-                
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-green-500" />
-                    <span className="text-gray-600">In:</span>
-                    <span className="font-medium">{record.checkIn}</span>
+
+                  {/* Column 2: Check-in Details */}
+                  <div className="flex flex-col items-center space-y-2 text-center border-r border-gray-100 pr-2">
+                    <div className="text-sm font-medium text-green-700 mb-1">Check-in</div>
+                    
+                    {record.records?.find(r => r.type === 'check-in') ? (
+                      <>
+                        <AttendancePhoto 
+                          attendanceId={record.records.find(r => r.type === 'check-in')!.id} 
+                          type="check-in" 
+                        />
+                        <div className="text-sm space-y-1">
+                          <div className="flex items-center justify-center space-x-1">
+                            <Clock className="w-3 h-3 text-green-500" />
+                            <span className="font-medium">{record.checkIn}</span>
+                          </div>
+                          {record.records.find(r => r.type === 'check-in')!.confidence > 0 && (
+                            <div className="text-xs text-green-600 bg-green-50 px-2 py-1 rounded">
+                              {Math.round(record.records.find(r => r.type === 'check-in')!.confidence * 100)}% match
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                          <Camera className="w-8 h-8" />
+                        </div>
+                        <div className="text-sm text-gray-500">--</div>
+                      </>
+                    )}
                   </div>
-                  <div className="flex items-center space-x-2">
-                    <Clock className="w-4 h-4 text-red-500" />
-                    <span className="text-gray-600">Out:</span>
-                    <span className="font-medium">{record.checkOut}</span>
+
+                  {/* Column 3: Check-out Details */}
+                  <div className="flex flex-col items-center space-y-2 text-center pl-2">
+                    <div className="text-sm font-medium text-red-700 mb-1">Check-out</div>
+                    
+                    {record.records?.find(r => r.type === 'check-out') ? (
+                      <>
+                        <AttendancePhoto 
+                          attendanceId={record.records.find(r => r.type === 'check-out')!.id} 
+                          type="check-out" 
+                        />
+                        <div className="text-sm space-y-1">
+                          <div className="flex items-center justify-center space-x-1">
+                            <Clock className="w-3 h-3 text-red-500" />
+                            <span className="font-medium">{record.checkOut}</span>
+                          </div>
+                          {record.records.find(r => r.type === 'check-out')!.confidence > 0 && (
+                            <div className="text-xs text-red-600 bg-red-50 px-2 py-1 rounded">
+                              {Math.round(record.records.find(r => r.type === 'check-out')!.confidence * 100)}% match
+                            </div>
+                          )}
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div className="w-24 h-24 bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                          <Camera className="w-8 h-8" />
+                        </div>
+                        <div className="text-sm text-gray-500">--</div>
+                      </>
+                    )}
                   </div>
                 </div>
-                
-                <div className="flex items-center justify-between mt-3 pt-3 border-t">
-                  <span className="text-sm text-gray-600">
-                    Duration: <span className="font-medium">{record.duration}</span>
-                  </span>
-                  {record.confidence > 0 && (
-                    <span className="text-xs text-blue-600 bg-blue-50 px-2 py-1 rounded">
-                      {record.confidence}% match
-                    </span>
-                  )}
-                </div>
-                
-                {/* Show number of records for this user on this day */}
-                {record.records && record.records.length > 2 && (
-                  <div className="mt-2 pt-2 border-t">
-                    <span className="text-xs text-gray-500">
-                      {record.records.length} total records today
-                    </span>
-                  </div>
-                )}
               </CardContent>
             </Card>
           ))}

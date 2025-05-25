@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from "react";
 import { Camera, RotateCcw, Zap, ZapOff } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import { useUIPreferences } from "@/hooks/useLocalStorage";
 
 // MediaPipe Face Detection
 declare global {
@@ -28,6 +29,89 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
   const [faceDetected, setFaceDetected] = useState(false);
   const [lastDetectionTime, setLastDetectionTime] = useState(0);
   const [activeIntervals, setActiveIntervals] = useState(0);
+  const [isMobile, setIsMobile] = useState(false);
+  const [screenDimensions, setScreenDimensions] = useState({ width: 0, height: 0 });
+  const [uiPreferences] = useUIPreferences();
+
+  // Detect mobile device and screen dimensions
+  useEffect(() => {
+    const updateDimensions = () => {
+      const isMobileDevice = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent) ||
+                           window.innerWidth <= 768;
+      setIsMobile(isMobileDevice);
+      setScreenDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+    };
+    
+    updateDimensions();
+    window.addEventListener('resize', updateDimensions);
+    window.addEventListener('orientationchange', updateDimensions);
+    
+    return () => {
+      window.removeEventListener('resize', updateDimensions);
+      window.removeEventListener('orientationchange', updateDimensions);
+    };
+  }, []);
+
+  // Get optimal camera constraints based on device and screen
+  const getCameraConstraints = () => {
+    const isPortrait = screenDimensions.height > screenDimensions.width;
+    
+    if (kioskMode && isMobile) {
+      // For mobile kiosk mode, use constraints that match the screen aspect ratio
+      const aspectRatio = isPortrait ? screenDimensions.height / screenDimensions.width : screenDimensions.width / screenDimensions.height;
+      
+      return {
+        facingMode: facingMode,
+        width: { 
+          ideal: isPortrait ? Math.min(720, screenDimensions.width) : Math.min(1280, screenDimensions.width),
+          max: isPortrait ? 720 : 1280
+        },
+        height: { 
+          ideal: isPortrait ? Math.min(1280, screenDimensions.height) : Math.min(720, screenDimensions.height),
+          max: isPortrait ? 1280 : 720
+        },
+        aspectRatio: { ideal: aspectRatio }
+      };
+    } else if (kioskMode) {
+      // Desktop kiosk mode
+      return {
+        facingMode: facingMode,
+        width: { ideal: 720, max: 1280 },
+        height: { ideal: 1280, max: 1920 },
+        aspectRatio: { ideal: 9/16 }
+      };
+    } else {
+      // Regular mode - square aspect ratio
+      return {
+        facingMode: facingMode,
+        width: { ideal: 720, max: 1280 },
+        height: { ideal: 720, max: 1280 },
+        aspectRatio: { ideal: 1 }
+      };
+    }
+  };
+
+  // Get display aspect ratio class based on screen and mode
+  const getDisplayAspectRatio = () => {
+    if (!kioskMode) return 'aspect-square';
+    
+    if (isMobile) {
+      const isPortrait = screenDimensions.height > screenDimensions.width;
+      if (isPortrait) {
+        // Portrait mobile - use a ratio that fits well on phone screens
+        return 'aspect-[3/4]'; // 3:4 ratio for better mobile portrait experience
+      } else {
+        // Landscape mobile
+        return 'aspect-[4/3]';
+      }
+    } else {
+      // Desktop kiosk
+      return 'aspect-[9/16]';
+    }
+  };
 
   // Initialize MediaPipe Face Detection
   useEffect(() => {
@@ -124,18 +208,28 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
 
   const startCamera = async () => {
     try {
+      const constraints = getCameraConstraints();
+      console.log('📱 Camera constraints:', constraints);
+      console.log('📐 Screen dimensions:', screenDimensions);
+      console.log('📱 Is mobile:', isMobile);
+      
       const stream = await navigator.mediaDevices.getUserMedia({
-        video: {
-          facingMode: facingMode,
-          width: { ideal: kioskMode ? 720 : 720 },  // Portrait: width smaller than height
-          height: { ideal: kioskMode ? 1280 : 720 }  // Portrait: height larger than width
-        }
+        video: constraints
       });
       
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         setIsStreaming(true);
         setHasPermission(true);
+        
+        // Log actual video dimensions once loaded
+        videoRef.current.onloadedmetadata = () => {
+          console.log('📹 Actual video dimensions:', {
+            videoWidth: videoRef.current?.videoWidth,
+            videoHeight: videoRef.current?.videoHeight,
+            aspectRatio: (videoRef.current?.videoWidth || 1) / (videoRef.current?.videoHeight || 1)
+          });
+        };
       }
     } catch (error) {
       console.error("Error accessing camera:", error);
@@ -326,13 +420,21 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
       <CardContent className={`${kioskMode ? 'p-0 h-full' : 'p-0'}`}>
         <div className={`relative ${kioskMode ? 'h-full' : ''}`}>
           {/* Camera Preview */}
-          <div className={`relative bg-black ${kioskMode ? 'aspect-[9/16] w-full max-h-full' : 'aspect-square'} rounded-lg overflow-hidden mx-auto`}>
+          <div className={`relative bg-black ${getDisplayAspectRatio()} rounded-lg overflow-hidden mx-auto ${
+            kioskMode && isMobile ? 'max-h-[70vh] w-full' : ''
+          }`} style={{
+            maxWidth: kioskMode && isMobile ? '100%' : undefined,
+            width: kioskMode && isMobile ? '100%' : undefined
+          }}>
             <video
               ref={videoRef}
               autoPlay
               playsInline
               muted
               className="w-full h-full object-cover"
+              style={{
+                transform: uiPreferences.mirrorMode ? 'scaleX(-1)' : 'none' // Use mirror mode setting
+              }}
             />
             
             {/* Face Detection Overlay */}
@@ -342,27 +444,27 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
                 : kioskMode 
                   ? 'border-blue-300 border-dashed' 
                   : 'border-blue-400 border-dashed'
-            } opacity-75 ${kioskMode ? 'm-8' : 'm-8'} rounded-lg transition-all duration-300`}></div>
+            } opacity-75 ${isMobile && kioskMode ? 'm-4' : 'm-8'} rounded-lg transition-all duration-300`}></div>
             
             {/* Processing Overlay */}
             {isProcessing && (
               <div className="absolute inset-0 bg-black/50 flex items-center justify-center">
                 <div className="text-center text-white">
                   <div className="animate-spin w-8 h-8 border-2 border-white border-t-transparent rounded-full mx-auto mb-2"></div>
-                  <p className={`${kioskMode ? 'text-lg' : 'text-sm'}`}>Recognizing face...</p>
+                  <p className={`${kioskMode ? (isMobile ? 'text-base' : 'text-lg') : 'text-sm'}`}>Recognizing face...</p>
                 </div>
               </div>
             )}
             
             {/* Camera Status */}
-            <div className="absolute top-4 left-4">
+            <div className={`absolute ${isMobile ? 'top-2 left-2' : 'top-4 left-4'}`}>
               {isStreaming ? (
-                <div className="flex items-center space-x-2 bg-green-500 text-white px-3 py-1 rounded-full text-sm">
+                <div className={`flex items-center space-x-2 bg-green-500 text-white px-3 py-1 rounded-full ${isMobile ? 'text-xs' : 'text-sm'}`}>
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
                   <span>Live</span>
                 </div>
               ) : (
-                <div className="flex items-center space-x-2 bg-gray-500 text-white px-3 py-1 rounded-full text-sm">
+                <div className={`flex items-center space-x-2 bg-gray-500 text-white px-3 py-1 rounded-full ${isMobile ? 'text-xs' : 'text-sm'}`}>
                   <div className="w-2 h-2 bg-white rounded-full"></div>
                   <span>Offline</span>
                 </div>
@@ -371,8 +473,8 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
 
             {/* Face Detection Status */}
             {kioskMode && mediapiperLoaded && (
-              <div className="absolute top-4 right-4">
-                <div className={`flex items-center space-x-2 px-3 py-1 rounded-full text-sm ${
+              <div className={`absolute ${isMobile ? 'top-2 right-2' : 'top-4 right-4'}`}>
+                <div className={`flex items-center space-x-2 px-3 py-1 rounded-full ${isMobile ? 'text-xs' : 'text-sm'} ${
                   faceDetected 
                     ? 'bg-green-500 text-white' 
                     : 'bg-gray-500 text-white'
@@ -385,19 +487,19 @@ const CameraCapture = ({ onCapture, isProcessing, kioskMode = false }: CameraCap
               </div>
             )}
 
-            {/* Kiosk Mode Instruction - Move to bottom */}
+            {/* Kiosk Mode Instruction */}
             {kioskMode && !isProcessing && (
-              <div className="absolute bottom-4 left-4 right-4">
-                <div className="bg-black/60 text-white px-4 py-2 rounded-lg text-center">
+              <div className={`absolute ${isMobile ? 'bottom-2 left-2 right-2' : 'bottom-4 left-4 right-4'}`}>
+                <div className={`bg-black/60 text-white ${isMobile ? 'px-3 py-2' : 'px-4 py-2'} rounded-lg text-center`}>
                   {mediapiperLoaded ? (
-                    <p className="text-sm">
+                    <p className={`${isMobile ? 'text-xs' : 'text-sm'}`}>
                       {faceDetected 
                         ? "Face detected - processing recognition..." 
                         : "Smart detection enabled - position your face in the frame"
                       }
                     </p>
                   ) : (
-                    <p className="text-sm">Automatic recognition enabled - position your face in the frame</p>
+                    <p className={`${isMobile ? 'text-xs' : 'text-sm'}`}>Automatic recognition enabled - position your face in the frame</p>
                   )}
                 </div>
               </div>

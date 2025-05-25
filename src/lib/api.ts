@@ -50,11 +50,13 @@ export interface DeepFaceConfig {
   saturation_std_threshold: number;
   illumination_gradient_min: number;
   illumination_gradient_max: number;
-  // Attendance timing settings
-  check_in_time: string;
-  check_out_time?: string;
-  allow_early_checkin: boolean;
-  early_checkin_minutes: number;
+  // Attendance timing settings - Range-based
+  check_in_start: string;
+  check_in_end: string;
+  check_out_start?: string;
+  check_out_end?: string;
+  allow_outside_schedule: boolean;
+  outside_schedule_requires_confirmation: boolean;
 }
 
 export interface AvailableModels {
@@ -62,6 +64,21 @@ export interface AvailableModels {
   distance_metrics: string[];
   detector_backends: string[];
   deepface_available: boolean;
+}
+
+export interface AttendanceMode {
+  current_time: string;
+  mode: 'check-in' | 'check-out' | 'flexible' | 'flexible_with_warning' | 'restricted' | 'error';
+  allowed_types: ('check-in' | 'check-out')[];
+  schedule_info: {
+    check_in_range: string;
+    check_out_range?: string;
+    is_check_in_time: boolean;
+    is_check_out_time: boolean;
+    outside_schedule: boolean;
+  };
+  requires_confirmation?: boolean;
+  message: string;
 }
 
 class FaceRecognitionAPI {
@@ -124,6 +141,21 @@ class FaceRecognitionAPI {
     }
   }
 
+  async getAttendanceMode(): Promise<AttendanceMode> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/attendance/mode`);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to get attendance mode: ${response.status}`);
+      }
+
+      return await response.json();
+    } catch (error) {
+      console.error('Attendance mode fetch error:', error);
+      throw error;
+    }
+  }
+
   async recognizeFace(imageData: string): Promise<RecognitionResult> {
     try {
       // Convert base64 to blob
@@ -155,12 +187,20 @@ class FaceRecognitionAPI {
     }
   }
 
-  async recordAttendance(employeeId: string, type: 'check-in' | 'check-out', confidence: number): Promise<AttendanceRecord> {
+  async recordAttendance(employeeId: string, type: 'check-in' | 'check-out', confidence: number, imageData?: string): Promise<AttendanceRecord> {
     try {
       const formData = new FormData();
       formData.append('employee_id', employeeId);
       formData.append('type', type);
       formData.append('confidence', confidence.toString());
+
+      // Add captured image if provided
+      if (imageData) {
+        // Convert base64 to blob
+        const response = await fetch(imageData);
+        const blob = await response.blob();
+        formData.append('file', blob, 'attendance-capture.jpg');
+      }
 
       const response = await fetch(`${this.baseUrl}/api/attendance`, {
         method: 'POST',
@@ -322,6 +362,33 @@ class FaceRecognitionAPI {
       });
     } catch (error) {
       console.error('Photo fetch error:', error);
+      // Return placeholder on error
+      return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPHBhdGggZD0iTTIwIDEwQzE2LjY4NjMgMTAgMTQgMTIuNjg2MyAxNCAxNkMxNCAxOS4zMTM3IDE2LjY4NjMgMjIgMjAgMjJDMjMuMzEzNyAyMiAyNiAxOS4zMTM3IDI2IDE2QzI2IDEyLjY4NjMgMjMuMzEzNyAxMCAyMCAxMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTIwIDI0QzEzLjM3MjYgMjQgOCAyOC40NzcyIDggMzRIMzJDMzIgMjguNDc3MiAyNi42Mjc0IDI0IDIwIDI0WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+    }
+  }
+
+  async getAttendancePhoto(attendanceId: string): Promise<string> {
+    try {
+      const response = await fetch(`${this.baseUrl}/api/attendance/${attendanceId}/photo`);
+      
+      if (!response.ok) {
+        // Return a placeholder if photo not found
+        if (response.status === 404) {
+          return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPHBhdGggZD0iTTIwIDEwQzE2LjY4NjMgMTAgMTQgMTIuNjg2MyAxNCAxNkMxNCAxOS4zMTM3IDE2LjY4NjMgMjIgMjAgMjJDMjMuMzEzNyAyMiAyNiAxOS4zMTM3IDI2IDE2QzI2IDEyLjY4NjMgMjMuMzEzNyAxMCAyMCAxMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTIwIDI0QzEzLjM3MjYgMjQgOCAyOC40NzcyIDggMzRIMzJDMzIgMjguNDc3MiAyNi42Mjc0IDI0IDIwIDI0WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
+        }
+        throw new Error(`Failed to get attendance photo: ${response.status}`);
+      }
+
+      // Convert response to blob and then to data URL
+      const blob = await response.blob();
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result as string);
+        reader.onerror = reject;
+        reader.readAsDataURL(blob);
+      });
+    } catch (error) {
+      console.error('Attendance photo fetch error:', error);
       // Return placeholder on error
       return 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMjAiIGN5PSIyMCIgcj0iMjAiIGZpbGw9IiNGM0Y0RjYiLz4KPHBhdGggZD0iTTIwIDEwQzE2LjY4NjMgMTAgMTQgMTIuNjg2MyAxNCAxNkMxNCAxOS4zMTM3IDE2LjY4NjMgMjIgMjAgMjJDMjMuMzEzNyAyMiAyNiAxOS4zMTM3IDI2IDE2QzI2IDEyLjY4NjMgMjMuMzEzNyAxMCAyMCAxMFoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTIwIDI0QzEzLjM3MjYgMjQgOCAyOC40NzcyIDggMzRIMzJDMzIgMjguNDc3MiAyNi42Mjc0IDI0IDIwIDI0WiIgZmlsbD0iIzlDQTNBRiIvPgo8L3N2Zz4K';
     }

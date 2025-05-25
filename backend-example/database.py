@@ -322,6 +322,63 @@ class DatabaseManager:
             logging.error(f"❌ Error getting face images: {e}")
             return []
 
+    # Attendance Image Operations
+    async def store_attendance_image(self, employee_id: str, attendance_type: str, image_data: str) -> str:
+        """Store attendance captured image in GridFS"""
+        try:
+            if not self.is_connected():
+                raise Exception("Database not connected")
+
+            # Decode base64 image
+            if image_data.startswith('data:image'):
+                image_data = image_data.split(',')[1]
+            
+            image_bytes = base64.b64decode(image_data)
+            
+            # Store in GridFS with attendance-specific metadata
+            file_id = self.fs.put(
+                image_bytes,
+                filename=f"{employee_id}_{attendance_type}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.jpg",
+                employee_id=employee_id,
+                attendance_type=attendance_type,
+                content_type="image/jpeg",
+                upload_date=datetime.now(),
+                image_type="attendance"
+            )
+            
+            logging.info(f"✅ Attendance image stored for employee: {employee_id} ({attendance_type})")
+            return str(file_id)
+            
+        except Exception as e:
+            logging.error(f"❌ Error storing attendance image: {e}")
+            raise
+
+    async def get_attendance_image(self, image_id: str) -> Optional[bytes]:
+        """Retrieve attendance image from GridFS"""
+        try:
+            if not self.is_connected():
+                return None
+                
+            file_data = self.fs.get(ObjectId(image_id))
+            return file_data.read()
+        except Exception as e:
+            logging.error(f"❌ Error retrieving attendance image: {e}")
+            return None
+
+    async def get_attendance_by_id(self, attendance_id: str) -> Optional[Dict[str, Any]]:
+        """Get attendance record by attendance_id"""
+        try:
+            if not self.is_connected():
+                return None
+                
+            attendance = self.db[ATTENDANCE_COLLECTION].find_one({"attendance_id": attendance_id})
+            if attendance:
+                attendance["_id"] = str(attendance["_id"])
+            return attendance
+        except Exception as e:
+            logging.error(f"❌ Error getting attendance by ID: {e}")
+            return None
+
     # Attendance Operations
     async def create_attendance(self, attendance_data: Dict[str, Any]) -> Dict[str, Any]:
         """Create attendance record"""

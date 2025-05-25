@@ -5,7 +5,7 @@
   "enforce_detection": true,
   "confidence_threshold": 0.7,
   "align": true,
-  "enable_liveness_detection": true,
+  "enable_liveness_detection": false,
   "liveness_threshold": 0.3,
   "texture_variance_threshold": 30.0,
   "color_std_threshold": 10.0,
@@ -18,8 +18,10 @@
   "saturation_std_threshold": 15.0,
   "illumination_gradient_min": 1.0,
   "illumination_gradient_max": 12.0,
-  "check_in_time": "09:00",
-  "check_out_time": "17:00",
-  "allow_early_checkin": true,
-  "early_checkin_minutes": 30
+  "check_in_start": "06:00",
+  "check_in_end": "16:00",
+  "check_out_start": "16:00",
+  "check_out_end": "19:00",
+  "allow_outside_schedule": true,
+  "outside_schedule_requires_confirmation": false
 }

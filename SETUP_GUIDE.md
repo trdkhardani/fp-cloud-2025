@@ -111,6 +111,11 @@ VITE_ENVIRONMENT=development
 - Filter and search capabilities
 - Confidence scores and timestamps
 
+### 5. **Anti-spoofing detection**
+   - Prevents photo and printed image attacks
+   - Uses multiple image analysis techniques
+   - Real-time liveness detection scoring
+
 ## 🔧 DeepFace Models Comparison
 
 | Model | Accuracy | Speed | Best For |

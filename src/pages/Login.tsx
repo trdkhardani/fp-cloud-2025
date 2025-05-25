@@ -168,13 +168,6 @@ const Login = () => {
             </Button>
           </CardContent>
         </Card>
-
-        {/* Default Credentials Info */}
-        <div className="text-center text-sm text-gray-500">
-          <p>Default credentials:</p>
-          <p>Username: <code className="bg-gray-100 px-1 rounded">admin</code></p>
-          <p>Password: <code className="bg-gray-100 px-1 rounded">admin123</code></p>
-        </div>
       </div>
     </div>
   );

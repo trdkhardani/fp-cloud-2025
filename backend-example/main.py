@@ -97,11 +97,13 @@ class DeepFaceConfig(BaseModel):
     saturation_std_threshold: float = 15  # Lower for webcam (was 20)
     illumination_gradient_min: float = 1.0  # Lower for webcam (was 2.0)
     illumination_gradient_max: float = 12.0  # Higher for webcam (was 8.0)
-    # Attendance timing settings
-    check_in_time: str = "09:00"  # Default check-in time in HH:MM format
-    check_out_time: Optional[str] = "17:00"  # Optional check-out time in HH:MM format
-    allow_early_checkin: bool = True  # Allow check-in before scheduled time
-    early_checkin_minutes: int = 30  # How many minutes early check-in is allowed
+    # Attendance timing settings - Range-based
+    check_in_start: str = "06:00"  # Check-in window start time
+    check_in_end: str = "09:00"    # Check-in window end time
+    check_out_start: Optional[str] = "16:00"  # Check-out window start time (optional)
+    check_out_end: Optional[str] = "19:00"    # Check-out window end time (optional)
+    allow_outside_schedule: bool = True  # Allow attendance outside defined ranges
+    outside_schedule_requires_confirmation: bool = True  # Require confirmation for out-of-range attendance
 
 # Global configuration
 config = DeepFaceConfig()
@@ -134,6 +136,130 @@ def save_config():
 
 # Load config on startup
 load_config()
+
+# Helper functions for attendance scheduling
+def time_to_minutes(time_str: str) -> int:
+    """Convert HH:MM time string to minutes since midnight"""
+    try:
+        hours, minutes = map(int, time_str.split(':'))
+        return hours * 60 + minutes
+    except:
+        return 0
+
+def get_current_time_minutes() -> int:
+    """Get current time as minutes since midnight"""
+    now = datetime.now()
+    return now.hour * 60 + now.minute
+
+def determine_attendance_mode(current_time_minutes: int = None) -> dict:
+    """
+    Determine the appropriate attendance mode based on current time and schedule ranges.
+    Returns dict with mode, allowed_types, and schedule_info
+    """
+    if current_time_minutes is None:
+        current_time_minutes = get_current_time_minutes()
+    
+    check_in_start = time_to_minutes(config.check_in_start)
+    check_in_end = time_to_minutes(config.check_in_end)
+    
+    result = {
+        "current_time_minutes": current_time_minutes,
+        "mode": "outside_schedule",
+        "allowed_types": [],
+        "schedule_info": {
+            "check_in_range": f"{config.check_in_start} - {config.check_in_end}",
+            "check_out_range": None,
+            "is_check_in_time": False,
+            "is_check_out_time": False,
+            "outside_schedule": True
+        }
+    }
+    
+    # Check if in check-in range
+    is_check_in_time = check_in_start <= current_time_minutes <= check_in_end
+    result["schedule_info"]["is_check_in_time"] = is_check_in_time
+    
+    # Check if in check-out range (if configured)
+    is_check_out_time = False
+    if config.check_out_start and config.check_out_end:
+        check_out_start = time_to_minutes(config.check_out_start)
+        check_out_end = time_to_minutes(config.check_out_end)
+        is_check_out_time = check_out_start <= current_time_minutes <= check_out_end
+        result["schedule_info"]["check_out_range"] = f"{config.check_out_start} - {config.check_out_end}"
+    
+    result["schedule_info"]["is_check_out_time"] = is_check_out_time
+    
+    # Determine mode and allowed types
+    if is_check_in_time and is_check_out_time:
+        # Overlapping ranges - allow both
+        result["mode"] = "flexible"
+        result["allowed_types"] = ["check-in", "check-out"]
+        result["schedule_info"]["outside_schedule"] = False
+    elif is_check_in_time:
+        # Check-in time only
+        result["mode"] = "check-in"
+        result["allowed_types"] = ["check-in"]
+        result["schedule_info"]["outside_schedule"] = False
+    elif is_check_out_time:
+        # Check-out time only  
+        result["mode"] = "check-out"
+        result["allowed_types"] = ["check-out"]
+        result["schedule_info"]["outside_schedule"] = False
+    else:
+        # Outside all ranges
+        if config.allow_outside_schedule:
+            result["mode"] = "flexible_with_warning"
+            result["allowed_types"] = ["check-in", "check-out"]
+            if config.outside_schedule_requires_confirmation:
+                result["requires_confirmation"] = True
+        else:
+            result["mode"] = "restricted"
+            result["allowed_types"] = []
+    
+    return result
+
+# Add endpoint to get current attendance mode
+@app.get("/api/attendance/mode")
+async def get_attendance_mode():
+    """Get current attendance mode based on schedule"""
+    try:
+        mode_info = determine_attendance_mode()
+        current_time = datetime.now().strftime("%H:%M")
+        
+        return {
+            "current_time": current_time,
+            "mode": mode_info["mode"],
+            "allowed_types": mode_info["allowed_types"],
+            "schedule_info": mode_info["schedule_info"],
+            "requires_confirmation": mode_info.get("requires_confirmation", False),
+            "message": get_mode_message(mode_info)
+        }
+    except Exception as e:
+        logging.error(f"Error getting attendance mode: {str(e)}")
+        return {
+            "current_time": datetime.now().strftime("%H:%M"),
+            "mode": "error",
+            "allowed_types": ["check-in", "check-out"],
+            "message": "Schedule check failed - allowing all types"
+        }
+
+def get_mode_message(mode_info: dict) -> str:
+    """Get user-friendly message for current attendance mode"""
+    mode = mode_info["mode"]
+    schedule = mode_info["schedule_info"]
+    
+    if mode == "check-in":
+        return f"Check-in time ({schedule['check_in_range']})"
+    elif mode == "check-out":
+        return f"Check-out time ({schedule['check_out_range']})"
+    elif mode == "flexible":
+        return f"Check-in or check-out time"
+    elif mode == "flexible_with_warning":
+        return f"Outside scheduled hours - check-in: {schedule['check_in_range']}, check-out: {schedule.get('check_out_range', 'Not set')}"
+    elif mode == "restricted":
+        return f"Outside working hours - attendance not allowed"
+    else:
+        return "Schedule check in progress"
 
 # Database startup and shutdown events
 @app.on_event("startup")
@@ -613,14 +739,39 @@ async def recognize_face(file: UploadFile = File(...)):
 async def record_attendance(
     employee_id: str = Form(...),
     type: str = Form(...),
-    confidence: float = Form(...)
+    confidence: float = Form(...),
+    file: UploadFile = File(None)
 ):
-    """Record attendance for an employee"""
+    """Record attendance for an employee with optional captured image"""
+    temp_path = None
+    
     try:
         # Find employee in database
         employee_data = await db_manager.get_employee(employee_id)
         if not employee_data:
             raise HTTPException(status_code=404, detail="Employee not found")
+        
+        # Handle captured image if provided
+        image_id = None
+        if file:
+            try:
+                # Save uploaded file temporarily
+                temp_path = os.path.join(TEMP_DIR, f"attendance_{uuid.uuid4()}.jpg")
+                with open(temp_path, "wb") as buffer:
+                    content = await file.read()
+                    buffer.write(content)
+                
+                # Read image data for storage
+                with open(temp_path, 'rb') as f:
+                    image_data = base64.b64encode(f.read()).decode('utf-8')
+                
+                # Store attendance image in GridFS
+                image_id = await db_manager.store_attendance_image(employee_id, type, image_data)
+                print(f"✅ Stored attendance image: {image_id}")
+                
+            except Exception as e:
+                print(f"⚠️ Failed to store attendance image: {e}")
+                # Continue without image if storage fails
         
         # Create attendance record
         attendance_data = {
@@ -629,7 +780,8 @@ async def record_attendance(
             "employee_name": employee_data["name"],
             "type": type,
             "timestamp": datetime.now(),
-            "confidence": confidence
+            "confidence": confidence,
+            "image_id": image_id
         }
         
         # Store in database
@@ -642,12 +794,17 @@ async def record_attendance(
             employee_name=attendance_record["employee_name"],
             type=attendance_record["type"],
             timestamp=attendance_record["timestamp"].isoformat(),
-            confidence=attendance_record["confidence"]
+            confidence=attendance_record["confidence"],
+            image_url=f"/api/attendance/{attendance_record['attendance_id']}/photo" if image_id else None
         )
         
     except Exception as e:
         logging.error(f"Attendance recording error: {str(e)}")
         raise HTTPException(status_code=500, detail=str(e))
+    
+    finally:
+        if temp_path:
+            cleanup_temp_file(temp_path)
 
 @app.get("/api/attendance", response_model=List[AttendanceRecord])
 async def get_attendance_history(limit: int = 50):
@@ -864,6 +1021,37 @@ async def get_employee_photo(employee_id: str):
     except Exception as e:
         logging.error(f"Photo retrieval error: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Failed to get photo: {str(e)}")
+
+@app.get("/api/attendance/{attendance_id}/photo")
+async def get_attendance_photo(attendance_id: str):
+    """Get attendance captured photo"""
+    try:
+        # Get attendance record
+        attendance = await db_manager.get_attendance_by_id(attendance_id)
+        if not attendance:
+            raise HTTPException(status_code=404, detail="Attendance record not found")
+        
+        # Check if attendance has a captured image
+        if not attendance.get("image_id"):
+            raise HTTPException(status_code=404, detail="No photo found for this attendance record")
+        
+        # Get the image data
+        image_data = await db_manager.get_attendance_image(attendance["image_id"])
+        if not image_data:
+            raise HTTPException(status_code=404, detail="Photo not found")
+        
+        # Return image as response
+        return Response(
+            content=image_data,
+            media_type="image/jpeg",
+            headers={"Cache-Control": "public, max-age=1800"}  # Cache for 30 minutes
+        )
+        
+    except HTTPException:
+        raise
+    except Exception as e:
+        logging.error(f"Attendance photo retrieval error: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Failed to get attendance photo: {str(e)}")
 
 @app.get("/health")
 async def health_check():
