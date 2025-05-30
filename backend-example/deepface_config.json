@@ -1,5 +1,5 @@
 {
-  "model_name": "Facenet",
+  "model_name": "DeepFace",
   "distance_metric": "cosine",
   "detector_backend": "opencv",
   "enforce_detection": true,

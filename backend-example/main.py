@@ -1095,7 +1095,11 @@ async def health_check():
         "status": "healthy",
         "message": "ITScence API is running",
         "timestamp": datetime.utcnow().isoformat(),
-        "version": "1.0.0"
+        "version": "1.0.0",
+        "deepface_available": DEEPFACE_AVAILABLE,
+        "current_model": config.model_name,
+        "enrolled_employees": db_stats.get("total_employees", 0),
+        "database": db_stats
     }
 
 # Debug endpoint for troubleshooting
