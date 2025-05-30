@@ -22,7 +22,7 @@ services:
       retries: 3
       start_period: 30s
 
-  # Backend API (GPU version)
+  # Backend API (GPU version) - CUDA 12.2.2 compatible
   backend:
     build:
       context: ./backend-example
@@ -39,6 +39,7 @@ services:
       - DEFAULT_DISTANCE_METRIC=cosine
       - TF_FORCE_GPU_ALLOW_GROWTH=true
       - TF_GPU_MEMORY_LIMIT=2048
+      - TF_ENABLE_ONEDNN_OPTS=1
       - NVIDIA_VISIBLE_DEVICES=all
       - NVIDIA_DRIVER_CAPABILITIES=compute,utility
       - FRONTEND_URL=http://frontend

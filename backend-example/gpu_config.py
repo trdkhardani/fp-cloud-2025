@@ -1,6 +1,7 @@
 """
 GPU Configuration for FaceAttend
 Optimizes TensorFlow and DeepFace for NVIDIA GPU usage
+Compatible with CUDA 12.2.2 and cuDNN 8.9+
 """
 
 import os
@@ -78,7 +79,9 @@ def get_gpu_info() -> dict:
         "gpu_available": False,
         "gpu_count": 0,
         "gpu_names": [],
-        "gpu_memory": []
+        "gpu_memory": [],
+        "cuda_version": None,
+        "cudnn_version": None
     }
     
     if not TF_AVAILABLE:
@@ -88,6 +91,12 @@ def get_gpu_info() -> dict:
         gpus = tf.config.experimental.list_physical_devices('GPU')
         info["gpu_available"] = len(gpus) > 0
         info["gpu_count"] = len(gpus)
+        
+        # Get CUDA and cuDNN versions
+        if hasattr(tf.sysconfig, 'get_build_info'):
+            build_info = tf.sysconfig.get_build_info()
+            info["cuda_version"] = build_info.get("cuda_version", "Unknown")
+            info["cudnn_version"] = build_info.get("cudnn_version", "Unknown")
         
         for gpu in gpus:
             # Get GPU name
@@ -111,7 +120,7 @@ def get_gpu_info() -> dict:
 
 def optimize_for_inference() -> None:
     """
-    Optimize TensorFlow for inference performance
+    Optimize TensorFlow for inference performance with CUDA 12.2.2
     """
     if not TF_AVAILABLE:
         return
@@ -121,25 +130,31 @@ def optimize_for_inference() -> None:
         tf.config.threading.set_inter_op_parallelism_threads(0)  # Use all available cores
         tf.config.threading.set_intra_op_parallelism_threads(0)  # Use all available cores
         
-        # Enable mixed precision if GPU supports it
+        # Enable mixed precision if GPU supports it (Ampere+ architecture)
         gpus = tf.config.experimental.list_physical_devices('GPU')
         if gpus:
-            # Check if GPU supports mixed precision
-            policy = tf.keras.mixed_precision.Policy('mixed_float16')
-            tf.keras.mixed_precision.set_global_policy(policy)
-            logger.info("Mixed precision enabled for better performance")
+            try:
+                # Check if GPU supports mixed precision
+                policy = tf.keras.mixed_precision.Policy('mixed_float16')
+                tf.keras.mixed_precision.set_global_policy(policy)
+                logger.info("Mixed precision enabled for better performance")
+            except Exception as e:
+                logger.warning(f"Mixed precision not supported: {e}")
+        
+        # Optimize for CUDA 12.2.2 specific features
+        os.environ['TF_ENABLE_ONEDNN_OPTS'] = '1'  # Enable oneDNN optimizations
         
     except Exception as e:
         logger.warning(f"Could not optimize for inference: {e}")
 
 def initialize_gpu_config() -> dict:
     """
-    Initialize GPU configuration with optimal settings
+    Initialize GPU configuration with optimal settings for CUDA 12.2.2
     
     Returns:
         dict: Configuration status and GPU information
     """
-    logger.info("Initializing GPU configuration...")
+    logger.info("Initializing GPU configuration for CUDA 12.2.2...")
     
     # Configure GPU memory
     memory_limit = int(os.getenv('TF_GPU_MEMORY_LIMIT', '2048'))
@@ -154,6 +169,8 @@ def initialize_gpu_config() -> dict:
     # Log configuration status
     if gpu_info["gpu_available"]:
         logger.info(f"✅ GPU configuration successful - {gpu_info['gpu_count']} GPU(s) available")
+        logger.info(f"   CUDA Version: {gpu_info.get('cuda_version', 'Unknown')}")
+        logger.info(f"   cuDNN Version: {gpu_info.get('cudnn_version', 'Unknown')}")
         for i, name in enumerate(gpu_info["gpu_names"]):
             logger.info(f"   GPU {i}: {name}")
     else:

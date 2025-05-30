@@ -19,13 +19,15 @@ The Docker deployment includes:
 - **Git**: For cloning the repository
 
 ### For GPU Support (Optional)
-- **NVIDIA GPU**: Compatible with CUDA 11.8+
-- **NVIDIA Driver**: v470.57.02+
+- **NVIDIA GPU**: Compatible with CUDA 12.2.2+
+- **NVIDIA Driver**: v535.54.03+
 - **NVIDIA Container Toolkit**: For Docker GPU support
+- **CUDA Toolkit**: 12.2.2 (automatically provided in container)
+- **cuDNN**: 8.9+ (automatically provided in container)
 
 ### System Requirements
 - **CPU Version**: 4GB RAM, 2 CPU cores
-- **GPU Version**: 8GB RAM, 4GB GPU memory
+- **GPU Version**: 8GB RAM, 4GB GPU memory (recommended 6GB+)
 
 ## 🚀 Quick Start
 
@@ -204,6 +206,9 @@ DEFAULT_DISTANCE_METRIC=cosine
 # GPU (GPU version only)
 TF_FORCE_GPU_ALLOW_GROWTH=true
 TF_GPU_MEMORY_LIMIT=2048
+TF_ENABLE_ONEDNN_OPTS=1
+NVIDIA_VISIBLE_DEVICES=all
+NVIDIA_DRIVER_CAPABILITIES=compute,utility
 ```
 
 ## 📊 Monitoring and Maintenance
@@ -274,7 +279,7 @@ lsof -i :8000
 nvidia-smi
 
 # Check Docker GPU support
-docker run --rm --gpus all nvidia/cuda:11.8-base-ubuntu22.04 nvidia-smi
+docker run --rm --gpus all nvidia/cuda:12.2.2-base-ubuntu22.04 nvidia-smi
 
 # Install NVIDIA Container Toolkit
 sudo apt-get install nvidia-container-toolkit
