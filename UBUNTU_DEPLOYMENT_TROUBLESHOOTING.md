@@ -27,6 +27,34 @@ docker run --rm --gpus all nvidia/cuda:12.2.2-base-ubuntu22.04 nvidia-smi
 ./docker-deploy.sh gpu
 ```
 
+### 1.1. System Package Conflicts (blinker, etc.)
+
+**Error:** `Cannot uninstall blinker 1.4` or similar distutils package conflicts
+
+**Description:** This occurs when Ubuntu Docker images have pre-installed Python packages that conflict with pip requirements.
+
+**Solution:**
+```bash
+# The updated Dockerfile now handles this automatically, but you can also:
+
+# Clean Docker build cache
+docker builder prune -a
+
+# Force rebuild without cache
+docker compose -f docker-compose.gpu.yml build --no-cache
+
+# If issues persist, try CPU version first
+./docker-deploy.sh cpu
+```
+
+**Manual Fix (if needed):**
+```bash
+# If you need to manually fix a running container:
+docker exec -it itscence-backend bash
+apt-get remove -y python3-blinker
+pip install --force-reinstall blinker
+```
+
 ### 2. Docker Permission Issues
 
 **Error:** `Got permission denied while trying to connect to the Docker daemon socket`

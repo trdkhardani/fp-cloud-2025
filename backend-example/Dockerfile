@@ -33,9 +33,12 @@ RUN apt-get update && apt-get install -y \
 # Copy requirements first for better caching
 COPY requirements.txt .
 
+# Remove conflicting system packages that cause pip issues
+RUN apt-get remove -y python3-blinker || true
+
 # Install Python dependencies
 RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+    pip install --no-cache-dir --ignore-installed -r requirements.txt
 
 # Copy application code
 COPY . .
