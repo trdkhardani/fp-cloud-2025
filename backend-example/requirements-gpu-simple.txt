@@ -13,9 +13,9 @@ opencv-python>=4.8.0
 numpy>=1.24.0,<1.27.0
 pandas>=2.0.0
 
-# Machine Learning - TensorFlow compatible with CUDA 12.2.2
-# Using 2.12.1 for better CUDA 12.2 compatibility
-tensorflow-gpu==2.12.1
+# Machine Learning - TensorFlow with GPU support for CUDA 12.2.2
+# TensorFlow 2.12+ includes GPU support in the main package
+tensorflow==2.12.1
 
 # Face recognition
 deepface>=0.0.79
