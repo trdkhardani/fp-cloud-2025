@@ -1,12 +1,12 @@
 #!/bin/bash
 
-# FaceAttend Docker Deployment Script
-# ===================================
+# ITScence Docker Deployment Script
+# =================================
 
 set -e  # Exit on any error
 
-echo "🐳 FaceAttend Docker Deployment"
-echo "==============================="
+echo "🐳 ITScence Docker Deployment"
+echo "============================="
 
 # Colors for output
 RED='\033[0;31m'
@@ -65,7 +65,7 @@ check_gpu() {
         print_success "NVIDIA GPU detected"
         
         # Check for nvidia-docker
-        if docker run --rm --gpus all nvidia/cuda:11.8-base-ubuntu22.04 nvidia-smi &> /dev/null; then
+        if docker run --rm --gpus all nvidia/cuda:12.2.2-base-ubuntu22.04 nvidia-smi &> /dev/null; then
             print_success "GPU Docker support is working"
             return 0
         else
@@ -80,7 +80,7 @@ check_gpu() {
 
 # Deploy with CPU
 deploy_cpu() {
-    print_status "Deploying FaceAttend with CPU support..."
+    print_status "Deploying ITScence with CPU support..."
     
     # Stop any existing containers
     $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
@@ -88,12 +88,12 @@ deploy_cpu() {
     # Build and start services
     $COMPOSE_CMD up --build -d
     
-    print_success "✅ FaceAttend deployed with CPU support"
+    print_success "✅ ITScence deployed with CPU support"
 }
 
 # Deploy with GPU
 deploy_gpu() {
-    print_status "Deploying FaceAttend with GPU support..."
+    print_status "Deploying ITScence with GPU support..."
     
     # Stop any existing containers
     $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
@@ -101,7 +101,7 @@ deploy_gpu() {
     # Build and start services
     $COMPOSE_CMD -f docker-compose.gpu.yml up --build -d
     
-    print_success "✅ FaceAttend deployed with GPU support"
+    print_success "✅ ITScence deployed with GPU support"
 }
 
 # Monitor deployment
@@ -110,7 +110,7 @@ monitor_deployment() {
     
     for i in {1..60}; do
         if curl -s http://localhost:9090/health > /dev/null 2>&1; then
-            print_success "🎉 FaceAttend is running successfully!"
+            print_success "🎉 ITScence is running successfully!"
             echo ""
             echo "🌐 Access the application:"
             echo "   Frontend: http://localhost:9090"
@@ -148,8 +148,8 @@ show_usage() {
 # Show status
 show_status() {
     echo ""
-    echo "🔍 FaceAttend Status:"
-    echo "===================="
+    echo "🔍 ITScence Status:"
+    echo "==================="
     
     if $COMPOSE_CMD ps | grep -q "Up"; then
         echo "CPU Version:"
@@ -171,7 +171,7 @@ show_status() {
 
 # Stop services
 stop_services() {
-    print_status "Stopping FaceAttend services..."
+    print_status "Stopping ITScence services..."
     $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
     $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
     print_success "✅ All services stopped"

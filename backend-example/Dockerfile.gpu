@@ -1,7 +1,7 @@
-# FaceAttend Backend GPU Dockerfile
-# ==================================
+# ITScence Backend GPU Dockerfile
+# ================================
 
-# Use NVIDIA CUDA runtime as base image
+# Use NVIDIA CUDA runtime as base image with development tools
 FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
 
 # Prevent interactive prompts during build
@@ -14,6 +14,7 @@ WORKDIR /app
 RUN apt-get update && apt-get install -y \
     python3.10 \
     python3.10-venv \
+    python3.10-dev \
     python3-pip \
     build-essential \
     cmake \
@@ -34,18 +35,26 @@ RUN apt-get update && apt-get install -y \
     libgtk-3-dev \
     gfortran \
     curl \
+    wget \
+    software-properties-common \
     && rm -rf /var/lib/apt/lists/*
 
 # Create symlinks for python
 RUN ln -s /usr/bin/python3.10 /usr/bin/python
 
-# Copy requirements first for better caching
-COPY requirements-ubuntu.txt requirements.txt
-COPY requirements.txt requirements-base.txt
+# Upgrade pip to latest version
+RUN python -m pip install --upgrade pip
 
-# Install Python dependencies with GPU support
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+# Copy requirements first for better caching
+COPY requirements-gpu-simple.txt requirements.txt
+COPY requirements-ubuntu.txt requirements-fallback.txt
+
+# Install Python dependencies with explicit CUDA support
+RUN pip install --no-cache-dir -r requirements.txt || \
+    (echo "Fallback to alternative requirements..." && pip install --no-cache-dir -r requirements-fallback.txt)
+
+# Verify TensorFlow can detect GPU (optional check)
+RUN python -c "import tensorflow as tf; print('TensorFlow version:', tf.__version__); print('GPU Available:', tf.config.list_physical_devices('GPU'))" || echo "TensorFlow GPU verification failed - will work in runtime"
 
 # Copy application code
 COPY . .
@@ -53,21 +62,23 @@ COPY . .
 # Create necessary directories
 RUN mkdir -p uploads temp_images logs face_database
 
-# Set environment variables for GPU
+# Set environment variables for GPU and CUDA 12.2.2
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
 ENV TF_CPP_MIN_LOG_LEVEL=2
 ENV TF_FORCE_GPU_ALLOW_GROWTH=true
 ENV TF_GPU_MEMORY_LIMIT=2048
+ENV TF_ENABLE_ONEDNN_OPTS=1
 ENV NVIDIA_VISIBLE_DEVICES=all
 ENV NVIDIA_DRIVER_CAPABILITIES=compute,utility
+ENV LD_LIBRARY_PATH=/usr/local/cuda/lib64:$LD_LIBRARY_PATH
 
 # Expose port
 EXPOSE 8000
 
 # Health check
-HEALTHCHECK --interval=30s --timeout=30s --start-period=30s --retries=3 \
+HEALTHCHECK --interval=30s --timeout=30s --start-period=60s --retries=3 \
     CMD curl -f http://localhost:8000/health || exit 1
 
 # Run the application with GPU optimization
-CMD ["python", "-c", "import gpu_config; exec(open('run_gpu.py').read())"] 
+CMD ["python", "run_gpu.py"] 
