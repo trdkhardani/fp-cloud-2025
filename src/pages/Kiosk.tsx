@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import CameraCapture from "@/components/CameraCapture";
-import { useFaceAttendance, useHealthCheck, useAttendanceHistory, useAttendanceMode } from "@/hooks/useFaceRecognition";
+import { useITScenceAttendance, useHealthCheck, useAttendanceHistory, useAttendanceMode } from "@/hooks/useFaceRecognition";
 import { toast } from "sonner";
 
 const Kiosk = () => {
@@ -14,7 +14,7 @@ const Kiosk = () => {
   const [cooldownCountdown, setCooldownCountdown] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
   
-  const { processAttendance, isProcessing } = useFaceAttendance();
+  const { processAttendance, isProcessing } = useITScenceAttendance();
   const { data: health, isLoading: healthLoading } = useHealthCheck();
   const { data: attendanceData = [] } = useAttendanceHistory(100); // Get recent attendance records
   const { data: attendanceMode, isLoading: modeLoading } = useAttendanceMode();
@@ -262,12 +262,9 @@ const Kiosk = () => {
         <div className={`flex items-center ${isMobile ? 'flex-col gap-2' : 'justify-between'}`}>
           {/* Logo and Title */}
           <div className="flex items-center space-x-3">
-            {/* <div className="w-8 h-8 sm:w-10 sm:h-10 bg-white/20 rounded-full flex items-center justify-center">
-              <Camera className="w-5 h-5 sm:w-6 sm:h-6" />
+            <div className="text-center mb-2">
+              <h1 className="text-lg sm:text-xl font-bold">ITScence</h1>
             </div>
-            <div>
-              <h1 className="text-lg sm:text-xl font-bold">FaceAttend</h1>
-            </div> */}
           </div>
           
           {/* Mobile: Stack time and status vertically */}

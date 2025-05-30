@@ -2,19 +2,19 @@ services:
   # MongoDB Database
   mongodb:
     image: mongo:7.0
-    container_name: faceattend-mongodb-gpu
+    container_name: itscence-mongodb-gpu
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: password123
-      MONGO_INITDB_DATABASE: faceattend
+      MONGO_INITDB_DATABASE: itscence
     volumes:
       - mongodb_data:/data/db
       - ./mongodb-init:/docker-entrypoint-initdb.d
     ports:
       - "27017:27017"
     networks:
-      - faceattend-network
+      - itscence-network
     healthcheck:
       test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
       interval: 30s
@@ -27,11 +27,11 @@ services:
     build:
       context: ./backend-example
       dockerfile: Dockerfile.gpu
-    container_name: faceattend-backend-gpu
+    container_name: itscence-backend-gpu
     restart: unless-stopped
     environment:
-      - MONGODB_URL=mongodb://admin:password123@mongodb:27017/faceattend?authSource=admin
-      - DATABASE_NAME=faceattend
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017/itscence?authSource=admin
+      - DATABASE_NAME=itscence
       - API_HOST=0.0.0.0
       - API_PORT=8000
       - DEFAULT_MODEL=VGG-Face
@@ -54,7 +54,7 @@ services:
       mongodb:
         condition: service_healthy
     networks:
-      - faceattend-network
+      - itscence-network
     deploy:
       resources:
         reservations:
@@ -74,7 +74,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: faceattend-frontend-gpu
+    container_name: itscence-frontend-gpu
     restart: unless-stopped
     ports:
       - "9090:80"
@@ -82,7 +82,7 @@ services:
       backend:
         condition: service_healthy
     networks:
-      - faceattend-network
+      - itscence-network
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
@@ -94,5 +94,5 @@ volumes:
   mongodb_data:
 
 networks:
-  faceattend-network:
+  itscence-network:
     driver: bridge 

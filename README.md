@@ -1,35 +1,99 @@
-# FaceAttend - Face Recognition Attendance System
+# ITScence - ITS Smart Presence
+## Face Recognition Attendance System
 
-A comprehensive dual-interface face recognition attendance system with MongoDB persistence, GPU acceleration, and Docker deployment support.
+ITScence is a comprehensive face recognition attendance system built with React, FastAPI, and MongoDB. It provides real-time face detection and recognition capabilities for efficient attendance tracking.
 
-## 🚀 Quick Start with Docker (Recommended)
+## 🌟 Features
+
+- **Real-time Face Recognition**: Advanced face detection and recognition using DeepFace
+- **Employee Management**: Complete CRUD operations for employee records
+- **Attendance Tracking**: Automatic attendance logging with timestamps
+- **Anti-Spoofing**: Liveness detection to prevent photo-based attacks
+- **Dual Interface**: Admin panel and kiosk mode for different use cases
+- **MongoDB Integration**: Persistent storage for all employee and attendance data
+- **Docker Support**: Easy deployment with Docker containers
+- **GPU Acceleration**: Optional NVIDIA GPU support for faster processing
+- **Responsive Design**: Works on desktop, tablet, and mobile devices
+
+## 🚀 Quick Start
 
 ### Prerequisites
-- Docker (v24.0+) with Compose plugin
-- NVIDIA GPU (optional, for better performance)
 
-### One-Command Deployment
+- **Node.js** 18+ and npm/yarn
+- **Python** 3.8+ with pip
+- **Docker** (optional, for containerized deployment)
+- **MongoDB** (local or cloud instance)
+
+### Option 1: Docker Deployment (Recommended)
+
 ```bash
-# Clone and deploy automatically
+# Clone the repository
 git clone <repository-url>
-cd face-attend-mobile-capture
+cd itscence-smart-presence
+
+# Deploy with Docker
 chmod +x docker-deploy.sh
 ./docker-deploy.sh auto
 ```
 
-### Manual Docker Deployment
-```bash
-# CPU version
-docker compose up --build -d
+### Option 2: Local Development
 
-# GPU version (if you have NVIDIA GPU)
-docker compose -f docker-compose.gpu.yml up --build -d
+1. **Frontend Setup**
+```bash
+# Install dependencies
+npm install
+
+# Start development server
+npm run dev
 ```
 
-### Access Application
-- **Frontend**: http://localhost:9090
-- **Backend API**: http://localhost:8000
+2. **Backend Setup**
+```bash
+# Navigate to backend
+cd backend-example
+
+# Install Python dependencies
+pip install -r requirements.txt
+
+# Start the API server
+python main.py
+```
+
+3. **MongoDB Setup**
+```bash
+# Start MongoDB (if running locally)
+mongod
+
+# Or use MongoDB connection string
+export MONGODB_URL="mongodb://admin:password123@mongodb:27017/itscence?authSource=admin"
+```
+
+## 📱 Access Points
+
+After deployment:
+- **Admin Interface**: http://localhost:9090
+- **Kiosk Mode**: http://localhost:9090/kiosk
 - **API Documentation**: http://localhost:8000/docs
+- **Health Check**: http://localhost:8000/health
+
+## 🔧 Configuration
+
+### Environment Variables
+
+```bash
+# MongoDB Configuration
+MONGODB_URL=mongodb://admin:password123@mongodb:27017/itscence?authSource=admin
+DATABASE_NAME=itscence
+
+# API Configuration
+API_HOST=0.0.0.0
+API_PORT=8000
+
+# Face Recognition Settings
+DEFAULT_MODEL=VGG-Face
+DEFAULT_DETECTOR=opencv
+DEFAULT_DISTANCE_METRIC=cosine
+```
 
 ## 📋 Features
 
@@ -111,29 +175,6 @@ cd backend-example && python main.py    # Backend (port 8000)
 - **CPU Mode**: 200-500ms per recognition
 - **GPU Mode**: 20-50ms per recognition (10x faster)
 - **Memory Management**: Configurable GPU memory limits
-
-## 🔧 Configuration
-
-### Environment Variables
-```bash
-# MongoDB
-MONGODB_URL=mongodb://admin:password123@mongodb:27017/faceattend?authSource=admin
-
-# Face Recognition
-DEFAULT_MODEL=VGG-Face
-DEFAULT_DETECTOR=opencv
-DEFAULT_DISTANCE_METRIC=cosine
-
-# GPU (if available)
-TF_FORCE_GPU_ALLOW_GROWTH=true
-TF_GPU_MEMORY_LIMIT=2048
-```
-
-### Docker Compose Services
-- **MongoDB**: Persistent data with automatic initialization
-- **Backend**: FastAPI with face recognition capabilities
-- **Frontend**: React app served by nginx with reverse proxy
-- **Health Checks**: Automatic service monitoring
 
 ## 📝 Development Setup
 

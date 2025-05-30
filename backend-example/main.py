@@ -35,7 +35,7 @@ except ImportError as e:
     print(f"❌ DeepFace not available: {e}")
     print("Install with: pip install deepface")
 
-app = FastAPI(title="FaceAttend API", version="1.0.0")
+app = FastAPI(title="ITScence API", version="1.0.0", description="ITS Smart Presence - Face Recognition Attendance System")
 
 # CORS configuration
 app.add_middleware(
@@ -496,7 +496,7 @@ def calculate_liveness_score(features: dict) -> dict:
 async def root():
     db_stats = await db_manager.get_stats()
     return {
-        "message": "FaceAttend API is running",
+        "message": "ITScence API is running",
         "version": "1.0.0",
         "deepface_available": DEEPFACE_AVAILABLE,
         "current_model": config.model_name,
@@ -1093,10 +1093,9 @@ async def health_check():
     
     return {
         "status": "healthy",
-        "timestamp": datetime.now().isoformat(),
-        "deepface_available": DEEPFACE_AVAILABLE,
-        "config": config.dict(),
-        "database": db_stats
+        "message": "ITScence API is running",
+        "timestamp": datetime.utcnow().isoformat(),
+        "version": "1.0.0"
     }
 
 # Debug endpoint for troubleshooting

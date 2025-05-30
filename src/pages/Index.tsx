@@ -21,7 +21,7 @@ import CameraCapture from "@/components/CameraCapture";
 import UserList from "@/components/UserList";
 import AttendanceHistory from "@/components/AttendanceHistory";
 import ConfigPage from "@/components/ConfigPage";
-import { useFaceAttendance, useEmployees, useAttendanceHistory, useHealthCheck } from "@/hooks/useFaceRecognition";
+import { useITScenceAttendance, useEmployees, useAttendanceHistory, useHealthCheck } from "@/hooks/useFaceRecognition";
 import { useAuth } from "@/hooks/useAuth";
 import { toast } from "sonner";
 
@@ -29,7 +29,7 @@ const Index = () => {
   const [lastResult, setLastResult] = useState<any>(null);
   const { user, logout } = useAuth();
   
-  const { processAttendance, isProcessing } = useFaceAttendance();
+  const { processAttendance, isProcessing } = useITScenceAttendance();
   const { data: employees = [] } = useEmployees();
   const { data: attendance = [] } = useAttendanceHistory();
   const { data: health, isLoading: healthLoading } = useHealthCheck();
@@ -92,8 +92,8 @@ const Index = () => {
                 <Camera className="w-5 h-5 text-white" />
               </div>
               <div>
-                <h1 className="text-xl font-bold text-gray-900">FaceAttend Admin</h1>
-                <p className="text-sm text-gray-500">Face Recognition Management</p>
+                <h1 className="text-xl font-bold text-gray-900">ITScence Admin</h1>
+                <p className="text-sm text-gray-500">ITS Smart Presence Management</p>
               </div>
             </div>
 

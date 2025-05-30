@@ -1,10 +1,10 @@
 """
-MongoDB Database Configuration and Models for FaceAttend
+MongoDB Database Configuration and Models for ITScence
 """
 
 import os
 import logging
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import List, Optional, Dict, Any
 from bson import ObjectId
 import gridfs
@@ -28,7 +28,7 @@ from timezone_utils import get_local_now, get_local_date_start
 
 # MongoDB Configuration
 MONGODB_URL = os.getenv("MONGODB_URL", "mongodb://localhost:27017")
-DATABASE_NAME = os.getenv("DATABASE_NAME", "faceattend")
+DATABASE_NAME = os.getenv("DATABASE_NAME", "itscence")
 EMPLOYEES_COLLECTION = "employees"
 ATTENDANCE_COLLECTION = "attendance"
 FACES_COLLECTION = "faces"

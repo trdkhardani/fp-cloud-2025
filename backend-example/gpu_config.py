@@ -1,5 +1,5 @@
 """
-GPU Configuration for FaceAttend
+GPU Configuration for ITScence
 Optimizes TensorFlow and DeepFace for NVIDIA GPU usage
 Compatible with CUDA 12.2.2 and cuDNN 8.9+
 """

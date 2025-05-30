@@ -56,8 +56,8 @@ const Login = () => {
           <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
             <Camera className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-900">FaceAttend</h1>
-          <p className="text-gray-600">Admin Panel Login</p>
+          <h1 className="text-3xl font-bold text-gray-900">ITScence</h1>
+          <p className="text-gray-600 mt-2">ITS Smart Presence</p>
         </div>
 
         {/* Login Card */}

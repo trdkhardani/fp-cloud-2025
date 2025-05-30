@@ -1,5 +1,5 @@
-# FaceAttend Backend Dockerfile
-# =============================
+# ITScence Backend Dockerfile
+# ===========================
 
 # Use Python 3.10 slim as base image
 FROM python:3.10-slim

@@ -169,7 +169,7 @@ export const useDeleteEmployee = () => {
 };
 
 // Combined Face Recognition + Attendance Recording
-export const useFaceAttendance = () => {
+export const useITScenceAttendance = () => {
   const faceRecognition = useFaceRecognition();
   const recordAttendance = useRecordAttendance();
   

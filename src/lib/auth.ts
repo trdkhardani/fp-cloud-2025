@@ -11,7 +11,7 @@ export interface LoginCredentials {
 }
 
 class AuthService {
-  private storageKey = 'faceattend_auth';
+  private storageKey = 'itscence_auth';
   
   // In production, these should be environment variables or from a backend
   private adminCredentials = {

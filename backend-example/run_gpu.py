@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 """
-GPU-optimized runner for FaceAttend FastAPI backend
+GPU-optimized runner for ITScence FastAPI backend
+Provides enhanced performance through CUDA acceleration
 """
 
 import os
@@ -19,7 +20,7 @@ logger = logging.getLogger(__name__)
 def main():
     """Initialize GPU configuration and start the FastAPI server"""
     
-    logger.info("🚀 Starting FaceAttend with GPU optimization...")
+    logger.info("🚀 Starting ITScence with GPU optimization...")
     
     # Initialize GPU configuration
     try:
