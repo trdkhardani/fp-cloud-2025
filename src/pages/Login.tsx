@@ -5,6 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import Logo from "@/components/ui/logo";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -53,9 +54,7 @@ const Login = () => {
       <div className="w-full max-w-md space-y-6">
         {/* Header */}
         <div className="text-center">
-          <div className="w-16 h-16 bg-gradient-to-r from-blue-600 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4">
-            <Camera className="w-8 h-8 text-white" />
-          </div>
+          <Logo size="xl" className="mx-auto mb-4" />
           <h1 className="text-3xl font-bold text-gray-900">ITScence</h1>
           <p className="text-gray-600 mt-2">ITS Smart Presence</p>
         </div>
@@ -69,68 +68,61 @@ const Login = () => {
             </CardTitle>
           </CardHeader>
           <CardContent>
+            {error && (
+              <Alert className="mb-4 border-red-200 bg-red-50">
+                <AlertDescription className="text-red-800">
+                  {error}
+                </AlertDescription>
+              </Alert>
+            )}
+            
             <form onSubmit={handleSubmit} className="space-y-4">
-              {/* Username */}
               <div className="space-y-2">
-                <Label htmlFor="username" className="flex items-center gap-2">
-                  <User className="w-4 h-4" />
-                  Username
-                </Label>
-                <Input
-                  id="username"
-                  type="text"
-                  value={credentials.username}
-                  onChange={(e) => setCredentials(prev => ({ ...prev, username: e.target.value }))}
-                  placeholder="Enter your username"
-                  required
-                  disabled={isLoading}
-                />
-              </div>
-
-              {/* Password */}
-              <div className="space-y-2">
-                <Label htmlFor="password" className="flex items-center gap-2">
-                  <Lock className="w-4 h-4" />
-                  Password
-                </Label>
+                <Label htmlFor="username">Username</Label>
                 <div className="relative">
+                  <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
                   <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={credentials.password}
-                    onChange={(e) => setCredentials(prev => ({ ...prev, password: e.target.value }))}
-                    placeholder="Enter your password"
-                    required
+                    id="username"
+                    type="text"
+                    placeholder="Enter your username"
+                    value={credentials.username}
+                    onChange={(e) => setCredentials(prev => ({
+                      ...prev,
+                      username: e.target.value
+                    }))}
+                    className="pl-10"
                     disabled={isLoading}
-                    className="pr-10"
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </Button>
                 </div>
               </div>
 
-              {/* Error Message */}
-              {error && (
-                <Alert className="border-red-200 bg-red-50">
-                  <AlertDescription className="text-red-800">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
+              <div className="space-y-2">
+                <Label htmlFor="password">Password</Label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    placeholder="Enter your password"
+                    value={credentials.password}
+                    onChange={(e) => setCredentials(prev => ({
+                      ...prev,
+                      password: e.target.value
+                    }))}
+                    className="pl-10 pr-10"
+                    disabled={isLoading}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 h-4 w-4 text-gray-400 hover:text-gray-600"
+                    disabled={isLoading}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </button>
+                </div>
+              </div>
 
-              {/* Login Button */}
               <Button
                 type="submit"
                 className="w-full"

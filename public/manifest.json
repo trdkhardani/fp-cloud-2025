@@ -1,0 +1,23 @@
+{
+  "name": "ITScence - ITS Smart Presence",
+  "short_name": "ITScence",
+  "description": "Mobile-first face recognition attendance system",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1f2937",
+  "theme_color": "#2563eb",
+  "icons": [
+    {
+      "src": "/android-chrome-512x512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/images/itscence-logo.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ]
+} 
