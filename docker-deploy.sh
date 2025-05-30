@@ -82,26 +82,48 @@ check_gpu() {
 deploy_cpu() {
     print_status "Deploying ITScence with CPU support..."
     
-    # Stop any existing containers
-    $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
+    # Stop GPU backend and frontend if running, but keep MongoDB
+    if docker ps | grep -q "itscence-backend-gpu"; then
+        print_status "Stopping GPU backend to switch to CPU..."
+        docker stop itscence-backend-gpu itscence-frontend-gpu 2>/dev/null || true
+        docker rm itscence-backend-gpu itscence-frontend-gpu 2>/dev/null || true
+    fi
     
-    # Build and start services
+    # Start MongoDB if not running (shared between CPU and GPU)
+    if ! docker ps | grep -q "itscence-mongodb"; then
+        print_status "Starting shared MongoDB..."
+        $COMPOSE_CMD up -d mongodb
+        sleep 5  # Wait for MongoDB to be ready
+    fi
+    
+    # Build and start CPU services
     $COMPOSE_CMD up --build -d
     
-    print_success "✅ ITScence deployed with CPU support"
+    print_success "✅ ITScence deployed with CPU support (using shared MongoDB)"
 }
 
 # Deploy with GPU
 deploy_gpu() {
     print_status "Deploying ITScence with GPU support..."
     
-    # Stop any existing containers
-    $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
+    # Stop CPU backend and frontend if running, but keep MongoDB
+    if docker ps | grep -q "itscence-backend"; then
+        print_status "Stopping CPU backend to switch to GPU..."
+        docker stop itscence-backend itscence-frontend 2>/dev/null || true
+        docker rm itscence-backend itscence-frontend 2>/dev/null || true
+    fi
     
-    # Build and start services
+    # Start MongoDB if not running (shared between CPU and GPU)
+    if ! docker ps | grep -q "itscence-mongodb"; then
+        print_status "Starting shared MongoDB..."
+        $COMPOSE_CMD -f docker-compose.gpu.yml up -d mongodb
+        sleep 5  # Wait for MongoDB to be ready
+    fi
+    
+    # Build and start GPU services
     $COMPOSE_CMD -f docker-compose.gpu.yml up --build -d
     
-    print_success "✅ ITScence deployed with GPU support"
+    print_success "✅ ITScence deployed with GPU support (using shared MongoDB)"
 }
 
 # Monitor deployment
@@ -131,17 +153,33 @@ monitor_deployment() {
     print_warning "Deployment may still be starting. Check logs with: $COMPOSE_CMD logs"
 }
 
+# Force stop all services including MongoDB
+stop_all_services() {
+    print_status "Force stopping all ITScence services including MongoDB..."
+    $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
+    $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
+    docker stop itscence-mongodb itscence-backend itscence-frontend 2>/dev/null || true
+    docker stop itscence-backend-gpu itscence-frontend-gpu 2>/dev/null || true
+    docker rm itscence-mongodb itscence-backend itscence-frontend 2>/dev/null || true
+    docker rm itscence-backend-gpu itscence-frontend-gpu 2>/dev/null || true
+    print_success "✅ All services stopped (including shared MongoDB)"
+}
+
 # Show usage
 show_usage() {
-    echo "Usage: $0 [cpu|gpu|auto|status|stop|logs]"
+    echo "Usage: $0 [cpu|gpu|auto|status|stop|stop-all|logs]"
     echo ""
     echo "Commands:"
-    echo "  cpu     - Deploy with CPU support (default)"
-    echo "  gpu     - Deploy with GPU support"
-    echo "  auto    - Auto-detect and deploy optimal version"
-    echo "  status  - Show deployment status"
-    echo "  stop    - Stop all services"
-    echo "  logs    - Show service logs"
+    echo "  cpu      - Deploy with CPU support"
+    echo "  gpu      - Deploy with GPU support"
+    echo "  auto     - Auto-detect and deploy optimal version"
+    echo "  status   - Show deployment status"
+    echo "  stop     - Stop app services (preserves shared MongoDB)"
+    echo "  stop-all - Stop all services including shared MongoDB"
+    echo "  logs     - Show service logs"
+    echo ""
+    echo "Note: MongoDB is shared between CPU and GPU deployments."
+    echo "Switching between cpu/gpu modes preserves your data."
     echo ""
 }
 
@@ -150,20 +188,36 @@ show_status() {
     echo ""
     echo "🔍 ITScence Status:"
     echo "==================="
+    echo ""
     
-    if $COMPOSE_CMD ps | grep -q "Up"; then
-        echo "CPU Version:"
-        $COMPOSE_CMD ps
+    # Check MongoDB status
+    if docker ps | grep -q "itscence-mongodb"; then
+        print_success "📊 Shared MongoDB: Running"
+        echo "   Container: itscence-mongodb"
+        echo "   Port: 27017"
+    else
+        print_warning "📊 Shared MongoDB: Stopped"
     fi
     
-    if $COMPOSE_CMD -f docker-compose.gpu.yml ps 2>/dev/null | grep -q "Up"; then
-        echo "GPU Version:"
-        $COMPOSE_CMD -f docker-compose.gpu.yml ps
+    echo ""
+    
+    # Check CPU deployment
+    if docker ps | grep -q "itscence-backend" && ! docker ps | grep -q "itscence-backend-gpu"; then
+        print_success "🖥️  Active Mode: CPU"
+        echo "CPU Services:"
+        docker ps --filter "name=itscence-backend" --filter "name=itscence-frontend" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    # Check GPU deployment
+    elif docker ps | grep -q "itscence-backend-gpu"; then
+        print_success "🚀 Active Mode: GPU"
+        echo "GPU Services:"
+        docker ps --filter "name=itscence-backend-gpu" --filter "name=itscence-frontend-gpu" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
+    else
+        print_warning "⚠️  No active deployment (backend services stopped)"
     fi
     
     echo ""
     if curl -s http://localhost:9090/health > /dev/null 2>&1; then
-        print_success "✅ Application is accessible"
+        print_success "✅ Application is accessible at http://localhost:9090"
     else
         print_warning "⚠️ Application not accessible"
     fi
@@ -172,9 +226,30 @@ show_status() {
 # Stop services
 stop_services() {
     print_status "Stopping ITScence services..."
-    $COMPOSE_CMD down --remove-orphans 2>/dev/null || true
-    $COMPOSE_CMD -f docker-compose.gpu.yml down --remove-orphans 2>/dev/null || true
-    print_success "✅ All services stopped"
+    
+    # Stop all application containers but preserve MongoDB by default
+    docker stop itscence-backend itscence-frontend 2>/dev/null || true
+    docker stop itscence-backend-gpu itscence-frontend-gpu 2>/dev/null || true
+    docker rm itscence-backend itscence-frontend 2>/dev/null || true
+    docker rm itscence-backend-gpu itscence-frontend-gpu 2>/dev/null || true
+    
+    # Ask if user wants to stop MongoDB too
+    if docker ps | grep -q "itscence-mongodb"; then
+        echo ""
+        read -p "Stop shared MongoDB as well? This will remove all data access (y/N): " -n 1 -r
+        echo ""
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            print_status "Stopping shared MongoDB..."
+            docker stop itscence-mongodb 2>/dev/null || true
+            docker rm itscence-mongodb 2>/dev/null || true
+            print_success "✅ All services stopped (including MongoDB)"
+        else
+            print_success "✅ Application services stopped (MongoDB still running)"
+            print_status "MongoDB is available for quick restart of services"
+        fi
+    else
+        print_success "✅ All services stopped"
+    fi
 }
 
 # Show logs
@@ -222,6 +297,9 @@ main() {
             ;;
         "stop")
             stop_services
+            ;;
+        "stop-all")
+            stop_all_services
             ;;
         "logs")
             show_logs

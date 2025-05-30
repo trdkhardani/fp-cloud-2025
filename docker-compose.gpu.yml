@@ -1,8 +1,8 @@
 services:
-  # MongoDB Database
+  # MongoDB Database (Shared between CPU and GPU deployments)
   mongodb:
     image: mongo:7.0
-    container_name: itscence-mongodb-gpu
+    container_name: itscence-mongodb
     restart: unless-stopped
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin

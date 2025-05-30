@@ -2,6 +2,31 @@
 
 ## Common Issues and Solutions
 
+### 0. Shared MongoDB Between CPU/GPU Deployments
+
+**Feature:** ITScence now uses a single shared MongoDB instance for both CPU and GPU deployments.
+
+**Benefits:**
+- ✅ Data consistency when switching between CPU/GPU modes
+- ✅ Faster deployment switching (preserves database)
+- ✅ No data loss when testing different modes
+
+**Usage:**
+```bash
+# Switch from CPU to GPU (preserves data)
+./docker-deploy.sh cpu
+./docker-deploy.sh gpu  # Your employees and attendance data remain
+
+# Check which mode is active
+./docker-deploy.sh status
+
+# Stop only app services (keeps MongoDB running)
+./docker-deploy.sh stop
+
+# Stop everything including shared MongoDB
+./docker-deploy.sh stop-all
+```
+
 ### 1. TensorFlow/TensorRT Dependency Conflicts
 
 **Error:** `No matching distribution found for tensorrt-libs==8.6.1`
