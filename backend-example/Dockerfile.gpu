@@ -6,12 +6,13 @@ FROM nvidia/cuda:12.2.2-devel-ubuntu22.04
 
 # Prevent interactive prompts during build
 ENV DEBIAN_FRONTEND=noninteractive
+ENV TZ=UTC
 
 # Set working directory
 WORKDIR /app
 
 # Install Python and system dependencies
-RUN apt-get update && apt-get install -y \
+RUN apt-get update && apt-get install -y --fix-missing \
     python3.10 \
     python3.10-venv \
     python3.10-dev \
@@ -71,6 +72,7 @@ RUN mkdir -p uploads temp_images logs face_database
 # Set environment variables for GPU and CUDA 12.2.2
 ENV PYTHONPATH=/app
 ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
 ENV TF_CPP_MIN_LOG_LEVEL=2
 ENV TF_FORCE_GPU_ALLOW_GROWTH=true
 ENV TF_GPU_MEMORY_LIMIT=2048
