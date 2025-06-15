@@ -7,7 +7,7 @@
 
 ---
 
-## 📌 Deskripsi Final Project
+## 📌 (1) Deskripsi Final Project
 
 Anda adalah seorang lulusan Teknologi Informasi. Sebagai ahli IT, salah satu kemampuan yang harus dimiliki adalah kemampuan merancang, membangun, dan mengelola aplikasi berbasis komputer menggunakan layanan cloud untuk memenuhi kebutuhan organisasi.
 
@@ -77,7 +77,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 ---
 
-## 📐 Rancangan Arsitektur Cloud
+## (2) 📐 Rancangan Arsitektur Cloud
 
 **Diagram Arsitektur:**
 ![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)
