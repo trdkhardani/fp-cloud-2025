@@ -54,7 +54,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 Dokumentasi harus dalam format Markdown, mencakup:
 
 1. **Introduction**  
-   Penjelasan masalah dan latar belakang (bisa referensi dari deskripsi project ini)
+   Penjelasan masalah dan latar belakang
 
 2. **Desain Arsitektur Cloud**  
    - Gambar desain arsitektur (dapat menggunakan [https://app.diagrams.net/](https://app.diagrams.net/))  
