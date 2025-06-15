@@ -76,3 +76,13 @@ Dokumentasi harus dalam format Markdown, mencakup:
 6. **Kesimpulan dan Saran**  
    - Evaluasi akhir proyek  
    - Rekomendasi perbaikan atau optimasi
+
+---
+
+## 📐 Rancangan Arsitektur Cloud
+
+> **🖼️ Diagram Arsitektur:**  
+> ![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)  
+
+
+
