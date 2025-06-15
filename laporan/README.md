@@ -51,8 +51,6 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
   - 1, 3, 5, 10, 15, 20, 30 user
 
 ### 🔹 Dokumentasi GitHub (25%)
-Dokumentasi harus dalam format Markdown, mencakup:
-
 1. **Introduction**  
    Penjelasan masalah dan latar belakang
 
