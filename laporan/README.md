@@ -98,51 +98,132 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 ## 4. Pengujian API dan Antarmuka
 
+---
+
 ### 🔹 Uji Endpoint Aplikasi
 
-Semua endpoint diuji menggunakan Swagger UI (`/docs`) dan Thunder Client Extension melalui Visual Studio Code.
-
-> 📸 **Swagger UI - Dokumentasi API**  
-> ![Swagger Screenshot](assets/swagger-endpoints.png)
-
-> 📸 **Postman - Uji Register Face**  
-> ![Postman Register Face](assets/postman-register-face.png)
-
-| Endpoint | Method | Deskripsi | Status |
-|----------|--------|-----------|--------|
-| `/admin/login` | POST | Login admin | ✅ |
-| `/admin/` | POST | Tambah admin baru | ✅ |
-| `/employee/` | POST | Tambah karyawan | ✅ |
-| `/employee/` | GET | Ambil semua karyawan | ✅ |
-| `/employee/{id}` | GET | Detail karyawan | ✅ |
-| `/employee/{id}` | PUT | Update karyawan | ✅ |
-| `/employee/{id}` | DELETE | Hapus karyawan | ✅ |
-| `/face/register` | POST | Upload wajah (register) | ✅ |
-| `/face/recognize` | POST | Deteksi wajah (kiosk) | ✅ |
-| `/attendance/checkin` | POST | Absen masuk | ✅ |
-| `/attendance/checkout` | POST | Absen keluar | ✅ |
-| `/attendance` | GET | Semua data absen | ✅ |
-| `/attendance/{employee_id}` | GET | Riwayat per karyawan | ✅ |
+Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi) dan **Thunder Client** (untuk endpoint tambahan seperti login admin). Semua endpoint berjalan pada backend FastAPI dan terkoneksi dengan MongoDB di VM worker.
 
 ---
 
-### 🔹 Tampilkan Antarmuka Aplikasi
+### 📘 A. Endpoint yang Diuji via Swagger UI
+
+#### 1. `POST /employee/` – Tambah Karyawan
+
+> 📸 Swagger UI - Tambah Karyawan
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
+
+#### 2. `GET /employee/` – Ambil Semua Karyawan
+
+> 📸 Swagger UI - Lihat Semua Karyawan
+> ![Swagger Employee List](assets/swagger-employee-list.png)
+
+#### 3. `GET /employee/{id}` – Detail Karyawan
+
+#### 4. `PUT /employee/{id}` – Edit Karyawan
+
+#### 5. `DELETE /employee/{id}` – Hapus Karyawan
+
+#### 6. `POST /face/register` – Register Wajah
+
+> 📸 Swagger UI - Register Wajah
+> ![Swagger Face Register](assets/swagger-face-register.png)
+
+#### 7. `POST /face/recognize` – Deteksi Wajah
+
+> 📸 Swagger UI - Recognize Face
+> ![Swagger Face Recognize](assets/swagger-face-recognize.png)
+
+#### 8. `POST /attendance/checkin` – Absen Masuk
+
+#### 9. `POST /attendance/checkout` – Absen Keluar
+
+#### 10. `GET /attendance` – Semua Data Absensi
+
+> 📸 Swagger UI - Riwayat Absensi
+> ![Swagger Attendance](assets/swagger-attendance.png)
+
+#### 11. `GET /attendance/{employee_id}` – Riwayat Absensi Karyawan
+
+---
+
+### 📙 B. Endpoint Tambahan via Thunder Client
+
+#### 12. `POST /admin/login` – Login Admin
+
+Digunakan untuk autentikasi admin. Mengembalikan token JWT.
+
+> 📸 Thunder Client - Login Admin
+> ![Thunder Admin Login](assets/thunder-admin-login.png)
+
+#### 13. `POST /admin/` – Register Admin
+
+Menambahkan akun admin baru ke sistem.
+
+> 📸 Thunder Client - Register Admin
+> ![Thunder Admin Register](assets/thunder-admin-register.png)
+
+---
+
+### 🖥️ C. Tampilkan Antarmuka Aplikasi
 
 Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digunakan.
 
-> 📸 **1. Halaman Login Admin**  
+> 📸 **1. Halaman Login Admin**
 > ![Login Admin](assets/ui-login.png)
 
-> 📸 **2. Dashboard Admin**  
-> ![Dashboard](assets/ui-dashboard.png)
+> 📸 **2. Dashboard Admin**
+> ![Dashboard Admin](assets/ui-dashboard.png)
 
-> 📸 **3. Manajemen Karyawan**  
-> ![Manajemen Karyawan](assets/ui-employee.png)
+> 📸 **3. Manajemen Karyawan (Users Tab)**
+> ![Users Page](assets/ui-users.png)
 
-> 📸 **4. Riwayat Absensi**  
-> ![Riwayat Absensi](assets/ui-attendance.png)
+> 📸 **4. Tambah Karyawan - Step 1 (Data)**
+> ![Add User Step 1](assets/ui-add-user-step1.png)
 
-> 📸 **5. Kiosk Mode (Face Recognition)**  
+> 📸 **5. Tambah Karyawan - Step 2 (Ambil Foto)**
+> ![Add User Step 2](assets/ui-add-user-step2.png)
+
+> 📸 **6. Kiosk Mode / Camera Error**
+> ![Camera Tab](assets/ui-camera-error.png)
+
+> 📸 **7. Pengaturan Model Face Recognition**
+> ![Settings - Recognition Model](assets/ui-settings-model.png)
+
+> 📸 **8. Threshold dan Anti-Spoofing**
+> ![Settings - Threshold](assets/ui-settings-threshold.png)
+
+> 📸 **9. Jadwal Absensi**
+> ![Settings - Schedule](assets/ui-settings-schedule.png)
+
+> 📸 **10. Preferensi Mirror Kamera dan Status Sistem**
+> ![Settings - Mirror](assets/ui-settings-mirror.png)
+
+> 📸 **11. Kiosk Mode (Tampilan Kamera)**
 > ![Kiosk Mode](assets/ui-kiosk.png)
+
+---
+
+### 📂 Tabel Ringkasan Endpoint
+
+| Endpoint                    | Method | Deskripsi                       | Tools          |
+| --------------------------- | ------ | ------------------------------- | -------------- |
+| `/admin/login`              | POST   | Login admin                     | Thunder Client |
+| `/admin/`                   | POST   | Tambah admin baru               | Thunder Client |
+| `/employee/`                | POST   | Tambah karyawan                 | Swagger        |
+| `/employee/`                | GET    | Ambil semua karyawan            | Swagger        |
+| `/employee/{id}`            | GET    | Detail karyawan                 | Swagger        |
+| `/employee/{id}`            | PUT    | Edit data karyawan              | Swagger        |
+| `/employee/{id}`            | DELETE | Hapus data karyawan             | Swagger        |
+| `/face/register`            | POST   | Upload wajah (base64)           | Swagger        |
+| `/face/recognize`           | POST   | Deteksi wajah dari gambar       | Swagger        |
+| `/attendance/checkin`       | POST   | Catat absen masuk               | Swagger        |
+| `/attendance/checkout`      | POST   | Catat absen keluar              | Swagger        |
+| `/attendance`               | GET    | Lihat semua absensi             | Swagger        |
+| `/attendance/{employee_id}` | GET    | Lihat absensi karyawan tertentu | Swagger        |
+
+---
+
+Semua endpoint dan tampilan diuji pada sistem yang sudah dideploy di Google Cloud Platform dengan database MongoDB yang berjalan di VM worker.
 
 
