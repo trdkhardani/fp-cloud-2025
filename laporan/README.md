@@ -64,7 +64,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
    - Sertakan screenshot jika memungkinkan
 
 4. **Pengujian API dan Antarmuka**  
-   - Uji endpoint menggunakan Postman  
+   - Uji endpoint aplikasi
    - Tampilkan antarmuka aplikasi
 
 5. **Load Testing & Analisis**  
@@ -94,6 +94,55 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 | Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 3)       | $20.73                        | $20.73            |
 | **Total**                              |                     |                               | **$76.12**        |
 
+---
 
+## 4. Pengujian API dan Antarmuka
+
+### 🔹 Uji Endpoint Aplikasi
+
+Semua endpoint diuji menggunakan Swagger UI (`/docs`) dan Thunder Client Extension melalui Visual Studio Code.
+
+> 📸 **Swagger UI - Dokumentasi API**  
+> ![Swagger Screenshot](assets/swagger-endpoints.png)
+
+> 📸 **Postman - Uji Register Face**  
+> ![Postman Register Face](assets/postman-register-face.png)
+
+| Endpoint | Method | Deskripsi | Status |
+|----------|--------|-----------|--------|
+| `/admin/login` | POST | Login admin | ✅ |
+| `/admin/` | POST | Tambah admin baru | ✅ |
+| `/employee/` | POST | Tambah karyawan | ✅ |
+| `/employee/` | GET | Ambil semua karyawan | ✅ |
+| `/employee/{id}` | GET | Detail karyawan | ✅ |
+| `/employee/{id}` | PUT | Update karyawan | ✅ |
+| `/employee/{id}` | DELETE | Hapus karyawan | ✅ |
+| `/face/register` | POST | Upload wajah (register) | ✅ |
+| `/face/recognize` | POST | Deteksi wajah (kiosk) | ✅ |
+| `/attendance/checkin` | POST | Absen masuk | ✅ |
+| `/attendance/checkout` | POST | Absen keluar | ✅ |
+| `/attendance` | GET | Semua data absen | ✅ |
+| `/attendance/{employee_id}` | GET | Riwayat per karyawan | ✅ |
+
+---
+
+### 🔹 Tampilkan Antarmuka Aplikasi
+
+Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digunakan.
+
+> 📸 **1. Halaman Login Admin**  
+> ![Login Admin](assets/ui-login.png)
+
+> 📸 **2. Dashboard Admin**  
+> ![Dashboard](assets/ui-dashboard.png)
+
+> 📸 **3. Manajemen Karyawan**  
+> ![Manajemen Karyawan](assets/ui-employee.png)
+
+> 📸 **4. Riwayat Absensi**  
+> ![Riwayat Absensi](assets/ui-attendance.png)
+
+> 📸 **5. Kiosk Mode (Face Recognition)**  
+> ![Kiosk Mode](assets/ui-kiosk.png)
 
 
