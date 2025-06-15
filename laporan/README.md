@@ -81,8 +81,21 @@ Dokumentasi harus dalam format Markdown, mencakup:
 
 ## 📐 Rancangan Arsitektur Cloud
 
-**🖼️ Diagram Arsitektur:**  <br>
-![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)  
+**Diagram Arsitektur:**
+![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)
+
+---
+
+## 💰 Tabel Perkiraan Biaya Bulanan
+
+| **Komponen**                            | **Jumlah / Unit** | **Harga per Unit (per bulan)** | **Total Bulanan** |
+|----------------------------------------|-------------------|-------------------------------|-------------------|
+| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Load Balancer) | $13.93                        | $13.93            |
+| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 1)       | $20.73                        | $20.73            |
+| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 2)       | $20.73                        | $20.73            |
+| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 3)       | $20.73                        | $20.73            |
+| **Total**                              |                     |                               | **$76.12**        |
+
 
 
 
