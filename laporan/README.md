@@ -81,8 +81,8 @@ Dokumentasi harus dalam format Markdown, mencakup:
 
 ## 📐 Rancangan Arsitektur Cloud
 
-> **🖼️ Diagram Arsitektur:**  
-> ![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)  
+**🖼️ Diagram Arsitektur:**  <br>
+![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)  
 
 
 
