@@ -190,11 +190,11 @@ Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digu
 > 📸 **7. Kiosk Mode**
 > ![Camera Tab](assets/camera-kiosk.png)
 
-> 📸 **8. Pengaturan Model Face Recognition**       
-> ![Settings - Recognition Model](assets/admin-settings.png)
-
-> 📸 **9. Admin History**
+> 📸 **8. Admin History**
 > ![Kiosk Mode](assets/admin-history.jpeg)
+
+> 📸 **9. Pengaturan Model Face Recognition**       
+> ![Settings - Recognition Model](assets/admin-settings.png)
 
 ---
 
