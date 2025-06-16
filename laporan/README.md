@@ -112,7 +112,7 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 #### 1. `GET /api/attendance/mode` – Get Attendance Mode  
 > 📸 Swagger UI - Attendance Mode  
-> ![Swagger Attendance Mode](assets/swagger-attendance-mode.png)
+> ![Swagger Attendance Mode](assets/get-api-attendance-mode.png)
 
 #### 2. `GET /` – Root  
 > 📸 Swagger UI - Root Endpoint  
