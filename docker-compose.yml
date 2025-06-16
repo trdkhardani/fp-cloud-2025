@@ -44,16 +44,14 @@ services:
       - ./backend-example/logs:/app/logs
       - ./backend-example/face_database:/app/face_database
     ports:
-      # - "443:443"
-      - "80:80"
+      - "8000:8000"
     depends_on:
       mongodb:
         condition: service_healthy
     networks:
       - itscence-network
     healthcheck:
-      # test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://localhost:443/", "--no-check-certificate"]
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
       interval: 30s
       timeout: 10s
       retries: 3
@@ -67,7 +65,7 @@ services:
     container_name: itscence-frontend
     restart: unless-stopped
     ports:
-      - "443:443"
+      - "9090:80"
     depends_on:
       backend:
         condition: service_healthy

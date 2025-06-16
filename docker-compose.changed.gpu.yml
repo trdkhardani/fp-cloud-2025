@@ -77,14 +77,16 @@ services:
     container_name: itscence-frontend-gpu
     restart: unless-stopped
     ports:
-      - "9090:80"
+      # - "443:443"
+      - "80:80"
     depends_on:
       backend:
         condition: service_healthy
     networks:
       - itscence-network
     healthcheck:
-      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      # test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
+      test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "https://localhost:443/", "--no-check-certificate"]
       interval: 30s
       timeout: 3s
       retries: 3
