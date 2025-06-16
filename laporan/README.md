@@ -117,14 +117,17 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 #### 2. `GET /` – Root  
 > 📸 Swagger UI - Root Endpoint  
+
 > ![Swagger Root](assets/get-root.png)
 
 #### 3. `GET /api/config` – Get Config  
-> 📸 Swagger UI - Get Config  
+> 📸 Swagger UI - Get current DeepFace configuration
+
 > ![Swagger Get Config](assets/get-api-config.png)
 
 #### 4. `POST /api/config` – Update Config  
-> 📸 Swagger UI - Update Config  
+> 📸 Swagger UI - Update DeepFace configuration 
+
 > ![Swagger Update Config](assets/swagger-update-config.png)
 
 #### 5. `GET /api/models` – Get Available Models  
