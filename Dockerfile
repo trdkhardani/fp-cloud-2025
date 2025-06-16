@@ -31,7 +31,7 @@ RUN mkdir -p /etc/ssl/private /etc/ssl/certs && \
     openssl req -x509 -nodes -days 365 -newkey rsa:2048 \
     -keyout /etc/ssl/private/nginx-selfsigned.key \
     -out /etc/ssl/certs/nginx-selfsigned.crt \
-    -subj "/CN=localhost"
+    -subj "/C=US/ST=State/L=City/O=Organization/OU=Unit/CN=34.132.246.85"
 
 # Copy custom nginx configuration
 COPY nginx.conf /etc/nginx/conf.d/default.conf
