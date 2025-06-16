@@ -108,65 +108,113 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 ### 📘 A. Endpoint yang Diuji via Swagger UI
 
-#### 1. `POST /employee/` – Tambah Karyawan
-
-> 📸 Swagger UI - Tambah Karyawan
+#### 1. `POST /employee/` – Tambah Karyawan  
+> 📸 Swagger UI - Tambah Karyawan  
 > ![Swagger Employee Add](assets/swagger-employee-register.png)
 
-#### 2. `GET /employee/` – Ambil Semua Karyawan
-
-> 📸 Swagger UI - Lihat Semua Karyawan
+#### 2. `GET /employee/` – Ambil Semua Karyawan  
+> 📸 Swagger UI - Lihat Semua Karyawan  
 > ![Swagger Employee List](assets/swagger-employee-list.png)
 
-#### 3. `GET /employee/{id}` – Detail Karyawan
+#### 3. `GET /employee/{id}` – Detail Karyawan  
+> 📸 Swagger UI - Detail Karyawan  
+> ![Swagger Employee Detail](assets/swagger-employee-detail.png)
 
-> 📸 Swagger UI - Detail Karyawan
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
+#### 4. `PUT /employee/{id}` – Edit Karyawan  
+> 📸 Swagger UI - Edit Karyawan  
+> ![Swagger Employee Edit](assets/swagger-employee-edit.png)
 
-#### 4. `PUT /employee/{id}` – Edit Karyawan
+#### 5. `DELETE /employee/{id}` – Hapus Karyawan  
+> 📸 Swagger UI - Hapus Karyawan  
+> ![Swagger Employee Delete](assets/swagger-employee-delete.png)
 
-> 📸 Swagger UI - Edit Karyawan
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
-
-#### 5. `DELETE /employee/{id}` – Hapus Karyawan
-
-> 📸 Swagger UI - Hapus Karyawan
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
-
-#### 6. `POST /face/register` – Register Wajah
-
-> 📸 Swagger UI - Register Wajah
+#### 6. `POST /face/register` – Register Wajah  
+> 📸 Swagger UI - Register Wajah  
 > ![Swagger Face Register](assets/swagger-face-register.png)
 
-#### 7. `POST /face/recognize` – Deteksi Wajah
-
-> 📸 Swagger UI - Recognize Face
+#### 7. `POST /face/recognize` – Deteksi Wajah  
+> 📸 Swagger UI - Recognize Face  
 > ![Swagger Face Recognize](assets/swagger-face-recognize.png)
 
-#### 8. `POST /attendance/checkin` – Absen Masuk
+#### 8. `POST /attendance/checkin` – Absen Masuk  
+> 📸 Swagger UI - Absen Masuk  
+> ![Swagger Attendance Checkin](assets/swagger-attendance-checkin.png)
 
-> 📸 Swagger UI - Absen Masuk
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
+#### 9. `POST /attendance/checkout` – Absen Keluar  
+> 📸 Swagger UI - Absen Keluar  
+> ![Swagger Attendance Checkout](assets/swagger-attendance-checkout.png)
 
-#### 9. `POST /attendance/checkout` – Absen Keluar
-
-> 📸 Swagger UI - Absen Keluar
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
-
-#### 10. `GET /attendance` – Semua Data Absensi
-
-> 📸 Swagger UI - Semua Data Absensi
+#### 10. `GET /attendance` – Semua Data Absensi  
+> 📸 Swagger UI - Semua Data Absensi  
 > ![Swagger Attendance](assets/swagger-attendance.png)
 
-#### 11. `GET /attendance/{employee_id}` – Riwayat Absensi Karyawan
+#### 11. `GET /attendance/{employee_id}` – Riwayat Absensi Karyawan  
+> 📸 Swagger UI - Riwayat Absensi Karyawan  
+> ![Swagger Attendance History](assets/swagger-attendance-history.png)
 
-> 📸 Swagger UI - Riwayat Absensi Karyawan
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
+#### 12. `GET /api/attendance/mode` – Mode Absensi Saat Ini  
+> 📸 Swagger UI - Mode Absensi  
+> ![Swagger Attendance Mode](assets/swagger-attendance-mode.png)
 
-#### 12. `GET api/attendance/mode` – Mode Absensi Saat Ini
+#### 13. `GET /` – Root Endpoint  
+> 📸 Swagger UI - Root  
+> ![Swagger Root](assets/swagger-root.png)
 
-> 📸 Swagger UI - Mode Absensi Saat Ini
-> ![Swagger Employee Add](assets/swagger-employee-register.png)
+#### 14. `GET /api/config` – Get Config  
+> 📸 Swagger UI - Get Config  
+> ![Swagger Get Config](assets/swagger-get-config.png)
+
+#### 15. `POST /api/config` – Update Config  
+> 📸 Swagger UI - Update Config  
+> ![Swagger Update Config](assets/swagger-update-config.png)
+
+#### 16. `GET /api/models` – Get Available Models  
+> 📸 Swagger UI - Model List  
+> ![Swagger Get Models](assets/swagger-get-models.png)
+
+#### 17. `POST /api/recognize-face` – Recognize Face  
+> 📸 Swagger UI - Recognize Face  
+> ![Swagger Recognize Face](assets/swagger-api-recognize.png)
+
+#### 18. `POST /api/attendance` – Record Attendance  
+> 📸 Swagger UI - Record Attendance  
+> ![Swagger Record Attendance](assets/swagger-api-attendance-post.png)
+
+#### 19. `GET /api/attendance` – Get Attendance History  
+> 📸 Swagger UI - Attendance History  
+> ![Swagger Get Attendance](assets/swagger-api-attendance-get.png)
+
+#### 20. `GET /api/employees` – Get All Employees  
+> 📸 Swagger UI - Get Employees  
+> ![Swagger Get Employees](assets/swagger-api-employees-get.png)
+
+#### 21. `POST /api/employees/enroll` – Enroll Employee  
+> 📸 Swagger UI - Enroll Employee  
+> ![Swagger Enroll Employee](assets/swagger-api-employees-enroll.png)
+
+#### 22. `DELETE /api/employees/{employee_id}` – Delete Employee  
+> 📸 Swagger UI - Delete Employee  
+> ![Swagger Delete Employee](assets/swagger-api-employees-delete.png)
+
+#### 23. `PUT /api/employees/{employee_id}` – Update Employee  
+> 📸 Swagger UI - Update Employee  
+> ![Swagger Update Employee](assets/swagger-api-employees-update.png)
+
+#### 24. `GET /api/employees/{employee_id}/photo` – Get Employee Photo  
+> 📸 Swagger UI - Get Employee Photo  
+> ![Swagger Get Employee Photo](assets/swagger-api-employee-photo.png)
+
+#### 25. `GET /api/attendance/{attendance_id}/photo` – Get Attendance Photo  
+> 📸 Swagger UI - Get Attendance Photo  
+> ![Swagger Get Attendance Photo](assets/swagger-api-attendance-photo.png)
+
+#### 26. `GET /health` – Health Check  
+> 📸 Swagger UI - Health Check  
+> ![Swagger Health](assets/swagger-health.png)
+
+#### 27. `POST /api/debug-face` – Debug Face Recognition  
+> 📸 Swagger UI - Debug Face  
+> ![Swagger Debug Face](assets/swagger-api-debug-face.png)
 
 ---
 
@@ -202,21 +250,37 @@ Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digu
 
 ### 📂 Tabel Ringkasan Endpoint
 
-| Endpoint                    | Method | Deskripsi                       | Tools          |
-| --------------------------- | ------ | ------------------------------- | -------------- |
-| `/admin/login`              | POST   | Login admin                     | Thunder Client |
-| `/admin/`                   | POST   | Tambah admin baru               | Thunder Client |
-| `/employee/`                | POST   | Tambah karyawan                 | Swagger        |
-| `/employee/`                | GET    | Ambil semua karyawan            | Swagger        |
-| `/employee/{id}`            | GET    | Detail karyawan                 | Swagger        |
-| `/employee/{id}`            | PUT    | Edit data karyawan              | Swagger        |
-| `/employee/{id}`            | DELETE | Hapus data karyawan             | Swagger        |
-| `/face/register`            | POST   | Upload wajah (base64)           | Swagger        |
-| `/face/recognize`           | POST   | Deteksi wajah dari gambar       | Swagger        |
-| `/attendance/checkin`       | POST   | Catat absen masuk               | Swagger        |
-| `/attendance/checkout`      | POST   | Catat absen keluar              | Swagger        |
-| `/attendance`               | GET    | Lihat semua absensi             | Swagger        |
-| `/attendance/{employee_id}` | GET    | Lihat absensi karyawan tertentu | Swagger        |
+### 📄 Ringkasan Endpoint API
+
+| No. | Method | Endpoint                                      | Deskripsi                               | Tools          |
+|-----|--------|-----------------------------------------------|-----------------------------------------|----------------|
+| 1   | POST   | /employee/                                    | Tambah data karyawan                    | Swagger        |
+| 2   | GET    | /employee/                                    | Ambil semua data karyawan               | Swagger        |
+| 3   | GET    | /employee/{id}                                | Ambil detail karyawan                   | Swagger        |
+| 4   | PUT    | /employee/{id}                                | Edit data karyawan                      | Swagger        |
+| 5   | DELETE | /employee/{id}                                | Hapus data karyawan                     | Swagger        |
+| 6   | POST   | /face/register                                | Daftarkan wajah (base64)                | Swagger        |
+| 7   | POST   | /face/recognize                               | Pengenalan wajah (kiosk mode)           | Swagger        |
+| 8   | POST   | /attendance/checkin                           | Absen masuk                             | Swagger        |
+| 9   | POST   | /attendance/checkout                          | Absen keluar                            | Swagger        |
+|10   | GET    | /attendance                                   | Semua data absensi                      | Swagger        |
+|11   | GET    | /attendance/{employee_id}                     | Riwayat absensi karyawan                | Swagger        |
+|12   | GET    | /api/attendance/mode                          | Get mode absensi saat ini               | Swagger        |
+|13   | GET    | /                                             | Endpoint root                           | Swagger        |
+|14   | GET    | /api/config                                   | Ambil konfigurasi sistem                | Swagger        |
+|15   | POST   | /api/config                                   | Update konfigurasi sistem               | Swagger        |
+|16   | GET    | /api/models                                   | List model face recognition             | Swagger        |
+|17   | POST   | /api/recognize-face                           | Pengenalan wajah (API langsung)         | Swagger        |
+|18   | POST   | /api/attendance                               | Tambah absensi manual                   | Swagger        |
+|19   | GET    | /api/attendance                               | Riwayat absensi manual                  | Swagger        |
+|20   | GET    | /api/employees                                | List semua karyawan                     | Swagger        |
+|21   | POST   | /api/employees/enroll                         | Enroll karyawan                         | Swagger        |
+|22   | DELETE | /api/employees/{employee_id}                  | Hapus karyawan                          | Swagger        |
+|23   | PUT    | /api/employees/{employee_id}                  | Update data karyawan                    | Swagger        |
+|24   | GET    | /api/employees/{employee_id}/photo            | Ambil foto karyawan                     | Swagger        |
+|25   | GET    | /api/attendance/{attendance_id}/photo         | Ambil foto absensi                      | Swagger        |
+|26   | GET    | /health                                       | Cek status backend                      | Swagger        |
+|27   | POST   | /api/debug-face                               | Debug hasil deteksi wajah               | Swagger        |
 
 ---
 
