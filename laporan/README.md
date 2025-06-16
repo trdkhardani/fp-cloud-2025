@@ -175,32 +175,26 @@ Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digu
 > 📸 **2. Dashboard Admin**
 > ![Dashboard Admin](assets/ui-dashboard.png)
 
-> 📸 **3. Manajemen Karyawan (Users Tab)**
+> 📸 **3. Fitur Kamera dan Statistik Admin**
+> ![Users Page](assets/admin-cam.jpeg)
+
+> 📸 **4. Manajemen Karyawan (Users Tab)**
 > ![Users Page](assets/admin-users.jpeg)
 
-> 📸 **4. Tambah Karyawan - Step 1 (Data)**
-> ![Add User Step 1](assets/ui-add-user-step1.png)
+> 📸 **5. Tambah Karyawan - Step 1 (Data)**
+> ![Add User Step 1](assets/adduser.jpeg)
 
-> 📸 **5. Tambah Karyawan - Step 2 (Ambil Foto)**
+> 📸 **6. Tambah Karyawan - Step 2 (Ambil Foto)**
 > ![Add User Step 2](assets/ui-add-user-step2.png)
 
-> 📸 **6. Kiosk Mode / Camera Error**
-> ![Camera Tab](assets/ui-camera-error.png)
+> 📸 **7. Kiosk Mode**
+> ![Camera Tab](assets/camera-kiosk.png)
 
-> 📸 **7. Pengaturan Model Face Recognition**
-> ![Settings - Recognition Model](assets/ui-settings-model.png)
+> 📸 **8. Pengaturan Model Face Recognition**       
+> ![Settings - Recognition Model](assets/admin-settings.png)
 
-> 📸 **8. Threshold dan Anti-Spoofing**
-> ![Settings - Threshold](assets/ui-settings-threshold.png)
-
-> 📸 **9. Jadwal Absensi**
-> ![Settings - Schedule](assets/ui-settings-schedule.png)
-
-> 📸 **10. Preferensi Mirror Kamera dan Status Sistem**
-> ![Settings - Mirror](assets/ui-settings-mirror.png)
-
-> 📸 **11. Kiosk Mode (Tampilan Kamera)**
-> ![Kiosk Mode](assets/ui-kiosk.png)
+> 📸 **9. Admin History**
+> ![Kiosk Mode](assets/admin-history.jpeg)
 
 ---
 
