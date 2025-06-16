@@ -37,7 +37,7 @@ RUN mkdir -p /etc/ssl/private /etc/ssl/certs && \
 COPY nginx.conf /etc/nginx/conf.d/default.conf
 
 # Expose port 443 (https)
-EXPOSE 80 443
+EXPOSE 80 443 9090
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \

@@ -77,7 +77,7 @@ services:
     container_name: itscence-frontend-gpu
     restart: unless-stopped
     ports:
-      - "443:443"
+      - "9090:9090"
     depends_on:
       backend:
         condition: service_healthy

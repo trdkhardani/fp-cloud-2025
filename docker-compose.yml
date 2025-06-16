@@ -44,7 +44,7 @@ services:
       - ./backend-example/logs:/app/logs
       - ./backend-example/face_database:/app/face_database
     ports:
-      - "8000:8000"
+      - "9090:9090"
     depends_on:
       mongodb:
         condition: service_healthy
