@@ -120,9 +120,18 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 #### 3. `GET /employee/{id}` – Detail Karyawan
 
+> 📸 Swagger UI - Detail Karyawan
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
+
 #### 4. `PUT /employee/{id}` – Edit Karyawan
 
+> 📸 Swagger UI - Edit Karyawan
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
+
 #### 5. `DELETE /employee/{id}` – Hapus Karyawan
+
+> 📸 Swagger UI - Hapus Karyawan
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
 
 #### 6. `POST /face/register` – Register Wajah
 
@@ -136,33 +145,28 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 #### 8. `POST /attendance/checkin` – Absen Masuk
 
+> 📸 Swagger UI - Absen Masuk
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
+
 #### 9. `POST /attendance/checkout` – Absen Keluar
+
+> 📸 Swagger UI - Absen Keluar
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
 
 #### 10. `GET /attendance` – Semua Data Absensi
 
-> 📸 Swagger UI - Riwayat Absensi
+> 📸 Swagger UI - Semua Data Absensi
 > ![Swagger Attendance](assets/swagger-attendance.png)
 
 #### 11. `GET /attendance/{employee_id}` – Riwayat Absensi Karyawan
 
----
+> 📸 Swagger UI - Riwayat Absensi Karyawan
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
 
-### 📙 B. Endpoint Tambahan via Thunder Client/Lainnya
+#### 12. `GET api/attendance/mode` – Mode Absensi Saat Ini
 
-#### 12. `POST /admin/login` – Login Admin
-
-Digunakan untuk autentikasi admin. Mengembalikan token JWT.
-
-> 📸 Thunder Client - Login Admin
-> ![Thunder Admin Login](assets/thunder-admin-login.png)
-
-#### 13. `MongoDB Connection` – Register Admin
-
-Menambahkan akun admin baru ke sistem.
-
-> 📸 Thunder Client - Register Admin
-> ![Thunder Admin Register](assets/add-admin.jpeg)
-> ![Thunder Admin Register](assets/add-admin-success.jpeg)
+> 📸 Swagger UI - Mode Absensi Saat Ini
+> ![Swagger Employee Add](assets/swagger-employee-register.png)
 
 ---
 
