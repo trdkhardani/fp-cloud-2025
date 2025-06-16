@@ -96,7 +96,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 ---
 
-## 4. Pengujian API dan Antarmuka
+## (4) Pengujian API dan Antarmuka
 
 ---
 
@@ -176,7 +176,7 @@ Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digu
 > ![Dashboard Admin](assets/ui-dashboard.png)
 
 > 📸 **3. Manajemen Karyawan (Users Tab)**
-> ![Users Page](assets/ui-users.png)
+> ![Users Page](assets/admin-users.jpeg)
 
 > 📸 **4. Tambah Karyawan - Step 1 (Data)**
 > ![Add User Step 1](assets/ui-add-user-step1.png)
