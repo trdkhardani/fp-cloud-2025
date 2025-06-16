@@ -147,7 +147,7 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 ---
 
-### 📙 B. Endpoint Tambahan via Thunder Client
+### 📙 B. Endpoint Tambahan via Thunder Client/Lainnya
 
 #### 12. `POST /admin/login` – Login Admin
 
@@ -156,12 +156,13 @@ Digunakan untuk autentikasi admin. Mengembalikan token JWT.
 > 📸 Thunder Client - Login Admin
 > ![Thunder Admin Login](assets/thunder-admin-login.png)
 
-#### 13. `POST /admin/` – Register Admin
+#### 13. `MongoDB Connection` – Register Admin
 
 Menambahkan akun admin baru ke sistem.
 
 > 📸 Thunder Client - Register Admin
-> ![Thunder Admin Register](assets/thunder-admin-register.png)
+> ![Thunder Admin Register](assets/add-admin.jpeg)
+> ![Thunder Admin Register](assets/add-admin-success.jpeg)
 
 ---
 
