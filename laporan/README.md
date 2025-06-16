@@ -111,7 +111,8 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 ### 🔹 Uji Endpoint Aplikasi (Versi Sinkron dengan Tabel)
 
 #### 1. `GET /api/attendance/mode` – Get Attendance Mode  
-> 📸 Swagger UI - Get Attendance Mode  
+> 📸 Swagger UI - Get current attendance mode based on time and schedule
+
 > ![Swagger Attendance Mode](assets/get-api-attendance-mode.png)
 
 #### 2. `GET /` – Root  
@@ -120,7 +121,7 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 #### 3. `GET /api/config` – Get Config  
 > 📸 Swagger UI - Get Config  
-> ![Swagger Get Config](assets/swagger-get-config.png)
+> ![Swagger Get Config](assets/get-api-config.png)
 
 #### 4. `POST /api/config` – Update Config  
 > 📸 Swagger UI - Update Config  
