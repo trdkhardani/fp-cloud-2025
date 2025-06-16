@@ -170,30 +170,27 @@ Menambahkan akun admin baru ke sistem.
 Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digunakan.
 
 > 📸 **1. Halaman Login Admin**
-> ![Login Admin](assets/ui-login.png)
+> ![Login Admin](assets/admin-login.jpeg)
 
-> 📸 **2. Dashboard Admin**
-> ![Dashboard Admin](assets/ui-dashboard.png)
-
-> 📸 **3. Fitur Kamera dan Statistik Admin**
+> 📸 **2. Fitur Kamera dan Statistik Admin**
 > ![Users Page](assets/admin-cam.jpeg)
 
-> 📸 **4. Manajemen Karyawan (Users Tab)**
+> 📸 **3. Manajemen Karyawan (Users Tab)**
 > ![Users Page](assets/admin-users.jpeg)
 
-> 📸 **5. Tambah Karyawan - Step 1 (Data)**
+> 📸 **4. Tambah Karyawan - Step 1 (Data)**
 > ![Add User Step 1](assets/adduser.jpeg)
 
-> 📸 **6. Tambah Karyawan - Step 2 (Ambil Foto)**
+> 📸 **5. Tambah Karyawan - Step 2 (Ambil Foto)**
 > ![Add User Step 2](assets/ui-add-user-step2.png)
 
-> 📸 **7. Kiosk Mode**
+> 📸 **6. Kiosk Mode**
 > ![Camera Tab](assets/camera-kiosk.png)
 
-> 📸 **8. Admin History**
+> 📸 **7. Admin History**
 > ![Kiosk Mode](assets/admin-history.jpeg)
 
-> 📸 **9. Pengaturan Model Face Recognition**       
+> 📸 **8. Pengaturan Model Face Recognition**       
 > ![Settings - Recognition Model](assets/admin-settings.png)
 
 ---
