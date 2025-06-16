@@ -44,7 +44,7 @@ services:
       - ./backend-example/logs:/app/logs
       - ./backend-example/face_database:/app/face_database
     ports:
-      - "8000:8000"
+      - "9090:9090"
     depends_on:
       mongodb:
         condition: service_healthy
@@ -65,7 +65,7 @@ services:
     container_name: itscence-frontend
     restart: unless-stopped
     ports:
-      - "9090:80"
+      - "443:443"
     depends_on:
       backend:
         condition: service_healthy
