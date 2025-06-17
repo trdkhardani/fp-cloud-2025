@@ -146,42 +146,43 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 > ![Swagger Record Attendance](assets/post-api-attendance.png)
 
 #### 8. `GET /api/attendance` – Get Attendance History  
-> 📸 Swagger UI - Attendance History  
+> 📸 Swagger UI - Get attendance history with timezone conversion
 
 > ![Swagger Get Attendance](assets/get-api-attendance.png)
 
 #### 9. `GET /api/employees` – Get Employees  
-> 📸 Swagger UI - Get Employees  
+> 📸 Swagger UI - Get all employees
 
-> ![Swagger Get Employees](assets/get-employees.png)
+> ![Swagger Get Employees](assets/get-api-employees.png)
 
 #### 10. `POST /api/employees/enroll` – Enroll Employee  
-> 📸 Swagger UI - Enroll Employee  
+> 📸 Swagger UI - Enroll a new employee with their face
 
 > ![Swagger Enroll Employee](assets/post-api-employees-enroll.png)
 
 #### 11. `DELETE /api/employees/{employee_id}` – Delete Employee  
-> 📸 Swagger UI - Delete Employee  
+> 📸 Swagger UI - Delete an employee and their face data
 
 > ![Swagger Delete Employee](assets/delete-api-employees.png)
 
 #### 12. `PUT /api/employees/{employee_id}` – Update Employee  
-> 📸 Swagger UI - Update Employee  
+> 📸 Swagger UI - Update employee information
 
-> ![Swagger Update Employee](assets/put-api-employees.png)
+> ![Swagger Update Employee](assets/put-api-employee.png)
 
 #### 13. `GET /api/employees/{employee_id}/photo` – Get Employee Photo  
-> 📸 Swagger UI - Get Employee Photo  
+> 📸 Swagger UI - Get employee profile photo
 
 > ![Swagger Get Employee Photo](assets/get-api-employee-photo.png)
 
 #### 14. `GET /api/attendance/{attendance_id}/photo` – Get Attendance Photo  
-> 📸 Swagger UI - Get Attendance Photo  
+> 📸 Swagger UI - Get attendance captured photo
 
 > ![Swagger Get Attendance Photo](assets/get-api-attendance-photo.png)
+> ![Swagger Get Attendance Photo](assets/get-api-attendance-photo-dbnullimg.jpeg)
 
 #### 15. `GET /health` – Health Check  
-> 📸 Swagger UI - Health Check  
+> 📸 Swagger UI - Health check endpoint
 
 > ![Swagger Health](assets/get-health.png)
 
