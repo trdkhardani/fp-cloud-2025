@@ -1,9 +1,14 @@
 # 📘 Laporan Final Project Teknologi Komputasi Awan
 
 ## 👥 Kelompok 1  
-**Anggota:**  
-- Aqila Aqsa (5027211032)  
-- Tridiktya Hardani Putra (5027211049)  
+**Anggota:**
+| NRP | Nama | Tugas |
+| ------ | ------ | ------ |
+| 5027211032 | Aqila Aqsa | Merancang arsitektur cloud dan testing aplikasi (front-end & back-end) |
+| 5027211049 | Tridiktya Hardani Putra | Implementasi/setup arsitektur dan deployment aplikasi |
+| 5027221045 | Gilang Raya Kurniawan | Setup Locust dan load testing |
+| 5027221063 | Salomo | Setup Locust dan load testing |
+| 5027221072 | Zidny Ilman Nafi'an | Setup Locust dan load testing |
 
 ---
 
