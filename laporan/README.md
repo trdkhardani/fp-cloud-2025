@@ -80,6 +80,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 ## (2) 📐 Rancangan Arsitektur Cloud
 
 **Diagram Arsitektur V1:**
+
 ![Cloud Architecture Diagram](assets/architecture-diagram-v1.jpeg)
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
@@ -96,6 +97,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 ---
 
 **Diagram Arsitektur V2 (Scale-Out Vertikal):**
+
 ![Cloud Architecture Diagram](assets/architecture-diagram-v2.jpeg)
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
