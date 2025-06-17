@@ -136,12 +136,12 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 > ![Swagger Get Models](assets/get-api-models.png)
 
 #### 6. `POST /api/recognize-face` – Recognize Face  
-> 📸 Swagger UI - Recognize Face 
+> 📸 Swagger UI - Recognize face from uploaded image
 
 > ![Swagger Recognize Face](assets/post-api-recognize-face.png)
 
 #### 7. `POST /api/attendance` – Record Attendance  
-> 📸 Swagger UI - Record Attendance  
+> 📸 Swagger UI - Record attendance for an employee with optional captured image 
 
 > ![Swagger Record Attendance](assets/post-api-attendance.png)
 
