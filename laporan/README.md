@@ -279,4 +279,32 @@ Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digu
 
 Semua endpoint dan tampilan diuji pada sistem yang sudah dideploy di Google Cloud Platform dengan database MongoDB yang berjalan di VM worker.
 
+# (5) Pengujian Load Testing
 
+Setelah aplikasi berhasil di deploy, kami melakukan pengujian dengna menggunakn locust untuk Menentukan jumlah maksimal pengguna tanpa error Membandingkan jumlah user dengan response time, percobaan dilakukan di alamat API
+http://34.69.220.138:8000/api/recognize-face dengan metode POST 
+
+#### 1. Pertama kami melakukan pengujian load Testing dengan menggunakan satu user dan maksimal user adalah satu
+
+![Load_testing_1_user](https://github.com/user-attachments/assets/de2809eb-e864-47dc-ae26-3e4458370307)
+
+DIdapat kesimpulan dari gambar bahwa
+   - Server Lancar
+   - Response time juga masih aman
+
+#### 2. Kedua kami melakukan pengujian dengan user sebanyak 5
+
+![Load_testing_5_user](https://github.com/user-attachments/assets/4c23ede1-7a59-4809-8def-3f3713b39fa5)
+
+DIdapat kesimpulan dari gambar bahwa
+   - Server masih Aman
+   - Response time juga masih aman seperti percobaan pertama
+
+
+#### 3. Ketiga Percobaan kami menggunakan user sebanyak 10
+
+![Load_testing_10](https://github.com/user-attachments/assets/94519f02-2796-4c15-b20e-b25157ec6102)
+
+DIdapat kesimpulan bahwa
+   - Server masih aman juga
+   - Response time juga masih lancar tidak menunjukan perubahan pada "ms" nya
