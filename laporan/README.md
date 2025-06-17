@@ -189,7 +189,7 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 > ![Swagger Health](assets/get-health.png)
 
 #### 16. `POST /api/debug-face` – Debug Face Recognition  
-> 📸 Swagger UI - Debug Face  
+> 📸 Swagger UI - Debug face recognition - shows detailed information about the process
 
 > ![Swagger Debug Face](assets/post-api-debug-face.png)
 
