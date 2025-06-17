@@ -165,7 +165,7 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 #### 11. `DELETE /api/employees/{employee_id}` – Delete Employee  
 > 📸 Swagger UI - Delete an employee and their face data
 
-> ![Swagger Delete Employee](assets/delete-api-employees.png)
+> ![Swagger Delete Employee](assets/delete-api-employee.png)
 
 #### 12. `PUT /api/employees/{employee_id}` – Update Employee  
 > 📸 Swagger UI - Update employee information
