@@ -37,8 +37,8 @@ COPY requirements.txt .
 RUN apt-get remove -y python3-blinker || true
 
 # Install Python dependencies
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir --ignore-installed -r requirements.txt
+RUN pip install --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY . .

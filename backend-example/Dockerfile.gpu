@@ -55,9 +55,9 @@ COPY requirements-minimal.txt requirements-minimal.txt
 RUN apt-get remove -y python3-blinker || true
 
 # Install Python dependencies with multiple fallback strategies
-RUN pip install --no-cache-dir --ignore-installed -r requirements.txt || \
-    (echo "Fallback to alternative requirements..." && pip install --no-cache-dir --ignore-installed -r requirements-fallback.txt) || \
-    (echo "Using minimal requirements..." && pip install --no-cache-dir --ignore-installed -r requirements-minimal.txt && \
+RUN pip install --no-cache-dir -r requirements.txt || \
+    (echo "Fallback to alternative requirements..." && pip install --no-cache-dir -r requirements-fallback.txt) || \
+    (echo "Using minimal requirements..." && pip install --no-cache-dir -r requirements-minimal.txt && \
      echo "Installing additional packages..." && pip install --no-cache-dir scikit-learn scipy pandas motor gunicorn redis psutil python-multipart)
 
 # Verify TensorFlow can detect GPU (optional check)

@@ -15,10 +15,10 @@ pandas>=2.0.0
 
 # Machine Learning - TensorFlow with GPU support for CUDA 12.2.2
 # TensorFlow 2.12+ includes GPU support in the main package
-tensorflow==2.12.1
+tensorflow==2.15.1
 
 # Face recognition
-deepface>=0.0.79
+deepface>=0.0.93
 
 # Additional ML libraries
 scikit-learn>=1.3.0

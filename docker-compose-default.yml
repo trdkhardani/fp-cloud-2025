@@ -29,8 +29,15 @@ services:
       dockerfile: Dockerfile
     container_name: itscence-backend
     restart: unless-stopped
-    env_file:
-      - ./backend-example/.env
+    environment:
+      - MONGODB_URL=mongodb://admin:password123@mongodb:27017/itscence?authSource=admin
+      - DATABASE_NAME=itscence
+      - API_HOST=0.0.0.0
+      - API_PORT=8000
+      - DEFAULT_MODEL=VGG-Face
+      - DEFAULT_DETECTOR=opencv
+      - DEFAULT_DISTANCE_METRIC=cosine
+      - FRONTEND_URL=http://frontend
     volumes:
       - ./backend-example/uploads:/app/uploads
       - ./backend-example/temp_images:/app/temp_images
@@ -38,9 +45,9 @@ services:
       - ./backend-example/face_database:/app/face_database
     ports:
       - "8000:8000"
-    # depends_on:
-    #   mongodb:
-    #     condition: service_healthy
+    depends_on:
+      mongodb:
+        condition: service_healthy
     networks:
       - itscence-network
     healthcheck:
@@ -58,8 +65,7 @@ services:
     container_name: itscence-frontend
     restart: unless-stopped
     ports:
-      - "9090:443"
-      # - "9090:80"
+      - "9090:80"
     depends_on:
       backend:
         condition: service_healthy

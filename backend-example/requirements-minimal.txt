@@ -6,14 +6,14 @@ fastapi==0.104.1
 uvicorn==0.24.0
 
 # Core ML framework
-tensorflow>=2.13.0
-tf-keras>=2.15.0
+tensorflow>=2.15.1
+tf-keras>=2.15.1
 numpy>=1.24.0
 opencv-python>=4.8.0
 pillow>=10.0.0
 
 # Face recognition
-deepface>=0.0.79
+deepface>=0.0.93
 
 # Database
 pymongo>=4.6.0
