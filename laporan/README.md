@@ -142,42 +142,52 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 #### 7. `POST /api/attendance` – Record Attendance  
 > 📸 Swagger UI - Record Attendance  
+
 > ![Swagger Record Attendance](assets/post-api-attendance.png)
 
 #### 8. `GET /api/attendance` – Get Attendance History  
 > 📸 Swagger UI - Attendance History  
+
 > ![Swagger Get Attendance](assets/get-api-attendance.png)
 
 #### 9. `GET /api/employees` – Get Employees  
 > 📸 Swagger UI - Get Employees  
+
 > ![Swagger Get Employees](assets/get-employees.png)
 
 #### 10. `POST /api/employees/enroll` – Enroll Employee  
 > 📸 Swagger UI - Enroll Employee  
+
 > ![Swagger Enroll Employee](assets/post-api-employees-enroll.png)
 
 #### 11. `DELETE /api/employees/{employee_id}` – Delete Employee  
 > 📸 Swagger UI - Delete Employee  
+
 > ![Swagger Delete Employee](assets/delete-api-employees.png)
 
 #### 12. `PUT /api/employees/{employee_id}` – Update Employee  
 > 📸 Swagger UI - Update Employee  
+
 > ![Swagger Update Employee](assets/put-api-employees.png)
 
 #### 13. `GET /api/employees/{employee_id}/photo` – Get Employee Photo  
 > 📸 Swagger UI - Get Employee Photo  
+
 > ![Swagger Get Employee Photo](assets/get-api-employee-photo.png)
 
 #### 14. `GET /api/attendance/{attendance_id}/photo` – Get Attendance Photo  
 > 📸 Swagger UI - Get Attendance Photo  
+
 > ![Swagger Get Attendance Photo](assets/get-api-attendance-photo.png)
 
 #### 15. `GET /health` – Health Check  
 > 📸 Swagger UI - Health Check  
+
 > ![Swagger Health](assets/get-health.png)
 
 #### 16. `POST /api/debug-face` – Debug Face Recognition  
 > 📸 Swagger UI - Debug Face  
+
 > ![Swagger Debug Face](assets/post-api-debug-face.png)
 
 ---
@@ -187,30 +197,39 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digunakan.
 
 > 📸 **1. Halaman Login Admin**
+
 > ![Login Admin](assets/admin-login.jpeg)
 
 > 📸 **2. Fitur Kamera dan Statistik Admin**
+
 > ![Users Page](assets/camera-admin.png)
 
 > 📸 **3. Manajemen Karyawan (Users Tab)**
+
 > ![Users Page](assets/admin-users.jpeg)
 
 > 📸 **4. Tambah Karyawan - Step 1 (Data)**
+
 > ![Add User Step 1](assets/adduser-profile.jpeg)
 
 > 📸 **5. Tambah Karyawan - Step 2 (Ambil Foto)**
+
 > ![Add User Step 2](assets/adduser-captureface.jpeg)
 
 > 📸 **6. Tambah Karyawan - Step 3 (Review Data)**
+
 > ![Add User Step 2](assets/adduser-review.jpeg)
 
 > 📸 **7. Kiosk Mode**
+
 > ![Camera Tab](assets/cam-kiosk.jpeg)
 
 > 📸 **8. Admin History**
+
 > ![Kiosk Mode](assets/admin-history.jpeg)
 
 > 📸 **9. Pengaturan Model Face Recognition**       
+
 > ![Settings - Recognition Model](assets/admin-settings.png)
 
 ---
