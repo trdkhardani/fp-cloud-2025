@@ -80,7 +80,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 ## (2) 📐 Rancangan Arsitektur Cloud
 
 **Diagram Arsitektur:**
-![Cloud Architecture Diagram](assets/architecture-diagram.jpeg)
+![Cloud Architecture Diagram](assets/architecture-diagram-v1.jpeg)
 
 ---
 
