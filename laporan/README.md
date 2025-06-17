@@ -86,13 +86,15 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
 
-| **Komponen**                            | **Jumlah / Unit** | **Harga per Unit (per bulan)** | **Total Bulanan** |
-|----------------------------------------|-------------------|-------------------------------|-------------------|
-| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Load Balancer) | $13.93                        | $13.93            |
-| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 1)       | $20.73                        | $20.73            |
-| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 2)       | $20.73                        | $20.73            |
-| Compute Engine (e2-small, 2 vCPU, 2GB) | 1 VM (Worker 3)       | $20.73                        | $20.73            |
-| **Total**                              |                     |                               | **$76.12**        |
+| **Komponen**                             | **Jumlah / Unit**     | **Harga per Unit (per bulan)** | **Total Bulanan** |
+|-----------------------------------------|------------------------|--------------------------------|-------------------|
+| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Load Balancer)   | $13.73                         | $13.73            |
+| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Worker 1)        | $13.73                         | $13.73            |
+| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Worker 2)        | $13.73                         | $13.73            |
+| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Worker 3)        | $13.73                         | $13.73            |
+| MongoDB Atlas (Free Tier)               | 1 Cluster              | $0.00                          | $0.00             |
+| **Total**                               |                        |                                | **$54.92**        |
+
 
 ---
 
@@ -108,7 +110,7 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 
 ### 📘 A. Endpoint yang Diuji via Swagger UI Docs di ```http://34.69.220.138:8000/docs```
 
-### 🔹 Uji Endpoint Aplikasi (Versi Sinkron dengan Tabel)
+### 🔹 Uji Endpoint Aplikasi
 
 #### 1. `GET /api/attendance/mode` – Get Attendance Mode  
 > 📸 Swagger UI - Get current attendance mode based on time and schedule
