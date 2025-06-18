@@ -975,3 +975,22 @@ Didapat kesimpulan bahwa:
 
 - **Kondisi Stabil**:
   - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
+
+---
+
+# (7) Kesimpulan dan Saran
+- Proyek Face Recognition Attendance System berhasil diimplementasikan di Google Cloud Platform dengan arsitektur cloud berbasis VM dan integrasi MongoDB Atlas (free tier). Dua pendekatan arsitektur diuji: horizontal (3 VM kecil) dan vertikal (2 VM custom dengan RAM lebih besar). Dengan total biaya di bawah $100, arsitektur vertikal (V2) menunjukkan performa lebih stabil dan waktu respon lebih cepat, terutama pada jumlah user rendah hingga menengah.
+
+- Endpoint POST /recognize-face tetap menjadi bottleneck utama karena proses pengenalan wajah bersifat komputasi-intensif. Namun, sistem mampu menangani hingga 30 user bersamaan tanpa error fatal, meskipun response time meningkat signifikan (>20 detik pada puncaknya).
+
+## Rekomendasi Perbaikan dan Optimasi
+### Optimasi Backend FastAPI (Tanpa Ubah Arsitektur)
+
+1. Gunakan async def di endpoint utama untuk menghindari blocking.
+Kurangi overhead: panggil model hanya sekali di awal (load_model() di startup), bukan setiap request.
+Jalankan pengenalan wajah secara batch/queue ringan menggunakan asyncio.Queue atau ThreadPoolExecutor.
+
+2. Eksperimen dengan 1 Worker Powerful + 1 Worker Cadangan (Mode Aktif/Standby)
+
+Percobaan alokasi 1 VM (e2-custom-2-4608) untuk full traffic, dan 1 VM lagi hanya aktif saat load tinggi atau testing.
+Hemat biaya idle, dan bisa dimatikan manual saat tidak dibutuhkan (save ~40% biaya saat tidak aktif penuh).
