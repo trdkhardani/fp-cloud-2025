@@ -726,12 +726,26 @@ DIdapat kesimpulan bahwa
 
 #### 4. Keempat Percobaan kami menggunakan user sebanyak 15
 
-![Load_testing_15 user](assets/test-15 user.jpeg).
+![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
 
 Didapat kesimpulan bahwa
-  - Server masih aman
-##### 1. 50th percentile (orange line):
-  - Rata-rata waktu respon berada di kisaran 6.000–7.000 ms, yang relatif tinggi.
-##### 2. 95th percentile (purple line):
-  - Di awal sempat mencapai 12.000–14.000 ms, lalu menurun dan stabil di kisaran 9.000–11.000 ms.
-  - Menunjukkan bahwa 5% request paling lambat memerlukan waktu yang sangat lama, menandakan adanya latensi tinggi untuk sebagian permintaan.
+## 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Nilai Requests per Second meningkat dengan cepat dari 0 hingga stabil di kisaran **1.5 requests/s**.
+  - Hal ini menunjukkan bahwa sistem mampu menangani permintaan secara konsisten setelah fase pemanasan (ramp-up).
+
+- **Failures/s (red line)**:
+  - Terdapat **kegagalan (failures)** yang muncul secara konstan, meskipun jumlahnya kecil.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Rata-rata response time berada di kisaran **6.000–7.000 ms**, yang tergolong **tinggi**.
+
+- **95th Percentile (purple line)**:
+  - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
+  - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
+
