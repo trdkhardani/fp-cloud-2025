@@ -110,8 +110,8 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 | **Komponen**                            | **Jumlah / Unit**      | **Total Bulanan** |
 |-----------------------------------------|------------------------|-------------------|
 | Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Load Balancer)   | $13.93            |
-| Compute Engine e2-custom-2-4608 (2 vCPUs, 4.5 GB ) | 1 VM (Worker 1)        | $42.95           |
-| Compute Engine e2-custom-2-4608 (2 vCPUs, 4.5 GB ) | 1 VM (Worker 2)        | $42.95           |
+| Compute Engine e2-custom-2-4608 (2 vCPUs, 4.5 GB) | 1 VM (Worker 1)        | $42.95           |
+| Compute Engine e2-custom-2-4608 (2 vCPUs, 4.5 GB) | 1 VM (Worker 2)        | $42.95           |
 | MongoDB Atlas (Free Tier)               | 1 Cluster              | $0.00             |
 | **Total**                               |                        | **$99.83**        |
 
