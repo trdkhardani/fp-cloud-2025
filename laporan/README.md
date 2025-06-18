@@ -916,3 +916,34 @@ Didapat kesimpulan bahwa:
 - **95th Percentile (purple)**:
   - Konsisten di **15.000 – 18.000 ms**, dengan puncak mencapai **>18.000 ms** di awal pengujian.
   - Waktu respons tinggi ini menunjukkan sistem mulai kesulitan meng-handle concurrency user yang lebih tinggi.
+
+## 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v2)**
+
+![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
+
+
+Didapat kesimpulan bahwa:
+### 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Requests per second naik secara signifikan saat awal uji, lalu stabil di kisaran **1.5–1.7 RPS**.
+  - Ini menunjukkan sistem mampu menangani beban dari 30 pengguna secara konsisten tanpa penurunan performa besar.
+
+- **Failures/s (red line)**:
+  - Tidak terdapat kegagalan yang terlihat (nilai **Failures/s tetap 0**) selama pengujian.
+  - Artinya, sistem berjalan **tanpa error** selama periode pengujian dengan 30 user — ini merupakan indikator **keandalan tinggi**.
+
+---
+
+### 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Response time berada di kisaran **16.000–18.000 ms** (16–18 detik).
+  - Ini menandakan waktu tunggu rata-rata pengguna relatif **lama**, meskipun tidak error.
+
+- **95th Percentile (purple line)**:
+  - Nilainya berada di kisaran **20.000–23.000 ms** bahkan sempat menyentuh **25.000 ms**.
+  - Ini berarti 5% dari permintaan paling lambat membutuhkan waktu **hingga 25 detik**, yang berpotensi menyebabkan ketidakpuasan pengguna.
+
+- **Kondisi Stabil**:
+  - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
