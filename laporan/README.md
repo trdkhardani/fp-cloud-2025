@@ -978,7 +978,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-# (7) Kesimpulan dan Saran
+## (7) Kesimpulan dan Saran
 - Proyek Face Recognition Attendance System berhasil diimplementasikan di Google Cloud Platform dengan arsitektur cloud berbasis VM dan integrasi MongoDB Atlas (free tier). Dua pendekatan arsitektur diuji: horizontal (3 VM kecil) dan vertikal (2 VM custom dengan RAM lebih besar). Dengan total biaya di bawah $100, arsitektur vertikal (V2) menunjukkan performa lebih stabil dan waktu respon lebih cepat, terutama pada jumlah user rendah hingga menengah.
 
 - Endpoint POST /recognize-face tetap menjadi bottleneck utama karena proses pengenalan wajah bersifat komputasi-intensif. Namun, sistem mampu menangani hingga 30 user bersamaan tanpa error fatal, meskipun response time meningkat signifikan (>20 detik pada puncaknya).
