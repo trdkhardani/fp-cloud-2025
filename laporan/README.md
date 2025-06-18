@@ -748,3 +748,150 @@ Didapat kesimpulan bahwa
   - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
   - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
 
+#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 user
+
+![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
+
+Didapat kesimpulan bahwa:
+## 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Nilai Requests per Second meningkat dengan cepat dari 0 hingga stabil di kisaran **1.5 requests/s**.
+  - Hal ini menunjukkan bahwa sistem mampu menangani permintaan secara konsisten setelah fase pemanasan (ramp-up).
+
+- **Failures/s (red line)**:
+  - Terdapat **kegagalan (failures)** yang muncul secara konstan, meskipun jumlahnya kecil.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Rata-rata response time berada di kisaran **6.000–7.000 ms**, yang tergolong **tinggi**.
+
+- **95th Percentile (purple line)**:
+  - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
+  - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
+
+- **Stabilitas**:
+  - Meskipun waktu respon terlihat stabil, nilainya masih tergolong lambat
+
+#### 5. Kelima Percobaan kami menggunakan user sebanyak 30 user
+
+![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
+
+
+Didapat kesimpulan bahwa:
+## 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Requests per second naik secara signifikan saat awal uji, lalu stabil di kisaran **1.5–1.7 RPS**.
+  - Ini menunjukkan sistem mampu menangani beban dari 30 pengguna secara konsisten tanpa penurunan performa besar.
+
+- **Failures/s (red line)**:
+  - Tidak terdapat kegagalan yang terlihat (nilai **Failures/s tetap 0**) selama pengujian.
+  - Artinya, sistem berjalan **tanpa error** selama periode pengujian dengan 30 user — ini merupakan indikator **keandalan tinggi**.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Response time berada di kisaran **16.000–18.000 ms** (16–18 detik).
+  - Ini menandakan waktu tunggu rata-rata pengguna relatif **lama**, meskipun tidak error.
+
+- **95th Percentile (purple line)**:
+  - Nilainya berada di kisaran **20.000–23.000 ms** bahkan sempat menyentuh **25.000 ms**.
+  - Ini berarti 5% dari permintaan paling lambat membutuhkan waktu **hingga 25 detik**, yang berpotensi menyebabkan ketidakpuasan pengguna.
+
+- **Kondisi Stabil**:
+  - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
+ 
+#### 5. Kelima Percobaan kami menggunakan user sebanyak 50 user
+
+![Load_testing_50 user](https://github.com/user-attachments/assets/206f78f9-0eef-40ed-ad22-7ccae581d199)
+
+Didapat kesimpulan bahwa:
+## 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Requests per second meningkat pesat saat awal pengujian dan stabil di kisaran **0.9 – 1.2 RPS**.
+  - Terdapat sedikit fluktuasi, namun tetap konsisten dalam menangani request dengan jumlah user yang tinggi.
+
+- **Failures/s (red line)**:
+  - Tidak ditemukan adanya kegagalan request selama pengujian (**Failures/s tetap 0**), menunjukkan aplikasi mampu menampung beban tanpa crash/error.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Median response time (waktu respon rata-rata) berkisar antara **35.000 – 45.000 ms** (35–45 detik).
+  - Ini menunjukkan adanya **peningkatan signifikan waktu tunggu** dibanding pengujian sebelumnya dengan user lebih sedikit.
+
+- **95th Percentile (purple line)**:
+  - Waktu respon 95% dari request menyentuh hingga **60.000 ms**, bahkan sempat mencapai **lebih dari 65.000 ms** di awal pengujian.
+  - Artinya, beberapa request memerlukan **lebih dari 1 menit untuk diproses**, yang dapat dianggap sebagai bottleneck kritis.
+ 
+- **Kondisi Umum**:
+  - Waktu respon **cenderung tidak stabil**, meskipun perlahan-lahan menjadi lebih rata mendekati akhir pengujian.
+
+#### 6. Keenam Percobaan kami menggunakan user sebanyak 100 user
+
+![Load_testing_100 user](https://github.com/user-attachments/assets/a4f3f672-a860-444c-a92a-f9beaf3c113e)
+
+Didapat kesimpulan bahwa:
+## 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Awalnya stabil di kisaran **1–2 RPS**, namun saat traffic meningkat drastis, **RPS justru menurun** dan tidak mampu mencapai performa maksimal.
+  - Terlihat ada dua puncak aktivitas, namun keduanya diikuti oleh **penurunan tajam dan stagnasi** pada request rate.
+
+- **Failures/s (red line)**:
+  - Muncul lonjakan signifikan pada **jumlah request yang gagal**, terutama setelah menit ke-19:33.
+  - Nilainya mencapai **lebih dari 10 failure/s**, yang berarti sistem gagal menangani sebagian besar request pada titik tersebut.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Median response time naik hingga **100.000 ms (100 detik)** sebelum turun drastis.
+  - Setelah itu, response time tampak tidak stabil dan beberapa kali menyentuh nilai sangat tinggi lagi.
+
+- **95th Percentile (purple line)**:
+  - Waktu respon 95% request mencapai **lebih dari 110.000 ms**, menandakan adanya **bottleneck kritis dan saturasi sistem**.
+
+- **Kondisi Umum**:
+  - Respon sangat lambat, banyak fluktuasi, dan **indikasi sistem overload** sangat jelas.
+  - Terlihat beberapa kali sistem ‘drop’ (mungkin crash atau timeout).
+
+#### 7. Ketujuh Percobaan kami menggunakan user sebanyak 250 user
+
+![Load_testing_250 user](https://github.com/user-attachments/assets/fdfa4f4a-3fd2-418f-8b9d-5a93ef500081)
+
+Didapat kesimpulan bahwa:
+## 1. Total Requests per Second (RPS) dan Failure Rate
+
+- **RPS (green)**:
+  - Awalnya berhasil menyentuh sekitar **10–13 RPS**, namun tidak bertahan lama.
+  - Terjadi **penurunan drastis dan stagnasi** hingga mendekati 0 RPS di beberapa titik.
+
+- **Failures/s (red)**:
+  - Meningkat drastis dan **konsisten tinggi hampir sepanjang tes**.
+  - Beberapa titik menunjukkan **lebih dari 20 failures per detik**, mengindikasikan sistem benar-benar **overwhelmed**.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange)**:
+  - Respon time median berada di kisaran **30.000–70.000 ms**, artinya waktu tunggu untuk respon sangat tinggi bahkan untuk request “normal”.
+
+- **95th Percentile (purple)**:
+  - Lonjakan hingga **>160.000 ms (160 detik!)** pada beberapa titik.
+  - Ini menunjukkan bahwa sebagian besar user mengalami **respons sangat lambat atau timeout**.
+
+- **Kondisi Umum**:
+  - Sistem **tidak mampu merespons secara stabil**, bahkan terlihat **respon time tetap tinggi meski RPS rendah**.
+
