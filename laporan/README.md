@@ -703,8 +703,27 @@ http://34.69.220.138:8000/api/recognize-face dengan metode POST
 ![Load_testing_1_user](https://github.com/user-attachments/assets/de2809eb-e864-47dc-ae26-3e4458370307)
 
 DIdapat kesimpulan dari gambar bahwa
-   - Server Lancar
-   - Response time juga masih lancar
+## 1. Total Requests per Second (RPS) dan Failure Rate
+
+- **RPS (green)**:
+  - Stabil di kisaran **0.1 – 0.2 RPS**.
+  - Ini menunjukkan bahwa sistem hanya menerima **sedikit permintaan per detik**, kemungkinan karena hanya ada **1 user** aktif selama pengujian.
+
+- **Failures/s (red)**:
+  - Tetap **0** sepanjang waktu.
+  - Artinya **tidak ada request yang gagal**, sistem merespons semua permintaan dengan sukses.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange)**:
+  - Berada di kisaran **4.500 – 5.000 ms**.
+  - Ini menunjukkan bahwa **waktu respons rata-rata (median)** cukup tinggi bahkan untuk 1 user, menandakan adanya latensi pada server atau proses backend yang lambat.
+
+- **95th Percentile (purple)**:
+  - Mayoritas stabil di **4.500 – 5.000 ms**, tapi sempat menyentuh hampir **6.500 ms**.
+  - Ini berarti bahwa **5% permintaan terlama bisa mencapai lebih dari 6 detik**, yang cukup tinggi
 
 #### 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users
 
