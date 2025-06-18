@@ -838,7 +838,7 @@ Didapat kesimpulan bahwa:
 
 # (6) Pengujian Load Testing (arsitektur v2)
 
-## 1. kesatu Percobaan kami menggunakan user sebanyak 1 users **(arsitektur v2)**
+## 1. Percobaan pertama: 1 user **(arsitektur v2)**
 
 ![Load_testing_1 user_v2](https://github.com/user-attachments/assets/c1ee3b50-133b-4589-9884-17fc9ea29ee5)
 
@@ -865,7 +865,7 @@ Didapat kesimpulan bahwa:
   - Sempat menyentuh **~4.000 ms** di awal, lalu stabil di **2.500 – 3.500 ms**.
   - Artinya, meskipun sebagian kecil permintaan masih sedikit lebih lambat, secara umum sistem menjaga **respons time tinggi dalam batas wajar**.
 
-## 2. Kedua Percobaan kami menggunakan user sebanyak 5 users **(arsitektur v2)**
+## 2. Percobaan kedua: 5 users **(arsitektur v2)**
 
 ![Load_testing_5 user_v2](https://github.com/user-attachments/assets/95b7d254-d41d-4392-aa74-efe376ad631e)
 
@@ -892,7 +892,7 @@ Didapat kesimpulan bahwa:
   - Sempat naik hingga **~9.000 ms**, tapi secara umum berada di **4.000 – 5.500 ms**.
   - Hal ini menunjukkan adanya **beberapa request lambat yang outlier**, namun masih dalam toleransi untuk sistem dengan 5 user.
 
-## 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users **(arsitektur v2)**
+## 3. Percobaan ketiga: 10 users **(arsitektur v2)**
 
 ![Load_testing_10 user_v2](https://github.com/user-attachments/assets/1f87571b-1f09-46e9-aa6f-88471a5f3478)
 
@@ -919,7 +919,7 @@ Didapat kesimpulan bahwa:
   - Terpantau lonjakan signifikan hingga **~45.000 ms** (45 detik) di satu titik.
   - Ini menandakan adanya **request yang sangat lambat** (kemungkinan bottle-neck atau blocking operation), meskipun hanya terjadi sesaat.
  
-## 4. Keempat Percobaan kami menggunakan user sebanyak 15 users **(arsitektur v2)**
+## 4. Percobaan keempat: 15 users **(arsitektur v2)**
 
 ![Load_testing_15 user_v2](https://github.com/user-attachments/assets/529be21e-6f9f-474d-9aa5-a825aa16ea56)
 
@@ -945,7 +945,7 @@ Didapat kesimpulan bahwa:
   - Konsisten di **15.000 – 18.000 ms**, dengan puncak mencapai **>18.000 ms** di awal pengujian.
   - Waktu respons tinggi ini menunjukkan sistem mulai kesulitan meng-handle concurrency user yang lebih tinggi.
 
-## 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v2)**
+## 5. Percobaan kelima: 30 users **(arsitektur v2)**
 
 ![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
 
@@ -987,10 +987,10 @@ Didapat kesimpulan bahwa:
 ### Optimasi Backend FastAPI (Tanpa Ubah Arsitektur)
 
 1. Gunakan async def di endpoint utama untuk menghindari blocking.
-Kurangi overhead: panggil model hanya sekali di awal (load_model() di startup), bukan setiap request.
-Jalankan pengenalan wajah secara batch/queue ringan menggunakan asyncio.Queue atau ThreadPoolExecutor.
+2. Kurangi overhead: panggil model hanya sekali di awal (load_model() di startup), bukan setiap request.
+3. Jalankan pengenalan wajah secara batch/queue ringan menggunakan asyncio.Queue atau ThreadPoolExecutor.
 
-2. Eksperimen dengan 1 Worker Powerful + 1 Worker Cadangan (Mode Aktif/Standby)
+### Eksperimen dengan 1 Worker Powerful + 1 Worker Cadangan (Mode Aktif/Standby)
 
-Percobaan alokasi 1 VM (e2-custom-2-4608) untuk full traffic, dan 1 VM lagi hanya aktif saat load tinggi atau testing.
-Hemat biaya idle, dan bisa dimatikan manual saat tidak dibutuhkan (save ~40% biaya saat tidak aktif penuh).
+1. Percobaan alokasi 1 VM (e2-custom-2-4608) untuk full traffic, dan 1 VM lagi hanya aktif saat load tinggi atau testing.
+-> Hemat biaya idle, dan bisa dimatikan manual saat tidak dibutuhkan (save ~40% biaya saat tidak aktif penuh).
