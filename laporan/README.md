@@ -726,9 +726,10 @@ DIdapat kesimpulan bahwa
 
 #### 4. Keempat Percobaan kami menggunakan user sebanyak 15
 
-![Load_testing_15](assets/test-15 user.jpeg)
+![Load_testing_15 user](assets/test-15 user.jpeg).
 
 Didapat kesimpulan bahwa
+  - Server masih aman
 ##### 1. 50th percentile (orange line):
   - Rata-rata waktu respon berada di kisaran 6.000–7.000 ms, yang relatif tinggi.
 ##### 2. 95th percentile (purple line):
