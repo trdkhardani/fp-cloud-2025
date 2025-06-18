@@ -706,20 +706,39 @@ DIdapat kesimpulan dari gambar bahwa
    - Server Lancar
    - Response time juga masih lancar
 
-#### 2. Kedua kami melakukan pengujian dengan user sebanyak 5
+#### 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users
 
 ![Load_testing_5_user](https://github.com/user-attachments/assets/4c23ede1-7a59-4809-8def-3f3713b39fa5)
 
-DIdapat kesimpulan dari gambar bahwa
-   - Server masih Aman
-   - Response time juga masih lancar seperti percobaan pertama
+DIdapat kesimpulan dari gambar bahwa:
+## 1. Total Requests per Second (RPS) dan Failure Rate
+
+- **RPS (green)**:
+  - Stabil di kisaran **0.6 – 0.8 RPS**.
+  - Hal ini mengindikasikan bahwa sistem **mampu menangani load dari 5 user** dengan baik.
+
+- **Failures/s (red)**:
+  - Tetap di angka **0** sepanjang pengujian.
+  - Menunjukkan **tidak ada request yang gagal** – ini merupakan tanda positif.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange)**:
+  - Stabil di **4.000 – 5.500 ms** (4–5.5 detik).
+  - Artinya **median response time masih cukup tinggi**, meskipun jumlah user sangat kecil.
+
+- **95th Percentile (purple)**:
+  - Berada di kisaran **7.000 – 10.000 ms**.
+  - Ini mengindikasikan bahwa sebagian kecil permintaan tetap memerlukan waktu respons yang lebih lama dari rata-rata.
 
 
-#### 3. Ketiga Percobaan kami menggunakan user sebanyak 10
+#### 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users
 
 ![Load_testing_10](https://github.com/user-attachments/assets/94519f02-2796-4c15-b20e-b25157ec6102)
 
-DIdapat kesimpulan bahwa
+DIdapat kesimpulan bahwa:
 ## 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
@@ -742,7 +761,7 @@ DIdapat kesimpulan bahwa
   - Tertinggi mencapai **>18.000 ms** (18 detik), meskipun tetap stabil di kisaran 12.000–16.000 ms.
   - Indikasi bahwa sebagian kecil permintaan mengalami **delay cukup signifikan**.
 
-#### 4. Keempat Percobaan kami menggunakan user sebanyak 15
+#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 users
 
 ![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
 
@@ -767,7 +786,7 @@ Didapat kesimpulan bahwa
   - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
   - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
 
-#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 user
+#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 users
 
 ![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
 
@@ -795,7 +814,7 @@ Didapat kesimpulan bahwa:
 - **Stabilitas**:
   - Meskipun waktu respon terlihat stabil, nilainya masih tergolong lambat
 
-#### 5. Kelima Percobaan kami menggunakan user sebanyak 30 user
+#### 5. Kelima Percobaan kami menggunakan user sebanyak 30 users
 
 ![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
 
@@ -826,7 +845,7 @@ Didapat kesimpulan bahwa:
 - **Kondisi Stabil**:
   - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
  
-#### 5. Kelima Percobaan kami menggunakan user sebanyak 50 user
+#### 5. Kelima Percobaan kami menggunakan user sebanyak 50 users
 
 ![Load_testing_50 user](https://github.com/user-attachments/assets/206f78f9-0eef-40ed-ad22-7ccae581d199)
 
@@ -855,7 +874,7 @@ Didapat kesimpulan bahwa:
 - **Kondisi Umum**:
   - Waktu respon **cenderung tidak stabil**, meskipun perlahan-lahan menjadi lebih rata mendekati akhir pengujian.
 
-#### 6. Keenam Percobaan kami menggunakan user sebanyak 100 user
+#### 6. Keenam Percobaan kami menggunakan user sebanyak 100 users
 
 ![Load_testing_100 user](https://github.com/user-attachments/assets/a4f3f672-a860-444c-a92a-f9beaf3c113e)
 
@@ -885,7 +904,7 @@ Didapat kesimpulan bahwa:
   - Respon sangat lambat, banyak fluktuasi, dan **indikasi sistem overload** sangat jelas.
   - Terlihat beberapa kali sistem ‘drop’ (mungkin crash atau timeout).
 
-#### 7. Ketujuh Percobaan kami menggunakan user sebanyak 250 user
+#### 7. Ketujuh Percobaan kami menggunakan user sebanyak 250 users
 
 ![Load_testing_250 user](https://github.com/user-attachments/assets/fdfa4f4a-3fd2-418f-8b9d-5a93ef500081)
 
