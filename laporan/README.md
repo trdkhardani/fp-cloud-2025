@@ -704,7 +704,7 @@ http://34.69.220.138:8000/api/recognize-face dengan metode POST
 
 DIdapat kesimpulan dari gambar bahwa
    - Server Lancar
-   - Response time juga masih aman
+   - Response time juga masih lancar
 
 #### 2. Kedua kami melakukan pengujian dengan user sebanyak 5
 
@@ -712,7 +712,7 @@ DIdapat kesimpulan dari gambar bahwa
 
 DIdapat kesimpulan dari gambar bahwa
    - Server masih Aman
-   - Response time juga masih aman seperti percobaan pertama
+   - Response time juga masih lancar seperti percobaan pertama
 
 
 #### 3. Ketiga Percobaan kami menggunakan user sebanyak 10
@@ -722,3 +722,29 @@ DIdapat kesimpulan dari gambar bahwa
 DIdapat kesimpulan bahwa
    - Server masih aman juga
    - Response time juga masih lancar tidak menunjukan perubahan pada "ms" nya
+
+#### 4. Keempat Percobaan kami menggunakan user sebanyak 15
+
+![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
+
+Didapat kesimpulan bahwa
+## 1. Total Requests per Second (RPS) dan Failures/s
+
+- **RPS (green line)**:
+  - Nilai Requests per Second meningkat dengan cepat dari 0 hingga stabil di kisaran **1.5 requests/s**.
+  - Hal ini menunjukkan bahwa sistem mampu menangani permintaan secara konsisten setelah fase pemanasan (ramp-up).
+
+- **Failures/s (red line)**:
+  - Terdapat **kegagalan (failures)** yang muncul secara konstan, meskipun jumlahnya kecil.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange line)**:
+  - Rata-rata response time berada di kisaran **6.000–7.000 ms**, yang tergolong **tinggi**.
+
+- **95th Percentile (purple line)**:
+  - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
+  - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
+
