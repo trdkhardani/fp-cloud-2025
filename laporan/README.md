@@ -698,7 +698,7 @@ Semua endpoint dan tampilan diuji pada sistem yang sudah dideploy di Google Clou
 Setelah aplikasi berhasil di deploy, kami melakukan pengujian dengna menggunakn locust untuk Menentukan jumlah maksimal pengguna tanpa error Membandingkan jumlah user dengan response time, percobaan dilakukan di alamat API
 http://34.69.220.138:8000/api/recognize-face dengan metode POST 
 
-#### 1. Pertama kami melakukan pengujian load Testing dengan menggunakan satu user dan maksimal user adalah satu
+#### 1. Pertama kami melakukan pengujian load Testing dengan menggunakan satu user dan maksimal user adalah satu **(arsitektur v1)**
 
 ![Load_testing_1_user](https://github.com/user-attachments/assets/de2809eb-e864-47dc-ae26-3e4458370307)
 
@@ -725,7 +725,7 @@ DIdapat kesimpulan dari gambar bahwa
   - Mayoritas stabil di **4.500 – 5.000 ms**, tapi sempat menyentuh hampir **6.500 ms**.
   - Ini berarti bahwa **5% permintaan terlama bisa mencapai lebih dari 6 detik**, yang cukup tinggi
 
-#### 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users
+#### 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users **(arsitektur v1)**
 
 ![Load_testing_5_user](https://github.com/user-attachments/assets/4c23ede1-7a59-4809-8def-3f3713b39fa5)
 
@@ -753,7 +753,7 @@ DIdapat kesimpulan dari gambar bahwa:
   - Ini mengindikasikan bahwa sebagian kecil permintaan tetap memerlukan waktu respons yang lebih lama dari rata-rata.
 
 
-#### 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users
+#### 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users **(arsitektur v1)**
 
 ![Load_testing_10](https://github.com/user-attachments/assets/94519f02-2796-4c15-b20e-b25157ec6102)
 
@@ -780,32 +780,7 @@ DIdapat kesimpulan bahwa:
   - Tertinggi mencapai **>18.000 ms** (18 detik), meskipun tetap stabil di kisaran 12.000–16.000 ms.
   - Indikasi bahwa sebagian kecil permintaan mengalami **delay cukup signifikan**.
 
-#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 users
-
-![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
-
-Didapat kesimpulan bahwa
-## 1. Total Requests per Second (RPS) dan Failures/s
-
-- **RPS (green line)**:
-  - Nilai Requests per Second meningkat dengan cepat dari 0 hingga stabil di kisaran **1.5 requests/s**.
-  - Hal ini menunjukkan bahwa sistem mampu menangani permintaan secara konsisten setelah fase pemanasan (ramp-up).
-
-- **Failures/s (red line)**:
-  - Terdapat **kegagalan (failures)** yang muncul secara konstan, meskipun jumlahnya kecil.
-
----
-
-## 2. Response Times (ms)
-
-- **50th Percentile (orange line)**:
-  - Rata-rata response time berada di kisaran **6.000–7.000 ms**, yang tergolong **tinggi**.
-
-- **95th Percentile (purple line)**:
-  - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
-  - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
-
-#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 users
+#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 users **(arsitektur v1)**
 
 ![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
 
@@ -833,7 +808,7 @@ Didapat kesimpulan bahwa:
 - **Stabilitas**:
   - Meskipun waktu respon terlihat stabil, nilainya masih tergolong lambat
 
-#### 5. Kelima Percobaan kami menggunakan user sebanyak 30 users
+#### 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v2)**
 
 ![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
 
@@ -864,7 +839,7 @@ Didapat kesimpulan bahwa:
 - **Kondisi Stabil**:
   - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
  
-#### 5. Kelima Percobaan kami menggunakan user sebanyak 50 users
+#### 6. Keenam Percobaan kami menggunakan user sebanyak 50 users **(arsitektur v2)**
 
 ![Load_testing_50 user](https://github.com/user-attachments/assets/206f78f9-0eef-40ed-ad22-7ccae581d199)
 
@@ -893,7 +868,7 @@ Didapat kesimpulan bahwa:
 - **Kondisi Umum**:
   - Waktu respon **cenderung tidak stabil**, meskipun perlahan-lahan menjadi lebih rata mendekati akhir pengujian.
 
-#### 6. Keenam Percobaan kami menggunakan user sebanyak 100 users
+#### 7. Ketujuh Percobaan kami menggunakan user sebanyak 100 users **(arsitektur v2)**
 
 ![Load_testing_100 user](https://github.com/user-attachments/assets/a4f3f672-a860-444c-a92a-f9beaf3c113e)
 
@@ -923,7 +898,7 @@ Didapat kesimpulan bahwa:
   - Respon sangat lambat, banyak fluktuasi, dan **indikasi sistem overload** sangat jelas.
   - Terlihat beberapa kali sistem ‘drop’ (mungkin crash atau timeout).
 
-#### 7. Ketujuh Percobaan kami menggunakan user sebanyak 250 users
+#### 8. Kedelapan Percobaan kami menggunakan user sebanyak 250 users **(arsitektur v2)**
 
 ![Load_testing_250 user](https://github.com/user-attachments/assets/fdfa4f4a-3fd2-418f-8b9d-5a93ef500081)
 
