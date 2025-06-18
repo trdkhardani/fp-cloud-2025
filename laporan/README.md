@@ -720,8 +720,27 @@ DIdapat kesimpulan dari gambar bahwa
 ![Load_testing_10](https://github.com/user-attachments/assets/94519f02-2796-4c15-b20e-b25157ec6102)
 
 DIdapat kesimpulan bahwa
-   - Server masih aman juga
-   - Response time juga masih lancar tidak menunjukan perubahan pada "ms" nya
+## 1. Total Requests per Second (RPS) dan Failure Rate
+
+- **RPS (green)**:
+  - Rata-rata berada di angka **0.6 – 0.9 RPS**.
+  - Ini tergolong **stabil dan konsisten**, artinya sistem mampu menangani permintaan dengan baik.
+
+- **Failures/s (red)**:
+  - Tidak ada lonjakan sama sekali (tetap di **0 failures/s**).
+  - Menunjukkan **tidak ada request yang gagal** dalam seluruh pengujian.
+
+---
+
+## 2. Response Times (ms)
+
+- **50th Percentile (orange)**:
+  - Median response time berada di kisaran **9.000 – 12.000 ms**.
+  - Meskipun terlihat stabil, angka ini cukup tinggi untuk hanya 10 user.
+
+- **95th Percentile (purple)**:
+  - Tertinggi mencapai **>18.000 ms** (18 detik), meskipun tetap stabil di kisaran 12.000–16.000 ms.
+  - Indikasi bahwa sebagian kecil permintaan mengalami **delay cukup signifikan**.
 
 #### 4. Keempat Percobaan kami menggunakan user sebanyak 15
 
