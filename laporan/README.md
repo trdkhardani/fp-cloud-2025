@@ -81,23 +81,6 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 **Diagram Arsitektur V1:**
 
-![Cloud Architecture Diagram](assets/architecture-diagram-v1.jpeg)
-
-## 💰 Tabel Perkiraan Biaya Bulanan
-
-| **Komponen**                             | **Jumlah / Unit**     | **Total Bulanan** |
-|-----------------------------------------|------------------------|-------------------|
-| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Load Balancer)   | $13.73            |
-| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Worker 1)        | $13.73            |
-| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Worker 2)        | $13.73            |
-| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Worker 3)        | $13.73            |
-| MongoDB Atlas (Free Tier)               | 1 Cluster              | $0.00             |
-| **Total**                               |                        | **$54.92**        |
-
----
-
-**Diagram Arsitektur V2 (Scale-Out Vertikal):**
-
 ![Cloud Architecture Diagram](assets/architecture-diagram-v2.jpeg)
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
@@ -111,6 +94,22 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 | MongoDB Atlas (Free Tier)               | 1 Cluster              | $0.00             |
 | **Total**                               |                        | **$90.11**        |
 
+---
+
+**Diagram Arsitektur V1:**
+
+![Cloud Architecture Diagram](assets/architecture-diagram-v3.jpeg)
+
+## 💰 Tabel Perkiraan Biaya Bulanan
+
+| **Komponen**                             | **Jumlah / Unit**     | **Total Bulanan** |
+|-----------------------------------------|------------------------|-------------------|
+| Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Load Balancer)   | $13.73            |
+| Compute Engine (e2-medium, 2 vCPU, 4GB) | 1 VM (Worker 1)        | $25.46            |
+| Compute Engine (e2-medium, 2 vCPU, 4GB) | 1 VM (Worker 2)        | $25.46            |
+| Compute Engine (e2-medium, 2 vCPU, 4GB) | 1 VM (Worker 3)        | $25.46            |
+| MongoDB Atlas (Free Tier)               | 1 Cluster              | $0.00             |
+| **Total**                               |                        | **$90.11**        |
 
 
 ## (4) Pengujian API dan Antarmuka
