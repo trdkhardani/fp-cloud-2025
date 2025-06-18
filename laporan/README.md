@@ -115,6 +115,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 | Compute Engine (e2-medium, 2 vCPU, 4GB) | 1 VM (Worker 3)        | $25.46            |
 | MongoDB Atlas (Free Tier)               | 1 Cluster              | $0.00             |
 | **Total**                               |                        | **$90.11**        |
+
 ## 🛠️ (3) Implementasi dan Konfigurasi
 
 ---
