@@ -698,12 +698,12 @@ Semua endpoint dan tampilan diuji pada sistem yang sudah dideploy di Google Clou
 Setelah aplikasi berhasil di deploy, kami melakukan pengujian dengna menggunakn locust untuk Menentukan jumlah maksimal pengguna tanpa error Membandingkan jumlah user dengan response time, percobaan dilakukan di alamat API
 http://34.69.220.138:8000/api/recognize-face dengan metode POST 
 
-#### 1. Pertama kami melakukan pengujian load Testing dengan menggunakan satu user dan maksimal user adalah satu **(arsitektur v1)**
+## 1. Pertama kami melakukan pengujian load Testing dengan menggunakan satu user dan maksimal user adalah satu **(arsitektur v1)**
 
 ![Load_testing_1_user](https://github.com/user-attachments/assets/de2809eb-e864-47dc-ae26-3e4458370307)
 
 DIdapat kesimpulan dari gambar bahwa
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Stabil di kisaran **0.1 – 0.2 RPS**.
@@ -715,7 +715,7 @@ DIdapat kesimpulan dari gambar bahwa
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Berada di kisaran **4.500 – 5.000 ms**.
@@ -725,12 +725,12 @@ DIdapat kesimpulan dari gambar bahwa
   - Mayoritas stabil di **4.500 – 5.000 ms**, tapi sempat menyentuh hampir **6.500 ms**.
   - Ini berarti bahwa **5% permintaan terlama bisa mencapai lebih dari 6 detik**, yang cukup tinggi
 
-#### 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users **(arsitektur v1)**
+## 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users **(arsitektur v1)**
 
 ![Load_testing_5_user](https://github.com/user-attachments/assets/4c23ede1-7a59-4809-8def-3f3713b39fa5)
 
 DIdapat kesimpulan dari gambar bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Stabil di kisaran **0.6 – 0.8 RPS**.
@@ -742,7 +742,7 @@ DIdapat kesimpulan dari gambar bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Stabil di **4.000 – 5.500 ms** (4–5.5 detik).
@@ -753,12 +753,12 @@ DIdapat kesimpulan dari gambar bahwa:
   - Ini mengindikasikan bahwa sebagian kecil permintaan tetap memerlukan waktu respons yang lebih lama dari rata-rata.
 
 
-#### 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users **(arsitektur v1)**
+## 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users **(arsitektur v1)**
 
 ![Load_testing_10](https://github.com/user-attachments/assets/94519f02-2796-4c15-b20e-b25157ec6102)
 
 DIdapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Rata-rata berada di angka **0.6 – 0.9 RPS**.
@@ -770,7 +770,7 @@ DIdapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Median response time berada di kisaran **9.000 – 12.000 ms**.
@@ -780,12 +780,12 @@ DIdapat kesimpulan bahwa:
   - Tertinggi mencapai **>18.000 ms** (18 detik), meskipun tetap stabil di kisaran 12.000–16.000 ms.
   - Indikasi bahwa sebagian kecil permintaan mengalami **delay cukup signifikan**.
 
-#### 4. Keempat Percobaan kami menggunakan user sebanyak 15 users **(arsitektur v1)**
+## 4. Keempat Percobaan kami menggunakan user sebanyak 15 users **(arsitektur v1)**
 
 ![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failures/s
+### 1. Total Requests per Second (RPS) dan Failures/s
 
 - **RPS (green line)**:
   - Nilai Requests per Second meningkat dengan cepat dari 0 hingga stabil di kisaran **1.5 requests/s**.
@@ -796,7 +796,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange line)**:
   - Rata-rata response time berada di kisaran **6.000–7.000 ms**, yang tergolong **tinggi**.
@@ -808,13 +808,13 @@ Didapat kesimpulan bahwa:
 - **Stabilitas**:
   - Meskipun waktu respon terlihat stabil, nilainya masih tergolong lambat
 
-#### 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v2)**
+## 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v2)**
 
 ![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
 
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failures/s
+### 1. Total Requests per Second (RPS) dan Failures/s
 
 - **RPS (green line)**:
   - Requests per second naik secara signifikan saat awal uji, lalu stabil di kisaran **1.5–1.7 RPS**.
@@ -826,7 +826,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange line)**:
   - Response time berada di kisaran **16.000–18.000 ms** (16–18 detik).
@@ -839,12 +839,12 @@ Didapat kesimpulan bahwa:
 - **Kondisi Stabil**:
   - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
  
-#### 6. Keenam Percobaan kami menggunakan user sebanyak 50 users **(arsitektur v2)**
+## 6. Keenam Percobaan kami menggunakan user sebanyak 50 users **(arsitektur v2)**
 
 ![Load_testing_50 user](https://github.com/user-attachments/assets/206f78f9-0eef-40ed-ad22-7ccae581d199)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failures/s
+### 1. Total Requests per Second (RPS) dan Failures/s
 
 - **RPS (green line)**:
   - Requests per second meningkat pesat saat awal pengujian dan stabil di kisaran **0.9 – 1.2 RPS**.
@@ -855,7 +855,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange line)**:
   - Median response time (waktu respon rata-rata) berkisar antara **35.000 – 45.000 ms** (35–45 detik).
@@ -868,12 +868,12 @@ Didapat kesimpulan bahwa:
 - **Kondisi Umum**:
   - Waktu respon **cenderung tidak stabil**, meskipun perlahan-lahan menjadi lebih rata mendekati akhir pengujian.
 
-#### 7. Ketujuh Percobaan kami menggunakan user sebanyak 100 users **(arsitektur v2)**
+## 7. Ketujuh Percobaan kami menggunakan user sebanyak 100 users **(arsitektur v2)**
 
 ![Load_testing_100 user](https://github.com/user-attachments/assets/a4f3f672-a860-444c-a92a-f9beaf3c113e)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failures/s
+### 1. Total Requests per Second (RPS) dan Failures/s
 
 - **RPS (green line)**:
   - Awalnya stabil di kisaran **1–2 RPS**, namun saat traffic meningkat drastis, **RPS justru menurun** dan tidak mampu mencapai performa maksimal.
@@ -885,7 +885,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange line)**:
   - Median response time naik hingga **100.000 ms (100 detik)** sebelum turun drastis.
@@ -898,12 +898,12 @@ Didapat kesimpulan bahwa:
   - Respon sangat lambat, banyak fluktuasi, dan **indikasi sistem overload** sangat jelas.
   - Terlihat beberapa kali sistem ‘drop’ (mungkin crash atau timeout).
 
-#### 8. Kedelapan Percobaan kami menggunakan user sebanyak 250 users **(arsitektur v2)**
+## 8. Kedelapan Percobaan kami menggunakan user sebanyak 250 users **(arsitektur v2)**
 
 ![Load_testing_250 user](https://github.com/user-attachments/assets/fdfa4f4a-3fd2-418f-8b9d-5a93ef500081)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Awalnya berhasil menyentuh sekitar **10–13 RPS**, namun tidak bertahan lama.
@@ -915,7 +915,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Respon time median berada di kisaran **30.000–70.000 ms**, artinya waktu tunggu untuk respon sangat tinggi bahkan untuk request “normal”.
