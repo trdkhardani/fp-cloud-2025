@@ -808,6 +808,32 @@ Didapat kesimpulan bahwa:
 - **Stabilitas**:
   - Meskipun waktu respon terlihat stabil, nilainya masih tergolong lambat
 
+## 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v1)**
+
+![Load_testing_30 user_v1](https://github.com/user-attachments/assets/834053f0-9eb1-4e43-bacc-edde14e13b6a)
+
+Didapat kesimpulan bahwa:
+### 1. Total Requests per Second (RPS) & Failure Rate
+
+- **RPS (green)**:
+  - Stabil di kisaran **1.4 – 1.6 RPS**. Ini meningkat dari pengujian sebelumnya, menunjukkan peningkatan throughput seiring bertambahnya user.
+  - Tidak ada penurunan drastis, berarti sistem masih bisa memproses permintaan dengan baik pada skala ini.
+
+- **Failures/s (red)**:
+  - Tetap **0** selama durasi pengujian.
+  - Menunjukkan **sistem masih stabil** bahkan dengan jumlah user dua kali lipat dari pengujian sebelumnya.
+
+---
+
+### 2. Response Times (ms)
+
+- **50th Percentile (orange)**:
+  - Stabil di kisaran **16.000 – 18.000 ms**.
+
+- **95th Percentile (purple)**:
+  - Sempat naik menyentuh **22.000 – 24.000 ms**.
+  - Menandakan **beberapa request (5%) mulai sangat lambat**, menandakan mulai terasa beban tinggi di sisi server.
+
 # (6) Pengujian Load Testing (arsitektur v2)
 
 ## 1. kesatu Percobaan kami menggunakan user sebanyak 1 users **(arsitektur v2)**
@@ -815,7 +841,7 @@ Didapat kesimpulan bahwa:
 ![Load_testing_1 user_v2](https://github.com/user-attachments/assets/c1ee3b50-133b-4589-9884-17fc9ea29ee5)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Stabil di kisaran **0.2 – 0.3 RPS**, dengan fluktuasi kecil pada beberapa waktu.
@@ -827,7 +853,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Rata-rata berada di **2.000 – 3.000 ms**, lebih baik dari run sebelumnya.
@@ -842,7 +868,7 @@ Didapat kesimpulan bahwa:
 ![Load_testing_5 user_v2](https://github.com/user-attachments/assets/95b7d254-d41d-4392-aa74-efe376ad631e)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Stabil di kisaran **0.9 – 1.1 RPS**, dengan sedikit penurunan singkat di tengah sesi.
@@ -854,7 +880,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Stabil di kisaran **2.500 – 3.500 ms**.
@@ -869,7 +895,7 @@ Didapat kesimpulan bahwa:
 ![Load_testing_10 user_v2](https://github.com/user-attachments/assets/1f87571b-1f09-46e9-aa6f-88471a5f3478)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Berada di kisaran **0.8 – 1.3 RPS**, menunjukkan peningkatan throughput dari pengujian sebelumnya.
@@ -881,7 +907,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Konsisten di kisaran **8.000 – 10.000 ms**.
@@ -896,7 +922,7 @@ Didapat kesimpulan bahwa:
 ![Load_testing_15 user_v2](https://github.com/user-attachments/assets/529be21e-6f9f-474d-9aa5-a825aa16ea56)
 
 Didapat kesimpulan bahwa:
-## 1. Total Requests per Second (RPS) dan Failure Rate
+### 1. Total Requests per Second (RPS) dan Failure Rate
 
 - **RPS (green)**:
   - Berada stabil di kisaran **0.9 – 1.1 RPS**, menunjukkan throughput tetap terjaga meski jumlah user meningkat.
@@ -908,7 +934,7 @@ Didapat kesimpulan bahwa:
 
 ---
 
-## 2. Response Times (ms)
+### 2. Response Times (ms)
 
 - **50th Percentile (orange)**:
   - Terpantau berada di kisaran **12.000 – 14.000 ms** (12–14 detik), yang merupakan kenaikan signifikan dibanding pengujian 10 user.
