@@ -90,7 +90,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
 
-| **Komponen**                             | **Jumlah / Unit**     | **Total Bulanan** |
+| **Komponen**                            | **Jumlah / Unit**      | **Total Bulanan** |
 |-----------------------------------------|------------------------|-------------------|
 | Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Load Balancer)   | $13.73            |
 | Compute Engine (e2-medium, 2 vCPU, 4GB) | 1 VM (Worker 1)        | $25.46            |
@@ -101,13 +101,13 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 ---
 
-**Diagram Arsitektur V1:**
+**Diagram Arsitektur V2 (Scale-Out Vertikal):**
 
 ![Cloud Architecture Diagram](assets/architecture-diagram-v3.jpeg)
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
 
-| **Komponen**                             | **Jumlah / Unit**     | **Total Bulanan** |
+| **Komponen**                            | **Jumlah / Unit**      | **Total Bulanan** |
 |-----------------------------------------|------------------------|-------------------|
 | Compute Engine (e2-small, 2 vCPU, 2GB)  | 1 VM (Load Balancer)   | $13.73            |
 | Compute Engine (e2-medium, 2 vCPU, 4GB) | 1 VM (Worker 1)        | $25.46            |
