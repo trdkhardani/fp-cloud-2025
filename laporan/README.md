@@ -705,7 +705,7 @@ http://34.69.220.138:8000/api/recognize-face dengan metode POST
 
 DIdapat kesimpulan dari gambar bahwa
    - Server Lancar
-   - Response time juga masih aman
+   - Response time juga masih lancar
 
 #### 2. Kedua kami melakukan pengujian dengan user sebanyak 5
 
@@ -713,7 +713,7 @@ DIdapat kesimpulan dari gambar bahwa
 
 DIdapat kesimpulan dari gambar bahwa
    - Server masih Aman
-   - Response time juga masih aman seperti percobaan pertama
+   - Response time juga masih lancar seperti percobaan pertama
 
 
 #### 3. Ketiga Percobaan kami menggunakan user sebanyak 10
@@ -723,3 +723,14 @@ DIdapat kesimpulan dari gambar bahwa
 DIdapat kesimpulan bahwa
    - Server masih aman juga
    - Response time juga masih lancar tidak menunjukan perubahan pada "ms" nya
+
+#### 4. Keempat Percobaan kami menggunakan user sebanyak 15
+
+![Load_testing_15](assets/test-15 user.jpeg)
+
+Didapat kesimpulan bahwa
+##### 1. 50th percentile (orange line):
+  - Rata-rata waktu respon berada di kisaran 6.000–7.000 ms, yang relatif tinggi.
+##### 2. 95th percentile (purple line):
+  - Di awal sempat mencapai 12.000–14.000 ms, lalu menurun dan stabil di kisaran 9.000–11.000 ms.
+  - Menunjukkan bahwa 5% request paling lambat memerlukan waktu yang sangat lama, menandakan adanya latensi tinggi untuk sebagian permintaan.
