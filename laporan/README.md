@@ -535,7 +535,7 @@ Setelah semua konfigurasi selesai, aplikasi dapat di-deploy dengan menjalankan p
 
 ### 🔹 Uji Endpoint Aplikasi
 
-Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi) dan **Thunder Client** (untuk endpoint tambahan seperti login admin). Semua endpoint berjalan pada backend FastAPI dan terkoneksi dengan MongoDB di VM worker.
+Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi). Semua endpoint berjalan pada backend FastAPI dan terkoneksi dengan MongoDB di VM worker.
 
 ---
 
