@@ -612,7 +612,6 @@ Endpoint backend diuji menggunakan **Swagger UI** (untuk endpoint terdokumentasi
 > 📸 Swagger UI - Get attendance captured photo
 
 > ![Swagger Get Attendance Photo](assets/get-api-attendance-photo.png)
-> ![Swagger Get Attendance Photo](assets/get-api-attendance-photo-dbnullimg.jpeg)
 
 #### 15. `GET /health` – Health Check  
 > 📸 Swagger UI - Health check endpoint
