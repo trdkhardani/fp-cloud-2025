@@ -120,7 +120,7 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 
 **Diagram Arsitektur V3 Revisi (Menggunakan Powerful CPU):**
 
-![Cloud Architecture Diagram](assets/architecture-diagram-v4.jpeg)
+![Cloud Architecture Diagram](assets/architecture-diagram-v4.jpg)
 
 ## 💰 Tabel Perkiraan Biaya Bulanan
 
