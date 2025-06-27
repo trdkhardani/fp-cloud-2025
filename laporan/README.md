@@ -116,6 +116,19 @@ Anda diminta untuk mendesain arsitektur cloud yang sesuai dengan kebutuhan aplik
 | MongoDB Atlas (Free Tier)               | 1 Cluster              | Shared vCPU and RAM, ~512MB storage (Free Tier)              | $0.00             |
 | **Total**                               |                        |                                                                  | **$99.83**        |
 
+---
+
+**Diagram Arsitektur V3 Revisi (Menggunakan Powerful CPU):**
+
+![Cloud Architecture Diagram](assets/architecture-diagram-v4.jpeg)
+
+## 💰 Tabel Perkiraan Biaya Bulanan
+
+| **Komponen**                  | **Jumlah / Unit**    | **Spesifikasi**                                                | **Total Bulanan** |
+|------------------------------|----------------------|-----------------------------------------------------------------|-------------------|
+| Compute Engine (n2-highcpu-4) | 1 VM (App Server)     | 4 vCPU (2 core), 4GB RAM, 15GB Balanced Disk, Ubuntu 24.04      | $85.24            |
+| MongoDB Atlas (Free Tier)     | 1 Cluster             | Shared vCPU dan RAM, ~512MB storage (Free Tier)                 | $0.00             |
+| **Total**                     |                      |                                                                 | **$85.24**        |
 
 ## 🛠️ (3) Implementasi dan Konfigurasi
 
