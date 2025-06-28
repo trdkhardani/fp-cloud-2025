@@ -542,6 +542,51 @@ Setelah semua konfigurasi selesai, aplikasi dapat di-deploy dengan menjalankan p
 ./docker-deploy.sh
 ```
 
+### Setup Load Testing dengan Locust
+#### Script Locustfile
+Untuk melakukan load testing pada endpoint `/api/recognize-face`, dibuat script `locustfile.py` yang berisi definisi user dan task yang akan dijalankan oleh Locust. Script ini mengirimkan gambar ke endpoint untuk face recognition.
+```python
+from locust import HttpUser, task, between
+
+class FaceRecognitionUser(HttpUser):
+    @task
+    def recognize_face(self):
+        """Mengirim gambar ke endpoint recognize-face"""
+        try:
+            with open("foto.jpg", "rb") as image:
+                files = {
+                    "file": ("foto.jpg", image, "image/jpeg")
+                }
+                print("[RECOGNIZE] Sending request to /api/recognize-face")
+                response = self.client.post(
+                    "/api/recognize-face", 
+                    files=files, 
+                    name="/api/recognize-face"
+                )
+                if response.status_code == 200:
+                    result = response.json()
+                    if result.get("success") and result.get("employee"):
+                        confidence = result.get("confidence", 0.0)
+                        print(f"[RECOGNIZE] Recognized: {result['employee']['name']} with confidence {confidence}")
+                    else:
+                        print(f"[RECOGNIZE] Not recognized or failed: {result.get('message', 'No message')}")
+                else:
+                    print(f"[RECOGNIZE] Error: {response.status_code} - {response.text}")
+        except Exception as e:
+            print(f"[RECOGNIZE] Exception: {str(e)}")
+```
+
+#### Tampilan Antarmuka Locust
+Setelah script `locustfile.py` dibuat, Locust dapat dijalankan dengan command:
+
+```bash
+locust -f locustfile.py --host http://34.69.220.138:8000
+```
+
+Kemudian, buka browser dan akses `http://localhost:8089` untuk mengakses antarmuka Locust dan mulai melakukan load testing.
+
+![Locust UI](assets/locust-ui.png)
+
 ## (4) Pengujian API dan Antarmuka
 
 ---
