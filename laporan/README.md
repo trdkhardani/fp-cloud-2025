@@ -879,11 +879,26 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa load balancer
 
 2. Response Times (ms) berada di angka 2.200 – 4.800 ms (2,2 – 4,7 detik). Hal ini menunjukkan bahwa response time lambat, meskipun hanya ada satu user yang melakukan request. Hal ini mungkin disebabkan oleh spesifikasi worker dan backend yang kurang dioptimalkan.
 
+### Pengujian dengan menggunakan tiga user dan maksimal user adalah tiga (3 user)
+#### htop
+![htop-Load-testing-3-user](assets/load-test-results/V2/user3_htop.png)
+
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke kedua worker secara merata untuk tiga user, dengan worker-1 memiliki beban CPU tertinggi.
+
+---
+
+#### Locust
+![locust-Load-testing-3-user](assets/load-test-results/V2/user3.png)
+
+1. Total Requests per Second (RPS) menunjukkan angka 0,5 – 1 dan tidak mengalami failure. Peningkatan RPS ini menunjukkan bahwa sistem mampu menangani lima user secara bersamaan dengan baik, meskipun ada sedikit fluktuasi.
+
+2. Response Times (ms) berada di angka 3.000 – 4.700 ms (3 – 4,7 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing satu user karena adanya peningkatan jumlah user.
+
 ### Pengujian dengan menggunakan lima user dan maksimal user adalah lima (5 user)
 #### htop
 ![htop-Load-testing-5-user](assets/load-test-results/V2/user5_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke kedua worker secara merata untuk lima user, dengan worker-2 memiliki beban CPU tertinggi.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 dan 3 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke kedua worker secara merata untuk lima user, dengan worker-2 memiliki beban CPU tertinggi.
 
 ---
 
@@ -898,7 +913,7 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load 
 #### htop
 ![htop-Load-testing-10-user](assets/load-test-results/V2/user10_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 dan 5 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk sepuluh user, dengan worker-2 memiliki beban CPU tertinggi.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1, 3, dan 5 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk sepuluh user, dengan worker-2 memiliki beban CPU tertinggi.
 
 ---
 
@@ -913,7 +928,7 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load 
 #### htop
 ![htop-Load-testing-15-user](assets/load-test-results/V2/user15_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 5, dan 10 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk lima belas user, dengan beban CPU tertinggi kedua worker adalah seimbang.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 3, 5, dan 10 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk lima belas user, dengan beban CPU tertinggi kedua worker adalah seimbang.
 
 ---
 
@@ -924,24 +939,39 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load 
 
 2. Response Times (ms) berada di angka 3.000 – 18.000 ms (3 – 18 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing sepuluh user karena adanya peningkatan jumlah user.
 
+### Pengujian dengan menggunakan dua puluh user dan maksimal user adalah dua puluh (20 user)
+#### htop
+![htop-Load-testing-20-user](assets/load-test-results/V2/user20_htop.png)
+
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 3, 5, 10, dan 15 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk dua puluh user, dengan worker-2 memiliki beban CPU tertinggi.
+
+---
+
+#### Locust
+![locust-Load-testing-20-user](assets/load-test-results/V2/user20.png)
+
+1. Total Requests per Second (RPS) menunjukkan angka 0,4 – 1,15 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang sama dengan load testing dengan 15 user, tetapi batas atas yang lebih tinggi dibandingkan load testing dengan 15 user. Hal ini menunjukkan adanya sedikit peningkatan RPS dibandingkan dengan load testing dengan 15 user.
+
+2. Response Times (ms) berada di angka 10.000 – 40.000 ms (10 – 30 detik). Hal ini menunjukkan bahwa response time mulai jauh lebih lambat dibandingkan dengan load testing lima belas user karena adanya peningkatan jumlah user.
+
 ### Pengujian dengan menggunakan tiga puluh user dan maksimal user adalah tiga puluh (30 user)
 #### htop
 ![htop-Load-testing-30-user](assets/load-test-results/V2/user30_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 5, 10, dan 15 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk tiga puluh user, dengan worker-2 memiliki beban CPU tertinggi.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 3, 5, 10, 15, dan 20 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk tiga puluh user, dengan worker-2 memiliki beban CPU tertinggi.
 
 ---
 
 #### Locust
 ![locust-Load-testing-30-user](assets/load-test-results/V2/user30.png)
 
-1. Total Requests per Second (RPS) menunjukkan angka 0,1 – 1 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang lebih rendah dibandingkan load testing dengan 15 user, tetapi batas atas yang sama dengan load testing dengan 15 user. Hal ini semakin menguatkan bahwa sistem tidak mengalami peningkatan RPS yang signifikan meskipun jumlah user meningkat.
+1. Total Requests per Second (RPS) menunjukkan angka 0,1 – 1 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang lebih rendah dibandingkan load testing dengan 20 user, begitu pula dengan batas atasnya. Hal ini menunjukkan bahwa RPS bisa fluktuatif dan tidak mengalami peningkatan signifikan meskipun jumlah user meningkat.
 
 2. Response Times (ms) berada di angka 10.000 – 40.000 ms (10 – 30 detik). Hal ini menunjukkan bahwa response time mulai jauh lebih lambat dibandingkan dengan load testing lima belas user karena adanya peningkatan jumlah user.
 
 ---
 
-## (7) Kesimpulan dan Saran
+## (6) Kesimpulan dan Saran
 - Proyek Face Recognition Attendance System berhasil diimplementasikan di Google Cloud Platform dengan arsitektur cloud berbasis VM dan integrasi MongoDB Atlas (free tier). Dua pendekatan arsitektur diuji: menggunakan 3 VM spesifikasi kecil dan dilakukan vertical scaling menjadi 2 VM custom dengan spesifikasi yang lebih powerful. Dengan total biaya di bawah $100, arsitektur vertikal (V2) menunjukkan performa lebih stabil dan waktu respon lebih cepat, terutama pada jumlah user rendah hingga menengah.
 
 - Endpoint POST /recognize-face tetap menjadi bottleneck utama karena proses pengenalan wajah bersifat komputasi-intensif. Namun, sistem mampu menangani hingga 30 user bersamaan tanpa error fatal, meskipun response time meningkat signifikan (>20 detik pada puncaknya).
