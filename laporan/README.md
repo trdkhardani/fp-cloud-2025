@@ -971,19 +971,122 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load 
 
 ---
 
+## Arsitektur V3
+### Pengujian dengan menggunakan satu user dan maksimal user adalah satu (1 user)
+#### htop
+![htop-Load-testing-1-user](assets/load-test-results/V3/user1_htop.png)
+
+Terlihat hanya satu core yang aktif dengan beban ringan, sesuai ekspektasi karena hanya satu request yang diproses pada satu thread. Sistem idle di luar core utama, menunjukkan penggunaan CPU efisien tapi belum optimal.
+
+---
+
+#### Locust
+![locust-Load-testing-1-user](assets/load-test-results/V3/user1.png)
+
+1. RPS berada di angka 0.18–0.5 karena hanya satu user aktif sehingga load masih sangat ringan.
+2. Response time sudah cukup tinggi di kisaran 2.200–4.800 ms.
+
+### Pengujian dengan menggunakan tiga user dan maksimal user adalah tiga (3 user)
+#### htop
+![htop-Load-testing-3-user](assets/load-test-results/V3/user3_htop.png)
+
+CPU mulai menunjukkan peningkatan aktivitas, tetapi tetap hanya satu core yang bekerja keras. Karena arsitektur hanya menggunakan satu worker, ini merupakan perilaku normal dan sesuai desain.
+
+---
+
+#### Locust
+![locust-Load-testing-3-user](assets/load-test-results/V3/user3.png)
+
+1. RPS stabil di angka 0.6, menunjukkan sistem masih mampu memproses permintaan tanpa kegagalan.
+2. Response time naik ke 5.200–6.700 ms, yang cukup tinggi untuk beban ringan, menandakan ada latensi tetap atau bottleneck minor.
+
+### Pengujian dengan menggunakan lima user dan maksimal user adalah lima (5 user)
+#### htop
+![htop-Load-testing-5-user](assets/load-test-results/V3/user5_htop.png)
+
+CPU core utama bekerja mendekati penuh, menandakan bahwa worker sudah mulai mencapai batas kapasitas prosesnya. Tidak ada distribusi beban karena memang hanya satu worker yang aktif — sesuai arsitektur.
+
+---
+
+#### Locust
+![locust-Load-testing-5-user](assets/load-test-results/V3/user5.png)
+
+1. RPS naik ke 0.5–0.7, tapi sistem mulai menunjukkan ketidakstabilan dengan munculnya failure.
+2. Response time naik tajam ke 8.000–13.000 ms, mengindikasikan worker mulai terbebani secara signifikan.
+
+### Pengujian dengan menggunakan sepuluh user dan maksimal user adalah sepuluh (10 user)
+#### htop
+![htop-Load-testing-10-user](assets/load-test-results/V3/user10_htop.png)
+
+Core utama 100% digunakan, dengan proses tunggal yang mendominasi. Ini menunjukkan bahwa worker sudah overload, dan proses mulai delay karena CPU tidak bisa mengimbangi permintaan.
+
+---
+
+#### Locust
+![locust-Load-testing-10-user](assets/load-test-results/V3/user10.png)
+
+1. RPS mencapai 1.4, tapi mulai terlihat penurunan performa dan peningkatan failure rate.
+2. Response time melejit ke atas 30.000 ms, menunjukkan proses antrean atau blocking di satu titik eksekusi.
+
+### Pengujian dengan menggunakan lima belas user dan maksimal user adalah lima belas (15 user)
+#### htop
+![htop-Load-testing-15-user](assets/load-test-results/V3/user15_htop.png)
+
+Proses masih berjalan di satu core penuh, tanpa bantuan dari core lainnya. Tidak ada peningkatan resource usage di sistem karena arsitekturnya memang tidak menggunakan multi-core parallelism.
+
+---
+
+#### Locust
+![locust-Load-testing-15-user](assets/load-test-results/V3/user15.png)
+ 
+1. RPS stagnan di 0.8–1.0 meski jumlah user meningkat, menandakan throughput sistem tidak bertambah karena batas CPU tercapai.
+2. Response time tetap tinggi (9.000–11.000 ms), menandakan penundaan pemrosesan karena antrean makin panjang.
+
+### Pengujian dengan menggunakan dua puluh user dan maksimal user adalah dua puluh (20 user)
+#### htop
+![htop-Load-testing-20-user](assets/load-test-results/V3/user20_htop.png)
+
+Core utama tetap 100%. Sistem tidak punya kapasitas untuk menampung burst load, karena hanya mengandalkan satu jalur proses.
+
+---
+
+#### Locust
+![locust-Load-testing-20-user](assets/load-test-results/V3/user20.png)
+
+1. RPS sempat naik ke 3.5 tapi langsung turun, artinya sistem tidak mampu mempertahankan laju permintaan tinggi.
+2. Response time ekstrem (hingga 120.000 ms), menandakan antrean panjang dan sistem dalam keadaan jenuh.
+
+### Pengujian dengan menggunakan tiga puluh user dan maksimal user adalah tiga puluh (30 user)
+#### htop
+![htop-Load-testing-30-user](assets/load-test-results/V3/user30_htop.png)
+
+CPU tunggal terus dipaksa kerja penuh, tidak ada balancing ke core lain. Sistem sepenuhnya bottlenecked di satu proses utama. Performa menurun tajam karena arsitektur tidak mampu scale.
+
+---
+
+#### Locust
+![locust-Load-testing-30-user](assets/load-test-results/V3/user30.png)
+
+1. RPS naik ke 6.5, tapi diikuti peningkatan tajam pada failure.
+2. Response time tembus 50.000 ms atau lebih, artinya sistem gagal memberikan respons dalam waktu yang layak.
+
+---
+
 ## (6) Kesimpulan dan Saran
-- Proyek Face Recognition Attendance System berhasil diimplementasikan di Google Cloud Platform dengan arsitektur cloud berbasis VM dan integrasi MongoDB Atlas (free tier). Dua pendekatan arsitektur diuji: menggunakan 3 VM spesifikasi kecil dan dilakukan vertical scaling menjadi 2 VM custom dengan spesifikasi yang lebih powerful. Dengan total biaya di bawah $100, arsitektur vertikal (V2) menunjukkan performa lebih stabil dan waktu respon lebih cepat, terutama pada jumlah user rendah hingga menengah.
+### Arsitektur V1
+Keunggulan: Mampu mendistribusikan beban secara lebih merata antara worker-1, worker-2, dan worker-3. Meskipun response time cenderung lebih lambat, arsitektur ini menunjukkan kemampuan menangani beberapa user (hingga 20) dengan peningkatan RPS yang cukup stabil.
 
-- Endpoint POST /recognize-face tetap menjadi bottleneck utama karena proses pengenalan wajah bersifat komputasi-intensif. Namun, sistem mampu menangani hingga 30 user bersamaan tanpa error fatal, meskipun response time meningkat signifikan (>20 detik pada puncaknya).
+Kelemahan: Waktu respons meningkat seiring dengan penambahan jumlah pengguna. Ini mungkin disebabkan oleh kurang optimalnya spesifikasi worker atau backend. Namun, sistem secara keseluruhan tetap bisa menangani beban hingga 20 user dengan baik tanpa adanya kegagalan.
 
-## Rekomendasi Perbaikan dan Optimasi
-### Optimasi Backend FastAPI (Tanpa Ubah Arsitektur)
+### Arsitektur V2
+Keunggulan: Mampu mendistribusikan beban antara worker-1 dan worker-2 secara efisien pada beban yang lebih tinggi (hingga 20 user). RPS tetap stabil dan tidak ada kegagalan pada sebagian besar pengujian.
 
-1. Gunakan async def di endpoint utama untuk menghindari blocking.
-2. Kurangi overhead: panggil model hanya sekali di awal (load_model() di startup), bukan setiap request.
-3. Jalankan pengenalan wajah secara batch/queue ringan menggunakan asyncio.Queue atau ThreadPoolExecutor.
+Kelemahan: Waktu respons yang lebih lambat dibandingkan V1, terutama saat jumlah pengguna meningkat. Ini menunjukkan bahwa meskipun ada distribusi beban, ada kemungkinan bottleneck di dalam worker atau backend yang menyebabkan latensi lebih tinggi.
 
-### Eksperimen dengan 1 Worker Powerful + 1 Worker Cadangan (Mode Aktif/Standby)
+### Arsitektur V3
+Keunggulan: Pada pengujian dengan satu user, arsitektur ini menunjukkan efisiensi dalam penggunaan CPU yang rendah, karena hanya satu worker yang aktif. RPS masih dapat dipertahankan pada jumlah user rendah.
 
-1. Percobaan alokasi 1 VM (e2-custom-2-4608) untuk full traffic, dan 1 VM lagi hanya aktif saat load tinggi atau testing.
--> Hemat biaya idle, dan bisa dimatikan manual saat tidak dibutuhkan (save ~40% biaya saat tidak aktif penuh).
+Kelemahan: Arsitektur ini gagal menangani jumlah user yang lebih tinggi (lebih dari 5 user) karena hanya menggunakan satu worker. CPU yang digunakan untuk proses tunggal mencapai kapasitas penuh, menyebabkan sistem menjadi sangat terhambat, terutama pada beban yang lebih tinggi. Response time meningkat tajam, dan RPS sangat rendah pada pengujian dengan lebih dari 10 user.
+
+## Saran
+### Apabila ada budget berlebih, bisa menggunakan machine yang lebih powerful atau menambah jumlah worker.
