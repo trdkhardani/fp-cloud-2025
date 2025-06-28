@@ -542,7 +542,7 @@ Setelah semua konfigurasi selesai, aplikasi dapat di-deploy dengan menjalankan p
 ./docker-deploy.sh
 ```
 
-### Setup Load Testing dengan Locust
+### 🔹 Setup Load Testing dengan Locust
 #### Script Locustfile
 Untuk melakukan load testing pada endpoint `/api/recognize-face`, dibuat script `locustfile.py` yang berisi definisi user dan task yang akan dijalankan oleh Locust. Script ini mengirimkan gambar ke endpoint untuk face recognition.
 ```python
@@ -752,286 +752,162 @@ Berikut hasil tangkapan layar (screenshot) antarmuka frontend aplikasi saat digu
 
 Semua endpoint dan tampilan diuji pada sistem yang sudah dideploy di Google Cloud Platform dengan database MongoDB yang berjalan di VM worker.
 
-# (5) Pengujian Load Testing (arsitektur v1)
+# (5) Pengujian Load Testing
+Setelah aplikasi berhasil di deploy, dilakukan pengujian dengna menggunakan Locust untuk melakukan load testing. Pengujian dilakukan pada host http://34.69.220.138:8000 untuk arsitektur V1 dan V2, sedangkan http://34.135.1.186:8000 untuk arsitektur V3. Endpoint API yang diuji adalah **`/api/recognize-face`** dengan method **`POST`**
 
-Setelah aplikasi berhasil di deploy, kami melakukan pengujian dengna menggunakn locust untuk Menentukan jumlah maksimal pengguna tanpa error Membandingkan jumlah user dengan response time, percobaan dilakukan di alamat API
-http://34.69.220.138:8000/api/recognize-face dengan metode POST 
+## Arsitektur V1 
+### Pengujian dengan menggunakan satu user dan maksimal user adalah satu (1 user)
+#### htop
+![htop-Load-testing-1-user](assets/load-test-results/V1/user1_htop.png)
 
-## 1. Pertama kami melakukan pengujian load Testing dengan menggunakan satu user dan maksimal user adalah satu **(arsitektur v1)**
-
-![Load_testing_1_user](https://github.com/user-attachments/assets/de2809eb-e864-47dc-ae26-3e4458370307)
-
-DIdapat kesimpulan dari gambar bahwa
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Stabil di kisaran **0.1 – 0.2 RPS**.
-  - Ini menunjukkan bahwa sistem hanya menerima **sedikit permintaan per detik**, kemungkinan karena hanya ada **1 user** aktif selama pengujian.
-
-- **Failures/s (red)**:
-  - Tetap **0** sepanjang waktu.
-  - Artinya **tidak ada request yang gagal**, sistem merespons semua permintaan dengan sukses.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa load balancer (lb) tidak mengalami beban sama sekali atau dalam posisi idle, begitu pula dengan worker-2. Hal ini menandakan bahwa dalam proses pengujian ini load balancer dan worker-2 tidak mengalami beban yang signifikan. Berbeda dengan worker-1 dan worker-3 yang terdapat adanya beban CPU, dengan worker-3 yang tertinggi. Hal ini menandakan bahwa request dialihkan ke worker-1 dan worker-3, tetapi lebih banyak ke worker-3.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-1-user](assets/load-test-results/V1/user1.png)
 
-- **50th Percentile (orange)**:
-  - Berada di kisaran **4.500 – 5.000 ms**.
-  - Ini menunjukkan bahwa **waktu respons rata-rata (median)** cukup tinggi bahkan untuk 1 user, menandakan adanya latensi pada server atau proses backend yang lambat.
+1. Total Requests per Second (RPS) menunjukkan angka 0,15 – 0,5 dan tidak mengalami failure. Hal ini disebabkan karena hanya ada satu user yang melakukan request.
 
-- **95th Percentile (purple)**:
-  - Mayoritas stabil di **4.500 – 5.000 ms**, tapi sempat menyentuh hampir **6.500 ms**.
-  - Ini berarti bahwa **5% permintaan terlama bisa mencapai lebih dari 6 detik**, yang cukup tinggi
+2. Response Times (ms) berada di angka 2.500 – 5.000 ms (2,5 – 5 detik). Hal ini menunjukkan bahwa response time lambat, meskipun hanya ada satu user yang melakukan request. Hal ini mungkin disebabkan oleh spesifikasi worker dan backend yang kurang dioptimalkan.
 
-## 2. Kedua kami melakukan pengujian dengan user sebanyak 5 users **(arsitektur v1)**
+### Pengujian dengan menggunakan lima user dan maksimal user adalah lima (5 user)
+#### htop
+![htop-Load-testing-5-user](assets/load-test-results/V1/user5_htop.png)
 
-![Load_testing_5_user](https://github.com/user-attachments/assets/4c23ede1-7a59-4809-8def-3f3713b39fa5)
-
-DIdapat kesimpulan dari gambar bahwa:
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Stabil di kisaran **0.6 – 0.8 RPS**.
-  - Hal ini mengindikasikan bahwa sistem **mampu menangani load dari 5 user** dengan baik.
-
-- **Failures/s (red)**:
-  - Tetap di angka **0** sepanjang pengujian.
-  - Menunjukkan **tidak ada request yang gagal** – ini merupakan tanda positif.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 user. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke ketiga worker secara merata untuk lima user, meskipun ada sedikit perbedaan beban CPU antara ketiga worker tersebut.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-5-user](assets/load-test-results/V1/user5.png)
 
-- **50th Percentile (orange)**:
-  - Stabil di **4.000 – 5.500 ms** (4–5.5 detik).
-  - Artinya **median response time masih cukup tinggi**, meskipun jumlah user sangat kecil.
+1. Total Requests per Second (RPS) menunjukkan angka 0,5 – 1,5 dan tidak mengalami failure. Peningkatan RPS ini menunjukkan bahwa sistem mampu menangani lima user secara bersamaan dengan baik, meskipun ada sedikit fluktuasi.
 
-- **95th Percentile (purple)**:
-  - Berada di kisaran **7.000 – 10.000 ms**.
-  - Ini mengindikasikan bahwa sebagian kecil permintaan tetap memerlukan waktu respons yang lebih lama dari rata-rata.
+2. Response Times (ms) berada di angka 3.500 – 5.500 ms (3,5 – 5,5 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing satu user karena adanya peningkatan jumlah user.
 
+### Pengujian dengan menggunakan sepuluh user dan maksimal user adalah sepuluh (10 user)
+#### htop
+![htop-Load-testing-10-user](assets/load-test-results/V1/user10_htop.png)
 
-## 3. Ketiga Percobaan kami menggunakan user sebanyak 10 users **(arsitektur v1)**
-
-![Load_testing_10](https://github.com/user-attachments/assets/94519f02-2796-4c15-b20e-b25157ec6102)
-
-DIdapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Rata-rata berada di angka **0.6 – 0.9 RPS**.
-  - Ini tergolong **stabil dan konsisten**, artinya sistem mampu menangani permintaan dengan baik.
-
-- **Failures/s (red)**:
-  - Tidak ada lonjakan sama sekali (tetap di **0 failures/s**).
-  - Menunjukkan **tidak ada request yang gagal** dalam seluruh pengujian.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing sebelumnya. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 5 user. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke ketiga worker untuk sepuluh user, dengan worker-3 memiliki beban CPU paling rendah.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-10-user](assets/load-test-results/V1/user10.png)
 
-- **50th Percentile (orange)**:
-  - Median response time berada di kisaran **9.000 – 12.000 ms**.
-  - Meskipun terlihat stabil, angka ini cukup tinggi untuk hanya 10 user.
+1. Total Requests per Second (RPS) menunjukkan angka 0,5 – 1,5 dan tidak mengalami failure. Angka RPS menunjukkan hasil yang sama dengan load testing sebelumnya, yaitu 5 user.
 
-- **95th Percentile (purple)**:
-  - Tertinggi mencapai **>18.000 ms** (18 detik), meskipun tetap stabil di kisaran 12.000–16.000 ms.
-  - Indikasi bahwa sebagian kecil permintaan mengalami **delay cukup signifikan**.
+2. Response Times (ms) berada di angka 4.000 – 10.000 ms (4 – 10 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing lima user karena adanya peningkatan jumlah user.
 
-## 4. Keempat Percobaan kami menggunakan user sebanyak 15 users **(arsitektur v1)**
+### Pengujian dengan menggunakan lima belas user dan maksimal user adalah lima belas (15 user)
+#### htop
+![htop-Load-testing-15-user](assets/load-test-results/V1/user15_htop.png)
 
-![Load_testing_15 user](https://github.com/user-attachments/assets/d4a067e5-16f2-41f8-9c60-80f13cb0ce9c)
-
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failures/s
-
-- **RPS (green line)**:
-  - Nilai Requests per Second meningkat dengan cepat dari 0 hingga stabil di kisaran **1.5 requests/s**.
-  - Hal ini menunjukkan bahwa sistem mampu menangani permintaan secara konsisten setelah fase pemanasan (ramp-up).
-
-- **Failures/s (red line)**:
-  - Terdapat **kegagalan (failures)** yang muncul secara konstan, meskipun jumlahnya kecil.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang berbeda, tetapi hanya dalam skala kecil. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 5 dan 10 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk lima belas user, dengan worker-1 dan worker-2 memiliki beban CPU yang hampir seimbang.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-15-user](assets/load-test-results/V1/user15.png)
 
-- **50th Percentile (orange line)**:
-  - Rata-rata response time berada di kisaran **6.000–7.000 ms**, yang tergolong **tinggi**.
+1. Total Requests per Second (RPS) menunjukkan angka 0,75 – 1,5 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang lebih tinggi dibandingkan load testing dengan 10 user, tetapi angka batas atasnya sama. Hal ini menunjukkan bahwa sistem mampu menangani lima belas user secara bersamaan dengan baik, meskipun ada sedikit fluktuasi.
 
-- **95th Percentile (purple line)**:
-  - Di awal pengujian sempat menyentuh **12.000–14.000 ms**, kemudian stabil di kisaran **9.000–11.000 ms**.
-  - Ini menandakan bahwa 5% dari request paling lambat memiliki waktu tanggapan yang sangat tinggi — menunjukkan adanya **latensi tinggi** pada sebagian permintaan.
+2. Response Times (ms) berada di angka 4.000 – 15.000 ms (4 – 15 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing sepuluh user karena adanya peningkatan jumlah user.
 
-- **Stabilitas**:
-  - Meskipun waktu respon terlihat stabil, nilainya masih tergolong lambat
+### Pengujian dengan menggunakan tiga puluh user dan maksimal user adalah tiga puluh (30 user)
+#### htop
+![htop-Load-testing-30-user](assets/load-test-results/V1/user30_htop.png)
 
-## 5. Kelima Percobaan kami menggunakan user sebanyak 30 users **(arsitektur v1)**
-
-![Load_testing_30 user_v1](https://github.com/user-attachments/assets/834053f0-9eb1-4e43-bacc-edde14e13b6a)
-
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) & Failure Rate
-
-- **RPS (green)**:
-  - Stabil di kisaran **1.4 – 1.6 RPS**. Ini meningkat dari pengujian sebelumnya, menunjukkan peningkatan throughput seiring bertambahnya user.
-  - Tidak ada penurunan drastis, berarti sistem masih bisa memproses permintaan dengan baik pada skala ini.
-
-- **Failures/s (red)**:
-  - Tetap **0** selama durasi pengujian.
-  - Menunjukkan **sistem masih stabil** bahkan dengan jumlah user dua kali lipat dari pengujian sebelumnya.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan tidak adanya aktivitas CPU. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 5, 10, dan 15 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk tiga puluh user, dengan worker-1 memiliki beban CPU yang paling tinggi.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-30-user](assets/load-test-results/V1/user30.png)
 
-- **50th Percentile (orange)**:
-  - Stabil di kisaran **16.000 – 18.000 ms**.
+1. Total Requests per Second (RPS) menunjukkan angka 0,3 – 1,7 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang lebih rendah dibandingkan load testing dengan 15 user dan batas atas yang lebih tinggi dibandingkan load testing dengan 15 user.
 
-- **95th Percentile (purple)**:
-  - Sempat naik menyentuh **22.000 – 24.000 ms**.
-  - Menandakan **beberapa request (5%) mulai sangat lambat**, menandakan mulai terasa beban tinggi di sisi server.
-
-# (6) Pengujian Load Testing (arsitektur v2)
-
-## 1. Percobaan pertama: 1 user **(arsitektur v2)**
-
-![Load_testing_1 user_v2](https://github.com/user-attachments/assets/c1ee3b50-133b-4589-9884-17fc9ea29ee5)
-
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Stabil di kisaran **0.2 – 0.3 RPS**, dengan fluktuasi kecil pada beberapa waktu.
-  - Ini menunjukkan bahwa sistem mampu memproses permintaan dengan cukup konsisten meskipun ada sedikit fluktuasi trafik.
-
-- **Failures/s (red)**:
-  - Tetap **0** selama seluruh durasi pengujian.
-  - Artinya semua permintaan berhasil diproses tanpa error — ini adalah indikasi **stabilitas sistem yang baik**.
+2. Response Times (ms) berada di angka 10.000 – 30.000 ms (10 – 30 detik). Hal ini menunjukkan bahwa response time jauh lebih lambat dibandingkan dengan load testing lima belas user karena adanya peningkatan jumlah user.
 
 ---
 
-### 2. Response Times (ms)
+## Arsitektur V2
+### Pengujian dengan menggunakan satu user dan maksimal user adalah satu (1 user)
+#### htop
+![htop-Load-testing-1-user](assets/load-test-results/V2/user1_htop.png)
 
-- **50th Percentile (orange)**:
-  - Rata-rata berada di **2.000 – 3.000 ms**, lebih baik dari run sebelumnya.
-  - Hal ini menandakan waktu respons **rata-rata cukup cepat** untuk 1 user, dan performa cenderung stabil.
-
-- **95th Percentile (purple)**:
-  - Sempat menyentuh **~4.000 ms** di awal, lalu stabil di **2.500 – 3.500 ms**.
-  - Artinya, meskipun sebagian kecil permintaan masih sedikit lebih lambat, secara umum sistem menjaga **respons time tinggi dalam batas wajar**.
-
-## 2. Percobaan kedua: 5 users **(arsitektur v2)**
-
-![Load_testing_5 user_v2](https://github.com/user-attachments/assets/95b7d254-d41d-4392-aa74-efe376ad631e)
-
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Stabil di kisaran **0.9 – 1.1 RPS**, dengan sedikit penurunan singkat di tengah sesi.
-  - Ini menunjukkan bahwa sistem **cukup konsisten dalam menangani beban** dari 5 user, meski ada momen penurunan throughput.
-
-- **Failures/s (red)**:
-  - Tetap **0** sepanjang pengujian.
-  - Menandakan **tidak ada permintaan yang gagal**, yang merupakan **indikator kestabilan sistem yang sangat baik** di bawah beban moderat.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa load balancer (lb) tidak mengalami beban sama sekali atau dalam posisi idle, begitu pula dengan worker-2. Hal ini menandakan bahwa dalam proses pengujian ini, load balancer dan worker-2 tidak mengalami beban yang signifikan. Berbeda dengan worker-1 terlihat adanya beban CPU. Hal ini menandakan bahwa request hanya dialihkan ke worker-1.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-1-user](assets/load-test-results/V2/user1.png)
 
-- **50th Percentile (orange)**:
-  - Stabil di kisaran **2.500 – 3.500 ms**.
-  - Ini menunjukkan bahwa **mayoritas request mendapat response time yang cukup cepat dan konsisten**.
+1. Total Requests per Second (RPS) menunjukkan angka 0,18 – 0,5 dan tidak mengalami failure. Hal ini disebabkan karena hanya ada satu user yang melakukan request.
 
-- **95th Percentile (purple)**:
-  - Sempat naik hingga **~9.000 ms**, tapi secara umum berada di **4.000 – 5.500 ms**.
-  - Hal ini menunjukkan adanya **beberapa request lambat yang outlier**, namun masih dalam toleransi untuk sistem dengan 5 user.
+2. Response Times (ms) berada di angka 2.200 – 4.800 ms (2,2 – 4,7 detik). Hal ini menunjukkan bahwa response time lambat, meskipun hanya ada satu user yang melakukan request. Hal ini mungkin disebabkan oleh spesifikasi worker dan backend yang kurang dioptimalkan.
 
-## 3. Percobaan ketiga: 10 users **(arsitektur v2)**
+### Pengujian dengan menggunakan lima user dan maksimal user adalah lima (5 user)
+#### htop
+![htop-Load-testing-5-user](assets/load-test-results/V2/user5_htop.png)
 
-![Load_testing_10 user_v2](https://github.com/user-attachments/assets/1f87571b-1f09-46e9-aa6f-88471a5f3478)
-
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Berada di kisaran **0.8 – 1.3 RPS**, menunjukkan peningkatan throughput dari pengujian sebelumnya.
-  - Terdapat sedikit fluktuasi, namun secara umum tetap **konsisten dan stabil**.
-
-- **Failures/s (red)**:
-  - Tetap **0** sepanjang pengujian.
-  - Menunjukkan bahwa **sistem berhasil menangani seluruh request tanpa error**, meskipun jumlah user meningkat dua kali lipat dari sebelumnya.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke kedua worker secara merata untuk lima user, dengan worker-2 memiliki beban CPU tertinggi.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-5-user](assets/load-test-results/V2/user5.png)
 
-- **50th Percentile (orange)**:
-  - Konsisten di kisaran **8.000 – 10.000 ms**.
-  - Terjadi sedikit lonjakan di tengah sesi, namun sebagian besar request tetap dalam batas wajar.
+1. Total Requests per Second (RPS) menunjukkan angka 0,4 – 1,15 dan tidak mengalami failure. Peningkatan RPS ini menunjukkan bahwa sistem mampu menangani lima user secara bersamaan dengan baik, meskipun ada sedikit fluktuasi.
 
-- **95th Percentile (purple)**:
-  - Terpantau lonjakan signifikan hingga **~45.000 ms** (45 detik) di satu titik.
-  - Ini menandakan adanya **request yang sangat lambat** (kemungkinan bottle-neck atau blocking operation), meskipun hanya terjadi sesaat.
- 
-## 4. Percobaan keempat: 15 users **(arsitektur v2)**
+2. Response Times (ms) berada di angka 3.000 – 7.000 ms (3 – 7 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing satu user karena adanya peningkatan jumlah user.
 
-![Load_testing_15 user_v2](https://github.com/user-attachments/assets/529be21e-6f9f-474d-9aa5-a825aa16ea56)
+### Pengujian dengan menggunakan sepuluh user dan maksimal user adalah sepuluh (10 user)
+#### htop
+![htop-Load-testing-10-user](assets/load-test-results/V2/user10_htop.png)
 
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failure Rate
-
-- **RPS (green)**:
-  - Berada stabil di kisaran **0.9 – 1.1 RPS**, menunjukkan throughput tetap terjaga meski jumlah user meningkat.
-  - Hanya terdapat sedikit fluktuasi kecil di akhir pengujian.
-
-- **Failures/s (red)**:
-  - Tetap **0** sepanjang pengujian.
-  - Ini menunjukkan bahwa **tidak ada request yang gagal**, menandakan **sistem masih kuat secara reliability** hingga titik ini.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 dan 5 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk sepuluh user, dengan worker-2 memiliki beban CPU tertinggi.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-10-user](assets/load-test-results/V2/user10.png)
 
-- **50th Percentile (orange)**:
-  - Terpantau berada di kisaran **12.000 – 14.000 ms** (12–14 detik), yang merupakan kenaikan signifikan dibanding pengujian 10 user.
+1. Total Requests per Second (RPS) menunjukkan angka 0,35 – 1 dan tidak mengalami failure. Angka RPS menunjukkan sedikit penurunan dibandingkan dengan load testing sebelumnya, yaitu 5 user.
 
-- **95th Percentile (purple)**:
-  - Konsisten di **15.000 – 18.000 ms**, dengan puncak mencapai **>18.000 ms** di awal pengujian.
-  - Waktu respons tinggi ini menunjukkan sistem mulai kesulitan meng-handle concurrency user yang lebih tinggi.
+2. Response Times (ms) berada di angka 4.000 – 12.000 ms (4 – 12 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing lima user karena adanya peningkatan jumlah user.
 
-## 5. Percobaan kelima: 30 users **(arsitektur v2)**
+### Pengujian dengan menggunakan lima belas user dan maksimal user adalah lima belas (15 user)
+#### htop
+![htop-Load-testing-15-user](assets/load-test-results/V2/user15_htop.png)
 
-![Load_testing_30 user](https://github.com/user-attachments/assets/ffd69447-547b-42a7-bf9d-24825b90b2b6)
-
-
-Didapat kesimpulan bahwa:
-### 1. Total Requests per Second (RPS) dan Failures/s
-
-- **RPS (green line)**:
-  - Requests per second naik secara signifikan saat awal uji, lalu stabil di kisaran **1.5–1.7 RPS**.
-  - Ini menunjukkan sistem mampu menangani beban dari 30 pengguna secara konsisten tanpa penurunan performa besar.
-
-- **Failures/s (red line)**:
-  - Tidak terdapat kegagalan yang terlihat (nilai **Failures/s tetap 0**) selama pengujian.
-  - Artinya, sistem berjalan **tanpa error** selama periode pengujian dengan 30 user — ini merupakan indikator **keandalan tinggi**.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 5, dan 10 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk lima belas user, dengan beban CPU tertinggi kedua worker adalah seimbang.
 
 ---
 
-### 2. Response Times (ms)
+#### Locust
+![locust-Load-testing-15-user](assets/load-test-results/V2/user15.png)
 
-- **50th Percentile (orange line)**:
-  - Response time berada di kisaran **16.000–18.000 ms** (16–18 detik).
-  - Ini menandakan waktu tunggu rata-rata pengguna relatif **lama**, meskipun tidak error.
+1. Total Requests per Second (RPS) menunjukkan angka 0,4 – 1 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah dan atas yang serupa dengan load testing dengan 5 dan 10 user. Hal ini menunjukkan bahwa sistem tampaknya tidak mengalami peningkatan RPS yang signifikan meskipun jumlah user meningkat.
 
-- **95th Percentile (purple line)**:
-  - Nilainya berada di kisaran **20.000–23.000 ms** bahkan sempat menyentuh **25.000 ms**.
-  - Ini berarti 5% dari permintaan paling lambat membutuhkan waktu **hingga 25 detik**, yang berpotensi menyebabkan ketidakpuasan pengguna.
+2. Response Times (ms) berada di angka 3.000 – 18.000 ms (3 – 18 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing sepuluh user karena adanya peningkatan jumlah user.
 
-- **Kondisi Stabil**:
-  - Meskipun tinggi, waktu respon cenderung **stabil** dan tidak menunjukkan lonjakan drastis yang bisa menandakan adanya spike beban.
+### Pengujian dengan menggunakan tiga puluh user dan maksimal user adalah tiga puluh (30 user)
+#### htop
+![htop-Load-testing-30-user](assets/load-test-results/V2/user30_htop.png)
+
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang sama seperti load testing dengan 1, 5, 10, dan 15 user. Kedua worker, yaitu worker-1 dan worker-2 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer dapat mendistribusikan request ke kedua worker untuk tiga puluh user, dengan worker-2 memiliki beban CPU tertinggi.
+
+---
+
+#### Locust
+![locust-Load-testing-30-user](assets/load-test-results/V2/user30.png)
+
+1. Total Requests per Second (RPS) menunjukkan angka 0,1 – 1 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang lebih rendah dibandingkan load testing dengan 15 user, tetapi batas atas yang sama dengan load testing dengan 15 user. Hal ini semakin menguatkan bahwa sistem tidak mengalami peningkatan RPS yang signifikan meskipun jumlah user meningkat.
+
+2. Response Times (ms) berada di angka 10.000 – 40.000 ms (10 – 30 detik). Hal ini menunjukkan bahwa response time mulai jauh lebih lambat dibandingkan dengan load testing lima belas user karena adanya peningkatan jumlah user.
 
 ---
 
