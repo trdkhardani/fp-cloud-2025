@@ -771,11 +771,26 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa load balancer
 
 2. Response Times (ms) berada di angka 2.500 – 5.000 ms (2,5 – 5 detik). Hal ini menunjukkan bahwa response time lambat, meskipun hanya ada satu user yang melakukan request. Hal ini mungkin disebabkan oleh spesifikasi worker dan backend yang kurang dioptimalkan.
 
+### Pengujian dengan menggunakan tiga user dan maksimal user adalah tiga (3 user)
+#### htop
+![htop-Load-testing-3-user](assets/load-test-results/V1/user3_htop.png)
+
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 user. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 mengalami beban CPU yang sedikit tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke ketiga worker secara merata untuk tiga user, meskipun ada sedikit perbedaan beban CPU antara ketiga worker tersebut.
+
+---
+
+#### Locust
+![locust-Load-testing-3-user](assets/load-test-results/V1/user3.png)
+
+1. Total Requests per Second (RPS) menunjukkan angka 0,5 – 1,2 dan tidak mengalami failure. Peningkatan RPS ini menunjukkan bahwa sistem mampu menangani tiga user secara bersamaan dengan baik, meskipun ada sedikit fluktuasi.
+
+2. Response Times (ms) berada di angka 4.000 – 6.000 ms (4 – 6 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing satu user karena adanya peningkatan jumlah user.
+
 ### Pengujian dengan menggunakan lima user dan maksimal user adalah lima (5 user)
 #### htop
 ![htop-Load-testing-5-user](assets/load-test-results/V1/user5_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 user. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke ketiga worker secara merata untuk lima user, meskipun ada sedikit perbedaan beban CPU antara ketiga worker tersebut.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) tetap sama seperti load testing dengan 1 dan 3 user. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 mengalami beban CPU yang cukup tinggi. Hal ini menunjukkan bahwa load balancer mendistribusikan request ke ketiga worker secara merata untuk lima user, meskipun ada sedikit perbedaan beban CPU antara ketiga worker tersebut.
 
 ---
 
@@ -805,7 +820,7 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load 
 #### htop
 ![htop-Load-testing-15-user](assets/load-test-results/V1/user15_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang berbeda, tetapi hanya dalam skala kecil. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 5 dan 10 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk lima belas user, dengan worker-1 dan worker-2 memiliki beban CPU yang hampir seimbang.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan kondisi CPU yang berbeda, tetapi hanya dalam skala kecil. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 3, 5, dan 10 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk lima belas user, dengan worker-1 dan worker-2 memiliki beban CPU yang hampir seimbang.
 
 ---
 
@@ -816,11 +831,26 @@ Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load 
 
 2. Response Times (ms) berada di angka 4.000 – 15.000 ms (4 – 15 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing sepuluh user karena adanya peningkatan jumlah user.
 
+### Pengujian dengan menggunakan dua puluh user dan maksimal user adalah dua puluh (20 user)
+#### htop
+![htop-Load-testing-20-user](assets/load-test-results/V1/user20_htop.png)
+
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan tidak adanya aktivitas CPU. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 3, 5, 10, dan 15 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk dua puluh user, dengan worker-2 memiliki beban CPU yang paling tinggi.
+
+---
+
+#### Locust
+![locust-Load-testing-20-user](assets/load-test-results/V1/user20.png)
+
+1. Total Requests per Second (RPS) menunjukkan angka 0,8 – 1,5 dan tidak mengalami failure. Angka RPS menunjukkan hasil batas bawah yang hampir sama dengan load testing dengan 15 user dan batas atas yang juga sama.
+
+2. Response Times (ms) berada di angka 3.100 – 16.000 ms (3,1 – 16 detik). Hal ini menunjukkan bahwa response time lebih lambat dibandingkan dengan load testing lima belas user karena adanya peningkatan jumlah user.
+
 ### Pengujian dengan menggunakan tiga puluh user dan maksimal user adalah tiga puluh (30 user)
 #### htop
 ![htop-Load-testing-30-user](assets/load-test-results/V1/user30_htop.png)
 
-Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan tidak adanya aktivitas CPU. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 5, 10, dan 15 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk tiga puluh user, dengan worker-1 memiliki beban CPU yang paling tinggi.
+Berdasarkan proses htop pada gambar di atas, dapat diketahui bahwa kondisi load balancer (lb) menunjukkan tidak adanya aktivitas CPU. Ketiga worker, yaitu worker-1, worker-2, dan worker-3 menunjukkan aktivitas CPU seperti pada load testing dengan 3, 5, 10, 15, dan 20 user. Hal ini menunjukkan bahwa load balancer berhasil mendistribusikan request ke ketiga worker untuk tiga puluh user, dengan worker-1 memiliki beban CPU yang paling tinggi.
 
 ---
 
