@@ -1088,5 +1088,27 @@ Keunggulan: Pada pengujian dengan satu user, arsitektur ini menunjukkan efisiens
 
 Kelemahan: Arsitektur ini gagal menangani jumlah user yang lebih tinggi (lebih dari 5 user) karena hanya menggunakan satu worker. CPU yang digunakan untuk proses tunggal mencapai kapasitas penuh, menyebabkan sistem menjadi sangat terhambat, terutama pada beban yang lebih tinggi. Response time meningkat tajam, dan RPS sangat rendah pada pengujian dengan lebih dari 10 user.
 
+## Arsitektur Terbaik
+Dari ketiga arsitektur, yang terbaik di antara ketiganya terutama pada real-world scenario adalah:
+**Arsitektur V1**
+1. Distribusi Beban: Baik. Load balancer berhasil mendistribusikan ke tiga worker. Beban tidak tertumpu pada satu titik.
+2. Skalabilitas: Paling baik. Masih bisa meng-handle 30 user tanpa failure meskipun ada degradasi waktu respons.
+3. Response Time: Buruk di angka >10 detik saat high load, tapi masih lebih stabil dibanding V2 dan V3.
+4. RPS: Naik secara logis seiring jumlah user, meskipun tidak linier.
+
+Jadi, V1 lebih cocok untuk skenario real-world dengan kebutuhan beban menengah-tinggi.
+
 ## Saran
 ### Apabila ada budget berlebih, bisa menggunakan machine yang lebih powerful atau menambah jumlah worker.
+
+Melihat dari pola yang ada, arsitektur yang mungkin akan cocok dan optimal untuk sistem ini yaitu arsitektur dengan pendekatan berbasis asynchronous, event-driven, dan mampu melakukan auto-scaling secara dinamis. Pola dari hasil pengujian menunjukkan bahwa masalah utama bukan hanya di jumlah worker, tetapi pada keterbatasan concurrency, distribusi beban yang tidak adaptif, dan bottleneck di backend. Oleh karena itu, arsitektur yang lebih baik seharusnya memanfaatkan backend async (seperti FastAPI + async DB), load balancer yang cerdas dengan kemampuan health-check dan weighted routing, serta integrasi message queue untuk menangani beban yang fluktuatif atau proses berat di background. Di sisi worker, penggunaan container (Docker) dan sistem orkestrasi seperti Kubernetes akan memungkinkan autoscaling berdasarkan metrik aktual (CPU, latency, antrian). Dengan begitu, sistem dapat merespons beban tinggi tanpa harus menambah worker secara manual, menjaga response time tetap stabil, dan meningkatkan efisiensi pemakaian sumber daya.
+
+Perbandingan:
+| Fitur                | V1-V3           | Ideal (Usulan)          |
+| -------------------- | --------------- | ----------------------- |
+| Load balancing       | Statis          | Smart & adaptive        |
+| Worker scalability   | Fixed           | Autoscaling             |
+| Backend concurrency  | Tidak optimal   | Full async + task queue |
+| Response time growth | Linear ke atas  | Flat atau semi-flat     |
+| CPU usage pattern    | Spiky atau idle | Merata dan termonitor   |
+| RPS behavior         | Stagnan cepat   | Scalable dengan load    |
