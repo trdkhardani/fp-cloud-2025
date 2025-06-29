@@ -576,11 +576,18 @@ class FaceRecognitionUser(HttpUser):
             print(f"[RECOGNIZE] Exception: {str(e)}")
 ```
 
+[File foto ini](foto.jpg) digunakan sebagai input testing endpoint `/api/recognize-face`.
+
 #### Tampilan Antarmuka Locust
 Setelah script `locustfile.py` dibuat, Locust dapat dijalankan dengan command:
-
+1. Arsitektur V1 dan V2
 ```bash
 locust -f locustfile.py --host http://34.69.220.138:8000
+```
+
+2. Arsitektur V3
+```bash
+locust -f locustfile.py --host http://34.135.1.186:8000
 ```
 
 Kemudian, buka browser dan akses `http://localhost:8089` untuk mengakses antarmuka Locust dan mulai melakukan load testing.
